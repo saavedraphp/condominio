@@ -1,9 +1,17 @@
 <?php
+use App\Http\Controllers\Auth\LoginUserController;
 
+use App\Http\Controllers\User\DashboardController as UserDashboard;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\BathroomsController;
+/*Route::get('/', function () {
+    return redirect()->route('login');
+})->middleware('guest');*/
 
+Route::get('/', [LoginUserController::class, 'showLoginForm']);
+Route::post('/login', [LoginUserController::class, 'authentication'])->name('login');
+Route::post('/logout', [LoginUserController::class, 'logout'])->name('logout');
 
 /*
 |--------------------------------------------------------------------------
@@ -16,8 +24,13 @@ use App\Http\Controllers\Admin\BathroomsController;
 |
 */
 
-Route::get('/', function () {
+
+Route::get('/home', function () {
     return view('home');
+});
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/user/dashboard', [UserDashboard::class, 'index'])->name('user.dashboard');
 });
 
 Route::prefix('admin')->group(function () {
