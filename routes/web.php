@@ -2,6 +2,10 @@
 use App\Http\Controllers\Auth\LoginUserController;
 
 use App\Http\Controllers\User\DashboardController as UserDashboard;
+use App\Http\Controllers\User\HouseController;
+use App\Http\Controllers\User\HouseResidentController;
+use App\Http\Controllers\User\ProfileController;
+use App\Http\Controllers\User\VehicleController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\BathroomsController;
@@ -12,6 +16,10 @@ use App\Http\Controllers\Admin\BathroomsController;
 Route::get('/', [LoginUserController::class, 'showLoginForm']);
 Route::post('/login', [LoginUserController::class, 'authentication'])->name('login');
 Route::post('/logout', [LoginUserController::class, 'logout'])->name('logout');
+
+Route::get('/login', function () {
+    return view('auth.login'); // Reemplaza con tu vista de login
+})->name('login');
 
 /*
 |--------------------------------------------------------------------------
@@ -31,7 +39,22 @@ Route::get('/home', function () {
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/user/dashboard', [UserDashboard::class, 'index'])->name('user.dashboard');
+    Route::get('/user/profile', [ProfileController::class, 'index'])->name('user.profile');
+
 });
+
+Route::get('/user/get-user-data', [ProfileController::class, 'getUserData'])->name('user.profile.show');
+Route::resource('/user/profile', ProfileController::class);
+
+Route::get('/user/get-house/{house}', [HouseController::class, 'getHouse'])->name('user.house.show');
+Route::post('/user/house/{house}', [HouseController::class, 'update'])->name('user.house.update');
+
+Route::resource('/user/house-residents', HouseResidentController::class);
+Route::get('/user/get-house-residents-data/{houseId}', [HouseResidentController::class, 'getHouseResidentsData'])->name('user.house.listResidents');
+
+
+Route::resource('/user/vehicles', VehicleController::class);
+Route::get('/user/get-vehicles-data/{userId}', [VehicleController::class, 'getVehiclesByUserId'])->name('user.vehicles.listVehicles');
 
 Route::prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('admin.dashboard');

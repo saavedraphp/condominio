@@ -300,7 +300,7 @@ return [
 
     'menu' => [
         // Navbar items:
-        [
+       /* [
             'type' => 'navbar-search',
             'text' => 'search',
             'topnav_right' => true,
@@ -308,37 +308,74 @@ return [
         [
             'type' => 'fullscreen-widget',
             'topnav_right' => true,
-        ],
+        ],*/
 
         // Sidebar items:
-        [
+      /*  [
             'type' => 'sidebar-menu-search',
             'text' => 'search',
-        ],
+        ],*/
         [
-            'text' => 'blog',
+            'text' => 'Recivos de Mantenimiento',
             'url' => 'admin/blog',
-            'can' => 'manage-blog',
         ],
         [
-            'text' => 'pages',
-            'url' => 'admin/pages',
-            'icon' => 'far fa-fw fa-file',
-            'label' => 4,
-            'label_color' => 'success',
+            'text' => 'Historial de Pagos',
+            'url' => 'admin/blog',
+        ],
+        [
+            'text' => 'Comsumo de luz',
+            'url' => 'admin/blog',
+        ],
+        [
+            'text' => 'Comsumo de agua',
+            'url' => 'admin/blog',
+        ],
+        [
+            'text' => 'Mi (Codigo QR)',
+            'url' => 'admin/blog',
+        ],
+        [
+            'text' => 'Presupuesto vs Gastos',
+            'url' => 'admin/blog',
+        ],
+        [
+            'text' => 'Docs del Condominio',
+            'url' => 'admin/blog',
+        ],
+        [
+            'text' => 'Cotizaciones Presentadas',
+            'url' => 'admin/blog',
+        ],
+        [
+            'text' => 'Recibos de Caja Chica',
+            'url' => 'admin/blog',
+        ],
+        [
+            'text' => 'Recibos por honorarios',
+            'url' => 'admin/blog',
+        ],
+        [
+            'text' => 'Estadisticas',
+            'url' => 'admin/blog',
+        ],
+        [
+            'text' => 'Peticiones al Vocal',
+            'url' => 'admin/blog',
         ],
         ['header' => 'account_settings'],
         [
-            'text' => 'Baños',
-            'url' => 'admin/servicios/baños',
+            'text' => 'Perfil',
+            'url' => 'user/profile',
             'icon' => 'fas fa-fw fa-user',
         ],
+
         [
             'text' => 'change_password',
             'url' => 'admin/settings',
             'icon' => 'fas fa-fw fa-lock',
         ],
-        [
+/*        [
             'text' => 'multilevel',
             'icon' => 'fas fa-fw fa-share',
             'submenu' => [
@@ -375,8 +412,8 @@ return [
                     'url' => '#',
                 ],
             ],
-        ],
-        ['header' => 'labels'],
+        ],*/
+        /*['header' => 'labels'],
         [
             'text' => 'important',
             'icon_color' => 'red',
@@ -391,7 +428,7 @@ return [
             'text' => 'information',
             'icon_color' => 'cyan',
             'url' => '#',
-        ],
+        ],*/
     ],
 
     /*
