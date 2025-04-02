@@ -7,14 +7,14 @@ const headers = ref([
     { text: "ID", value: "id" },
     { text: "Nombre", value: "name" },
     { text: "Ubicación", value: "location" },
-    { text: "Acciones", value: "actions", sortable: false },
+    { text: "Acciones", value: "data-table-expand"},
 ]);
 
 // Simular carga de datos (o usa Axios para API)
 onMounted(() => {
     bathrooms.value = [
-        { id: 1, name: "Baño Principal", location: "Planta Baja" },
-        { id: 2, name: "Baño Secundario", location: "Primer Piso" },
+        { id: 1, name: "Sergio Astete", location: "Planta Baja", actions: "" },
+        { id: 2, name: "Giovanna Cabrera Linares de Astete", location: "Primer Piso", actions: "" },
     ];
     console.log(bathrooms);
 });
@@ -43,12 +43,13 @@ const deleteBathroom = (id) => {
     <v-container>
         <v-card>
             <v-card-title>
-                <v-btn color="primary" @click="addBathroom">Agregar Baño</v-btn>
+                <v-btn color="primary" @click="addBathroom">Agregar</v-btn>
             </v-card-title>
 
             <v-data-table
-                :headers="headers"
+                :header="headers"
                 :items="bathrooms"
+                disable-sort
                 class="elevation-1"
                 dense
             >
