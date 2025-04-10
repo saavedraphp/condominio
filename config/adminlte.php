@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
+
 return [
 
     /*
@@ -63,7 +65,7 @@ return [
     |
     */
 
-    'logo' => '<b>Admin</b>LTE',
+    'logo' => '<b>SIS-</b>SERGIO',
     'logo_img' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
     'logo_img_class' => 'brand-image img-circle elevation-3',
     'logo_img_xl' => null,
@@ -300,119 +302,152 @@ return [
 
     'menu' => [
         // Navbar items:
-       /* [
-            'type' => 'navbar-search',
-            'text' => 'search',
-            'topnav_right' => true,
-        ],
-        [
-            'type' => 'fullscreen-widget',
-            'topnav_right' => true,
-        ],*/
+        /* [
+             'type' => 'navbar-search',
+             'text' => 'search',
+             'topnav_right' => true,
+         ],
+         [
+             'type' => 'fullscreen-widget',
+             'topnav_right' => true,
+         ],*/
 
         // Sidebar items:
-      /*  [
-            'type' => 'sidebar-menu-search',
-            'text' => 'search',
-        ],*/
+        /*  [
+              'type' => 'sidebar-menu-search',
+              'text' => 'search',
+          ],*/
+        [
+            'text' => 'Anuncios',
+            'url' => 'admin/ads/list',
+            'icon' => 'fas fa-list',
+            'can' => 'view_ads',
+        ],
+        [
+            'text' => 'Usuarios',
+            'url' => 'admin/users/list',
+            'icon' => 'fas fa-fw fa-user ',
+            'can' => 'view_ads',
+        ],
+        [
+            'text' => 'Home',
+            'url' => 'user/dashboard',
+            'can' => 'view_payment_history',
+        ],
         [
             'text' => 'Recivos de Mantenimiento',
             'url' => 'admin/blog',
+            'can' => 'view_payment_history',
         ],
         [
             'text' => 'Historial de Pagos',
             'url' => 'admin/blog',
+            'can' => 'view_payment_history',
         ],
         [
             'text' => 'Comsumo de luz',
             'url' => 'admin/blog',
+            'can' => 'view_payment_history',
         ],
         [
             'text' => 'Comsumo de agua',
             'url' => 'admin/blog',
+            'can' => 'view_payment_history',
         ],
         [
             'text' => 'Mi (Codigo QR)',
             'url' => 'admin/blog',
+            'can' => 'view_payment_history',
         ],
         [
             'text' => 'Presupuesto vs Gastos',
             'url' => 'admin/blog',
+            'can' => 'view_payment_history',
         ],
         [
             'text' => 'Docs del Condominio',
             'url' => 'admin/blog',
+            'can' => 'view_payment_history',
         ],
         [
             'text' => 'Cotizaciones Presentadas',
             'url' => 'admin/blog',
+            'can' => 'view_payment_history',
         ],
         [
             'text' => 'Recibos de Caja Chica',
             'url' => 'admin/blog',
+            'can' => 'view_payment_history',
         ],
         [
             'text' => 'Recibos por honorarios',
             'url' => 'admin/blog',
+            'can' => 'view_payment_history',
         ],
         [
             'text' => 'Estadisticas',
             'url' => 'admin/blog',
+            'can' => 'view_payment_history',
         ],
         [
             'text' => 'Peticiones al Vocal',
             'url' => 'admin/blog',
+            'can' => 'view_payment_history',
         ],
-        ['header' => 'account_settings'],
+        ['header' => 'account_settings',
+            'can' => 'view_payment_history',
+        ],
         [
             'text' => 'Perfil',
             'url' => 'user/profile',
             'icon' => 'fas fa-fw fa-user',
+            'can' => 'view_payment_history',
         ],
 
         [
             'text' => 'change_password',
             'url' => 'admin/settings',
             'icon' => 'fas fa-fw fa-lock',
+            'can' => 'view_payment_history',
         ],
-/*        [
-            'text' => 'multilevel',
-            'icon' => 'fas fa-fw fa-share',
-            'submenu' => [
-                [
-                    'text' => 'level_one',
-                    'url' => '#',
-                ],
-                [
-                    'text' => 'level_one',
-                    'url' => '#',
+        /*        [
+                    'text' => 'multilevel',
+                    'icon' => 'fas fa-fw fa-share',
                     'submenu' => [
                         [
-                            'text' => 'level_two',
+                            'text' => 'level_one',
                             'url' => '#',
                         ],
                         [
-                            'text' => 'level_two',
+                            'text' => 'level_one',
                             'url' => '#',
                             'submenu' => [
                                 [
-                                    'text' => 'level_three',
+                                    'text' => 'level_two',
                                     'url' => '#',
                                 ],
                                 [
-                                    'text' => 'level_three',
+                                    'text' => 'level_two',
                                     'url' => '#',
+                                    'submenu' => [
+                                        [
+                                            'text' => 'level_three',
+                                            'url' => '#',
+                                        ],
+                                        [
+                                            'text' => 'level_three',
+                                            'url' => '#',
+                                        ],
+                                    ],
                                 ],
                             ],
                         ],
+                        [
+                            'text' => 'level_one',
+                            'url' => '#',
+                        ],
                     ],
-                ],
-                [
-                    'text' => 'level_one',
-                    'url' => '#',
-                ],
-            ],
-        ],*/
+                ],*/
         /*['header' => 'labels'],
         [
             'text' => 'important',

@@ -1,9 +1,11 @@
 <?php
 namespace App\Http\Controllers\Auth;
 
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
+use Illuminate\Validation\ValidationException;
 
 class LoginUserController extends Controller
 {
@@ -12,20 +14,28 @@ class LoginUserController extends Controller
         return view('auth.login');
     }
 
-    public function authentication(Request $request)
+    public function authentication(Request $request): RedirectResponse
     {
         $credentials = $request->validate([
             'email' => 'required|email',
             'password' => 'required|min:6',
         ]);
 
-        if (Auth::attempt($credentials)) {
+        if (Auth::attempt($credentials,  $request->boolean('remember'))) {
             $request->session()->regenerate();
-            return redirect()->intended('user/dashboard');
+
+            $user = Auth::user();
+
+            if ($user->hasRole('admin')) {
+                return redirect()->intended(route('admin.dashboard'));
+            } else {
+                return redirect()->intended(route('user.dashboard'));
+            }
+
         }
 
-        return back()->withErrors([
-            'email' => 'Las credenciales no son correctas.',
+        throw ValidationException::withMessages([
+            'email' => [trans('auth.failed')],
         ]);
     }
 

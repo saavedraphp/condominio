@@ -1,9 +1,11 @@
 @extends('user.layout.master')
 
 @section('content')
-    <div id="bathrooms-container">
-        <div>Baños</div>
-        <bathrooms></bathrooms>
+    <div id="dashboard-container">
+        <dashboard
+            :user-id="'{{ $userId }}'"
+        >
+        </dashboard>
     </div>
 @endsection
-@vite(['resources/js/admin/bathrooms.js'])
+@vite(['resources/js/user/dashboard.js'])
