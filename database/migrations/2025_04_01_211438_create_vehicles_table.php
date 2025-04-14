@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('vehicles', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Relación con users
+            $table->foreignId('web_user_id')->constrained()->onDelete('cascade'); // Relación con users
             $table->string('brand');  // Marca del vehículo
             $table->string('model');  // Modelo del vehículo
             $table->string('plate_number')->unique(); // Placa única

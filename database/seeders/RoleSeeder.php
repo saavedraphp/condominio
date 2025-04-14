@@ -17,17 +17,33 @@ class RoleSeeder extends Seeder
      */
     public function run(): void
     {
-        $roleAdmin = Role::create(['name' => self::ADMIN]);
-        $roleUser = Role::create(['name' => self::USER]);
+        /*        $roleAdmin = Role::query()->firstOrCreate(
+            ['name' => self::ADMIN, 'guard_name' => 'web'],
+            [
+                'name' => self::ADMIN,
+                'guard_name' => 'web'
+            ]
+        );
+        $roleUser = Role::query()->firstOrCreate(
+            ['name' => self::USER, 'guard_name' => 'web_user'],
+            [
+                'name' => self::USER,
+                'guard_name' => 'web_user'
+            ]
+        );*/
 
-        $permissionViewAds = Permission::query()->firstOrCreate(['name' => 'view_ads']);
-        $permissionAddAds = Permission::query()->firstOrCreate(['name' => 'add_ads']);
-        $permissionEditAds = Permission::query()->firstOrCreate(['name' => 'edit_ads']);
-        $permissionDeleteAds = Permission::query()->firstOrCreate(['name' => 'delete_ads']);
 
-        $permissionDeleteAds = Permission::query()->firstOrCreate(['name' => 'view_owners']);
+        $roleAdmin = Role::create(['name' => self::ADMIN, 'guard_name' => 'web']);
+        $roleUser = Role::create(['name' => self::USER, 'guard_name' => 'web_user']);
 
-        $permissionViewPaymentHistory = Permission::query()->firstOrCreate(['name' => 'view_payment_history']);
+        $permissionViewAds = Permission::query()->firstOrCreate(['name' => 'view_ads', 'guard_name' => 'web']);
+        $permissionAddAds = Permission::query()->firstOrCreate(['name' => 'add_ads', 'guard_name' => 'web']);
+        $permissionEditAds = Permission::query()->firstOrCreate(['name' => 'edit_ads', 'guard_name' => 'web']);
+        $permissionDeleteAds = Permission::query()->firstOrCreate(['name' => 'delete_ads', 'guard_name' => 'web']);
+
+        $permissionDeleteAds = Permission::query()->firstOrCreate(['name' => 'view_owners', 'guard_name' => 'web']);
+
+        $permissionViewPaymentHistory = Permission::query()->firstOrCreate(['name' => 'view_payment_history', 'guard_name' => 'web_user']);
 
         $permissionAdmin = [$permissionViewAds, $permissionAddAds, $permissionEditAds, $permissionDeleteAds];
         $permissionUser = [$permissionViewPaymentHistory];

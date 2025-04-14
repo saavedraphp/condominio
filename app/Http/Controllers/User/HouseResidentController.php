@@ -54,7 +54,7 @@ class HouseResidentController extends Controller
 
     public function getHouseResidentsData(int $houseId): JsonResponse
     {
-        $user = Auth::id();
+        $user = Auth::guard('web_user')->id();
 
         if (!$user) {
             return response()->json(['message' => 'Usuario no encontrado'], 404);

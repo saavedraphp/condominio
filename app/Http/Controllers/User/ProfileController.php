@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\WebUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -40,7 +41,7 @@ class ProfileController extends Controller
 
     public function getUserData(): JsonResponse
     {
-        $user = auth()->user();
+        $user = Auth::guard('web_user')->user();
 
         if (!$user) {
             return response()->json(['message' => 'Usuario no encontrado'], 404);
@@ -48,7 +49,7 @@ class ProfileController extends Controller
         return response()->json($user, 200);
     }
 
-    public function update(Request $request, User $profile): JsonResponse
+    public function update(Request $request, WebUser $profile): JsonResponse
     {
         try {
 

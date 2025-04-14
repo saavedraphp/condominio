@@ -3,9 +3,9 @@
 @section('content')
     <div class="header-login">
         <div>
-        <h1 class="title">
-            <span>La Esquina del Vocal</span>
-        </h1>
+            <h1 class="title">
+                <span>La Esquina del Vocal</span>
+            </h1>
         </div>
         <div class="image-container">
             <img src="{{ asset('assets/images/imagen-login-condominio.jpg') }}" alt="Condominio Imagen">
@@ -13,7 +13,7 @@
 
         <div class="condominio-info">
             <h2 class="name-condominio">Propietarios de Islas Cerdeñas</h2>
-            <p class="owner-meeting">Admin</p>
+            <p class="owner-meeting">Junta de propietarios y asociados</p>
         </div>
     </div>
 
@@ -33,7 +33,7 @@
                     </div>
                 @endif
 
-                <form method="POST" action="{{ route('admin.login') }}">
+                    <form method="POST" action="{{ route('user.login') }}">
                     @csrf
                     <div class="input-group mb-3">
                         <input type="email" name="email" class="form-control" placeholder="Email" required>

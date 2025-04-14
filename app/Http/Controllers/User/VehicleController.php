@@ -33,7 +33,7 @@ class VehicleController extends Controller
                 'model' => 'required|string|max:25',
             ]);
 
-            $data = array_merge($validateData, ['user_id' => $request->input('user_id')]);
+            $data = array_merge($validateData, ['web_user_id' => $request->input('user_id')]);
             $vehicle = Vehicle::create($data);
             return response()->json([
                 'success' => true,
@@ -55,18 +55,8 @@ class VehicleController extends Controller
     {
         try {
             $validatedData = $request->validated();
-            /*            $validateData = $request->validate([
-                            'user_id' => 'required|exists:users,id',
-                            'plate_number' => 'required|exists:vehicles,id|string|max:10',
-                            'brand' => 'required|string|max:25',
-                            'model' => 'required|string|max:25',
-                        ]);*/
-
-            $updateSuccessful = $vehicle->update($request->only([
-                'plate_number',
-                'brand',
-                'model'
-            ]));
+            $data = array_merge($validatedData, ['web_user_id' => $request->input('user_id')]);
+            $updateSuccessful = $vehicle->update($data);
 
             if ($updateSuccessful) {
                 return response()->json([
@@ -106,12 +96,12 @@ class VehicleController extends Controller
     public function getVehiclesByUserId(int $userId): JsonResponse
     {
 
-        if (Auth::id() !== $userId) {
+        if (Auth::guard('web_user')->id() !== $userId) {
             return response()->json(['message' => 'Usuario no encontrado'], 404);
         }
 
         try {
-            $vehicles = Vehicle::query()->where('user_id', $userId)->get();
+            $vehicles = Vehicle::query()->where('web_user_id', $userId)->get();
 
             return response()->json($vehicles);
         } catch (\Exception $e) {

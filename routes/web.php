@@ -1,7 +1,9 @@
 <?php
 
-use App\Http\Controllers\Auth\LoginUserController;
+use App\Http\Controllers\User\Auth\LoginUserController;
+use App\Http\Controllers\Admin\Auth\LoginUserController as AdminLogin;
 
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\User\DashboardController as UserDashboard;
 use App\Http\Controllers\User\HouseController;
 use App\Http\Controllers\User\HouseResidentController;
@@ -21,13 +23,40 @@ use App\Http\Controllers\Admin\BathroomsController;
     return redirect()->route('login');
 })->middleware('guest');*/
 
-Route::get('/', [LoginUserController::class, 'showLoginForm']);
-Route::post('/login', [LoginUserController::class, 'authentication']);
-Route::post('/logout', [LoginUserController::class, 'logout'])->name('logout');
+Route::get('/', [HomeController::class, 'showLoginType']);
 
-Route::get('/login', function () {
-    return view('auth.login'); // Reemplaza con tu vista de login
-})->name('login');
+// web_user Auth Routes
+Route::prefix('user')->name('user.')->group(function () {
+    Route::get('/login', [LoginUserController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [LoginUserController::class, 'authentication']);
+    Route::get('/logout', [LoginUserController::class, 'logout'])->name('logout');
+
+    Route::get('/activar-cuenta/{token}', [AccountActivationController::class, 'showActivationForm'])->name('account.activate.form');
+    Route::post('/activar-cuenta', [AccountActivationController::class, 'activate'])->name('account.activate');
+
+
+    Route::middleware('auth:web_user')->group(function () {
+        Route::get('/dashboard', [UserDashboard::class, 'index'])->name('dashboard');
+        Route::get('/get-user-data', [ProfileController::class, 'getUserData'])->name('user.profile.show');
+        Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+        Route::get('/ads', [UserAdsController::class, 'index']);
+        Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+        Route::resource('/profile', ProfileController::class);
+
+        Route::resource('/vehicles', VehicleController::class);
+        Route::get('/get-vehicles-data/{userId}', [VehicleController::class, 'getVehiclesByUserId'])->name('user.vehicles.list');
+
+
+        Route::get('/get-house/{house}', [HouseController::class, 'getHouse'])->name('user.house.show');
+        Route::post('/house/{house}', [HouseController::class, 'update'])->name('user.house.update');
+
+        Route::resource('/house-residents', HouseResidentController::class);
+        Route::get('/get-house-residents-data/{houseId}', [HouseResidentController::class, 'getHouseResidentsData'])->name('user.house.listResidents');
+
+    });
+
+});
+
 
 /*
 |--------------------------------------------------------------------------
@@ -45,30 +74,16 @@ Route::get('/home', function () {
     return view('home');
 });
 
-Route::middleware(['auth'])->prefix('user')->name('user.')->group(function () {
-    Route::get('/dashboard', [UserDashboard::class, 'index'])->name('dashboard');
-    Route::get('/ads', [UserAdsController::class, 'index']);
-    Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
-
-});
-
-Route::get('/user/get-user-data', [ProfileController::class, 'getUserData'])->name('user.profile.show');
-Route::resource('/user/profile', ProfileController::class);
-
-Route::get('/user/get-house/{house}', [HouseController::class, 'getHouse'])->name('user.house.show');
-Route::post('/user/house/{house}', [HouseController::class, 'update'])->name('user.house.update');
-
-Route::resource('/user/house-residents', HouseResidentController::class);
-Route::get('/user/get-house-residents-data/{houseId}', [HouseResidentController::class, 'getHouseResidentsData'])->name('user.house.listResidents');
-
-
-Route::resource('/user/vehicles', VehicleController::class);
-Route::get('/user/get-vehicles-data/{userId}', [VehicleController::class, 'getVehiclesByUserId'])->name('user.vehicles.listVehicles');
-
 /*RUTAS DEL ADMIN*/
-Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () {
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/login', [AdminLogin::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [AdminLogin::class, 'authentication']);
+    Route::get('/logout', [AdminLogin::class, 'logout'])->name('logout');
 
-    Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
+    Route::middleware(['auth:web'])->group(function () {
+        Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
+    });
+
 
     Route::get('/ads/list', [AdsController::class, 'showListPage'])->name('ads.list');
     Route::resource('/ads', AdsController::class);
@@ -78,5 +93,3 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
 });
 
-Route::get('/activar-cuenta/{token}', [AccountActivationController::class, 'showActivationForm'])->name('account.activate.form');
-Route::post('/activar-cuenta', [AccountActivationController::class, 'activate'])->name('account.activate');
