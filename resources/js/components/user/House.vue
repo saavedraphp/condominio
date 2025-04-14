@@ -90,7 +90,6 @@ const submit = handleSubmit(async values => {
         console.error('Lo sentimos, hubo un problema al guardar la información de la casa. Intenta de nuevo, por favor.:', error);
 
     }
-//    alert(JSON.stringify(values, null, 2))
 })
 
 </script>
