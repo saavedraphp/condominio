@@ -9,10 +9,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Vehicle extends Model
 {
     use HasFactory;
-    protected $fillable = ['user_id', 'brand', 'model', 'plate_number'];
+    protected $fillable = ['web_user_id', 'brand', 'model', 'plate_number'];
 
-    public function user(): BelongsTo
+    public function web_user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(WebUser::class);
     }
 }

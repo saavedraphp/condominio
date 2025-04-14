@@ -38,8 +38,6 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from 'vue';
-
 // --- Props ---
 // Propiedades que el componente padre pasará al modal
 const props = defineProps({

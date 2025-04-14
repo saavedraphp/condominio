@@ -26,7 +26,7 @@ class VehicleRequest extends FormRequest
         $vehicle = $this->route('vehicle');
         $rules =  [
             // --- Agrega aquí las reglas para tus otros campos ---
-            'brand' => 'required|string|max:50',
+            'brand' => 'required|string|min:3|max:50',
             'model' => 'required|string|max:50',
             /*'year' => 'required|integer|digits:4|min:1900|max:' . (date('Y') + 1), // Ejemplo para año
             'color' => 'nullable|string|max:30',*/

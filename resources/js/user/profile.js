@@ -1,6 +1,7 @@
 import { createApp } from 'vue';
 import vuetify from '../app';
 import Profile from '../components/user/Profile.vue';
+import VueApexCharts from "vue3-apexcharts";
 
 /*
 createApp(Profile)
@@ -16,4 +17,6 @@ const app = createApp({
     }
 });
 
-app.use(vuetify).mount('#profile-container');
+app.use(vuetify)
+app.use(VueApexCharts)
+app.mount('#profile-container');
