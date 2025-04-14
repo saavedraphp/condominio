@@ -13,11 +13,14 @@ return new class extends Migration
     {
         Schema::create('houses', function (Blueprint $table) {
             $table->id();
+            $table->string('payment_code',10)->nullable();
             $table->string('property_unit')->nullable();
             $table->string('address')->nullable();
-            $table->tinyInteger('construction_area')->nullable();
+            $table->smallInteger('construction_area',false,false)->nullable();
             $table->decimal('participation_percentage')->nullable();
+            $table->bigInteger('white_label_id')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

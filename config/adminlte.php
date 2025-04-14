@@ -326,7 +326,13 @@ return [
         [
             'text' => 'Usuarios',
             'url' => 'admin/users/list',
-            'icon' => 'fas fa-fw fa-user ',
+            'icon' => 'fas fa-user',
+            'can' => 'view_ads',
+        ],
+        [
+            'text' => 'Casas',
+            'url' => 'admin/houses/list',
+            'icon' => 'fas fa-home',
             'can' => 'view_ads',
         ],
         [

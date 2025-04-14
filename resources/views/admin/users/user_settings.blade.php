@@ -1,0 +1,11 @@
+@extends('admin.layout.master')
+
+@section('content')
+    <div id="user-settings-container">
+        <user-settings
+            :user-id="'{{ $userId }}'"
+        >
+        </user-settings>
+    </div>
+@endsection
+@vite(['resources/js/admin/user-settings.js'])

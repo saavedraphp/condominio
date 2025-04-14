@@ -20,6 +20,7 @@ class UserSeeder extends Seeder
         $admin = User::query()->create([
             'name' => 'Sergio Astete',
             'email' => 'sergioastete@live.com',
+            'phone' => '17863781484',
             'password' => Hash::make('123456'),
             'phone' => '960203783',
             'status' => 'active'
