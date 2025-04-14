@@ -47,8 +47,6 @@ watch(() => props.user, (newValue) => {
     }
 }, {immediate: true});
 
-
-
 const submitForm = handleSubmit((values) => {
     if (props.user?.id) {
         emit('edit', {
@@ -135,7 +133,6 @@ const close = () => {
                 </v-card-actions>
             </v-form>
         </v-card-text>
-
     </v-card>
 </template>
 

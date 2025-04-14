@@ -82,9 +82,6 @@ const editMember = async (item) => {
         });
 
         if (response.data.success) {
-            //await getResidentsData();
-
-
             const updateMemberArray = members.value.map(member => {
                 if (member.id === item.id) {
                     return response.data.data;

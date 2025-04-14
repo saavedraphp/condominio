@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\UserSettingController;
 use App\Http\Controllers\Auth\LoginUserController;
 
 use App\Http\Controllers\User\DashboardController as UserDashboard;
@@ -7,12 +8,14 @@ use App\Http\Controllers\User\HouseController;
 use App\Http\Controllers\User\HouseResidentController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\VehicleController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
-use App\Http\Controllers\Admin\AdsController;
-use App\Http\Controllers\Admin\UserController as AdminUserAdsController;
 use App\Http\Controllers\User\AdsController as UserAdsController;
 use App\Http\Controllers\AccountActivationController;
+
+use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
+use App\Http\Controllers\Admin\HouseController as AdminHouseController;
+use App\Http\Controllers\Admin\AdsController;
+use App\Http\Controllers\Admin\UserController as AdminUserAdsController;
+use Illuminate\Support\Facades\Route;
 
 
 use App\Http\Controllers\Admin\BathroomsController;
@@ -75,6 +78,11 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     Route::get('/users/list', [AdminUserAdsController::class, 'showListPage'])->name('user.list');
     Route::resource('/users', AdminUserAdsController::class);
+    Route::get('/users/{user}/settings', [UserSettingController::class, 'showUserSettingsPage'])
+        ->name('users.settings.page');
+
+    Route::get('/houses/list', [AdminHouseController::class, 'showListPage'])->name('houses.list');
+    Route::resource('/houses', AdminHouseController::class);
 
 });
 
