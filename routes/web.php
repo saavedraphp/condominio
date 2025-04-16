@@ -1,10 +1,11 @@
 <?php
 
 
+use App\Http\Controllers\Admin\UserHouseAssignmentController;
 use App\Http\Controllers\User\Auth\LoginUserController;
 use App\Http\Controllers\Admin\Auth\LoginUserController as AdminLogin;
 
-use App\Http\Controllers\Admin\UserSettingController;
+use App\Http\Controllers\Admin\UserSettingPageController;
 
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\User\DashboardController as UserDashboard;
@@ -24,11 +25,26 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Admin\BathroomsController;
 
-/*Route::get('/', function () {
-    return redirect()->route('login');
-})->middleware('guest');*/
-
 Route::get('/', [HomeController::class, 'showLoginType']);
+
+
+
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "web" middleware group. Make something great!
+|
+*/
+
+
+Route::get('/home', function () {
+    return view('home');
+});
 
 // web_user Auth Routes
 Route::prefix('user')->name('user.')->group(function () {
@@ -62,23 +78,6 @@ Route::prefix('user')->name('user.')->group(function () {
 
 });
 
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
-
-
-Route::get('/home', function () {
-    return view('home');
-});
-
 /*RUTAS DEL ADMIN*/
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/login', [AdminLogin::class, 'showLoginForm'])->name('login');
@@ -87,19 +86,25 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::middleware(['auth:web'])->group(function () {
         Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
+        Route::get('/ads/list', [AdsController::class, 'showListPage'])->name('ads.list');
+        Route::resource('/ads', AdsController::class);
+
+        Route::get('/users/list', [AdminUserAdsController::class, 'showListPage'])->name('user.list');
+        Route::resource('/users', AdminUserAdsController::class);
+        Route::get('/users/{webUserId}/settings', UserSettingPageController::class);
+
+        Route::prefix('/user/{webUser}/house-assignments/')->name('users.house-assignments.')->group(function () {
+            Route::get('/', [UserHouseAssignmentController::class, 'index'])->name('index');
+            Route::get('/getUnassigned', [UserHouseAssignmentController::class, 'getUnassigned'])->name('getUnassigned');
+            Route::post('/', [UserHouseAssignmentController::class, 'store'])->name('store');
+            Route::delete('/', [UserHouseAssignmentController::class, 'destroy'])->name('destroy');
+        });
+
+
+        /*LIST HOUSES*/
+        Route::get('/houses/list', [AdminHouseController::class, 'showListPage'])->name('houses.list');
+        Route::resource('/houses', AdminHouseController::class);
     });
-
-
-    Route::get('/ads/list', [AdsController::class, 'showListPage'])->name('ads.list');
-    Route::resource('/ads', AdsController::class);
-
-    Route::get('/users/list', [AdminUserAdsController::class, 'showListPage'])->name('user.list');
-    Route::resource('/users', AdminUserAdsController::class);
-    Route::get('/users/{user}/settings', [UserSettingController::class, 'showUserSettingsPage'])
-        ->name('users.settings.page');
-
-    Route::get('/houses/list', [AdminHouseController::class, 'showListPage'])->name('houses.list');
-    Route::resource('/houses', AdminHouseController::class);
 
 });
 

@@ -3,7 +3,7 @@
 @section('content')
     <div id="user-settings-container">
         <user-settings
-            :user-id="'{{ $userId }}'"
+            :user-id="'{{ $webUserId }}'"
         >
         </user-settings>
     </div>

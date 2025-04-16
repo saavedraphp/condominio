@@ -20,9 +20,9 @@ class House extends Model
         'participation_percentage',
     ];
 
-    public function users(): BelongsToMany
+    public function webUsers(): BelongsToMany
     {
-        return $this->belongsToMany(User::class)
+        return $this->belongsToMany(WebUser::class)
             ->withPivot('is_resident', 'is_owner', 'is_manager')
             ->withTimestamps();
 

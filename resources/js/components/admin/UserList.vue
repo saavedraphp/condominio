@@ -81,7 +81,7 @@
                 </template>
                 <template v-slot:item.status="{ value }">
                     <v-chip :color="value  === 'active' ? 'success' : 'grey'" size="small">
-                        {{ value === 'active'? 'Activo' : 'Inactivo' }}
+                        {{ value === 'active' ? 'Activo' : 'Inactivo' }}
                     </v-chip>
                 </template>
 
@@ -100,8 +100,6 @@
             </UserForm>
 
         </v-dialog>
-
-        <!-- Diálogo de Confirmación de Eliminación -->
         <DeleteConfirmationModal
             v-model:show="dialogDelete"
             :item-name="deleteDialogItemName"
@@ -151,10 +149,7 @@ onMounted(() => {
 
 const deleteDialogItemName = computed(() => {
     if (!itemToDelete.value) return '';
-    // Devuelve una representación del ítem (nombre, placa, id, etc.)
     return `${itemToDelete.value.name} ID: ${itemToDelete.value.id}`;
-
-
 });
 
 async function getData() {
@@ -238,7 +233,7 @@ const deleteUser = async () => {
 };
 
 const openModalEdit = (item) => {
-     selectedElement.value = {...item};
+    selectedElement.value = {...item};
     showModal.value = true;
 };
 
@@ -265,7 +260,6 @@ const closeDeleteModal = () => {
 };
 
 // --FIN METHODS
-
 
 
 // Función auxiliar para formatear fechas (ejemplo)
