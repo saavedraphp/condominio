@@ -1,9 +1,8 @@
 @extends('admin.layout.master')
-
 @section('content')
     <div id="user-settings-container">
         <user-settings
-            :user-id="'{{ $userId }}'"
+            :user='@json($webUser)'
         >
         </user-settings>
     </div>

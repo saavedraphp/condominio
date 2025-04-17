@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\UserRequest;
 use App\Mail\AccountActivationMail;
 use App\Models\User;
+use App\Models\WebUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -28,7 +29,7 @@ class UserController extends Controller
     public function index(): JsonResponse
     {
         try {
-            $users = User::query()
+            $users = WebUser::query()
                 ->select(['id', 'name', 'email', 'phone', 'email_verified_at', 'status'])
                 ->orderBy('created_at', 'desc')
                 ->get();

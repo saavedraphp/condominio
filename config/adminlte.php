@@ -347,7 +347,7 @@ return [
         ],
         [
             'text' => 'Historial de Pagos',
-            'url' => 'admin/blog',
+            'url' => 'user/list-payment',
             'can' => 'view_payment_history',
         ],
         [

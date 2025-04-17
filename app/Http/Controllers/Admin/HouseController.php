@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\HouseRequest;
 use App\Models\House;
+use App\Models\WebUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -15,6 +16,23 @@ class HouseController extends Controller
     public function showListPage(): View
     {
         return view('admin.houses.houses');
+    }
+
+
+    public function showHousesByWebUserId(WebUser $webUser): JsonResponse
+    {
+        try {
+            $houses = $webUser->houses;
+            return response()->json($houses);
+        } catch (\Exception $e) {
+            Log::error('Error al intentar obtener las casas: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Ócurrio un error al intentar obtener las casas: ' . $e->getMessage()
+            ], 500);
+        }
+
     }
 
     public function index(): JsonResponse

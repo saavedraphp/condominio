@@ -11,6 +11,6 @@ class DashboardController extends Controller
 {
     public function index(): View
     {
-        return view('user.dashboard', ['userId' => Auth::id()]);
+        return view('user.dashboard', ['userId' => Auth::guard('web_user')->id()]);
     }
 }

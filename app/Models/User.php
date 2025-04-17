@@ -47,16 +47,5 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    public function houses(): BelongsToMany
-    {
-        return $this->belongsToMany(House::class, 'house_user')
-            ->withPivot('is_resident', 'is_owner', 'is_manager')
-            ->withTimestamps();
-    }
-
-    public function vehicles(): HasMany
-    {
-        return $this->hasMany(Vehicle::class);
-    }
 
 }

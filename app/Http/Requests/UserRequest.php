@@ -39,8 +39,6 @@ class UserRequest extends FormRequest
             'phone.required' => 'El teléfono es obligatorio',
             'phone.numeric' => 'El teléfono es tiene que ser númerico',
             'phone.min' => 'El teléfono tiene que tener minimo :min números',
-
-            // ... otros mensajes personalizados
         ];
     }
 }
