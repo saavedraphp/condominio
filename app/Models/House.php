@@ -28,8 +28,19 @@ class House extends Model
 
     }
 
-    public function houseResidents(): HasMany
+    public function owner()
+    {
+        return $this->webUsers()->wherePivot('is_owner', true);
+    }
+
+    public function resident()
+    {
+        return $this->webUsers()->wherePivot('is_resident', true);
+    }
+
+    public function residents(): HasMany
     {
         return $this->hasMany(HouseResident::class);
     }
+
 }

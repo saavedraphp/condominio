@@ -10,9 +10,8 @@ use Illuminate\View\View;
 
 class UserSettingPageController extends Controller
 {
-    public function __invoke(WebUser $webUserId): View
+    public function __invoke(WebUser $webUser): View
     {
-
-        return view('admin.users.user_settings', ['webUserId' => $webUserId->id]);
+        return view('admin.users.user_settings', ['webUser' => $webUser]);
     }
 }

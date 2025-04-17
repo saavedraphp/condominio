@@ -69,6 +69,7 @@ Route::prefix('user')->name('user.')->group(function () {
 
 
         Route::get('/get-house/{house}', [HouseController::class, 'getHouse'])->name('user.house.show');
+        Route::get('/houses', [HouseController::class, 'houses'])->name('user.house.list');
         Route::post('/house/{house}', [HouseController::class, 'update'])->name('user.house.update');
 
         Route::resource('/house-residents', HouseResidentController::class);
@@ -91,13 +92,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::get('/users/list', [AdminUserAdsController::class, 'showListPage'])->name('user.list');
         Route::resource('/users', AdminUserAdsController::class);
-        Route::get('/users/{webUserId}/settings', UserSettingPageController::class);
+        Route::get('/users/{webUser}/settings', UserSettingPageController::class);
 
         Route::prefix('/user/{webUser}/house-assignments/')->name('users.house-assignments.')->group(function () {
             Route::get('/', [UserHouseAssignmentController::class, 'index'])->name('index');
             Route::get('/getUnassigned', [UserHouseAssignmentController::class, 'getUnassigned'])->name('getUnassigned');
             Route::post('/', [UserHouseAssignmentController::class, 'store'])->name('store');
-            Route::delete('/', [UserHouseAssignmentController::class, 'destroy'])->name('destroy');
+            Route::delete('/{house}', [UserHouseAssignmentController::class, 'destroy'])->name('destroy');
         });
 
 

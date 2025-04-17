@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+    mysql:
+        image: mysql:8.0
+        container_name: mysql_local
+        ports:
+            - "3306:3306"
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+            MYSQL_DATABASE: condominiodb
+            MYSQL_USER: admin
+            MYSQL_PASSWORD: adminpass
+        volumes:
+            - mysql_data:/var/lib/mysql
+        restart: always
+
+volumes:
+    mysql_data:

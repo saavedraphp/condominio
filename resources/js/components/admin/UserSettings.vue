@@ -7,7 +7,7 @@ import DeleteConfirmationModal from "@/components/DeleteConfirmationModal.vue";
 import Snackbar from "@/components/Snackbar.vue";
 
 const props = defineProps({
-    userId: String
+    user: Object
 });
 
 const houses = ref([]);
@@ -43,7 +43,7 @@ async function getHousesByUserId() {
     loading.value = true;
 
     try {
-        const response = await axios.get(`/admin/user/${props.userId}/house-assignments`);
+        const response = await axios.get(`/admin/user/${props.user.id}/house-assignments`);
         houses.value = response.data;
     } catch (error) {
         mySnackbar.value.show('Lo sentimos, hubo un problema obtener la información. Intenta de nuevo, por favor.', 'error');
@@ -62,7 +62,7 @@ const deleteHouseAssignment = async () => {
         if (!itemToDelete.value) return;
         const id = itemToDelete.value.id;
 
-        const response = await axios.delete(`/admin/user/${props.userId}/house-assignments`)
+        const response = await axios.delete(`/admin/user/${props.user.id}/house-assignments/${id}`)
 
         if (response.data && response.data.success) {
             houses.value = houses.value.filter(element => element.id !== id);
@@ -93,6 +93,10 @@ const deleteDialogItemName = computed(() => {
     if (!itemToDelete.value) return '';
     return `${itemToDelete.value.property_unit} ID: ${itemToDelete.value.id}`;
 });
+
+const goBack = () => {
+    window.history.back();
+};
 </script>
 
 <template>
@@ -100,6 +104,24 @@ const deleteDialogItemName = computed(() => {
         <p v-if="loading">Cargango datos</p>
         <p v-else-if="error"> {{ error }}</p>
         <v-card>
+            <v-toolbar density="compact" flat color="transparent">
+                <v-btn
+                    icon="mdi-arrow-left"
+                    @click="goBack"
+                    aria-label="Volver"
+                ></v-btn>
+                Lista de usuarios
+                <!-- Opcional: Título en la barra de herramientas -->
+                <!-- <v-toolbar-title class="text-body-1">Configuración</v-toolbar-title> -->
+
+                <!-- Opcional: Espaciador para empujar elementos a la derecha -->
+                <!-- <v-spacer></v-spacer> -->
+                <!-- <v-btn icon="mdi-dots-vertical"></v-btn> -->
+            </v-toolbar>
+            <v-card-title class="text-start text-h6 justify-center py-4">
+                Usuario : {{ props.user.name }}
+            </v-card-title>
+            <v-divider></v-divider>
             <v-tabs v-model="activeKey">
                 <v-tab :value="TABS_KEYS.HOUSES">Casa e Integrantes</v-tab>
                 <v-tab :value="TABS_KEYS.VEHICLES">Vehículos</v-tab>
@@ -172,7 +194,7 @@ const deleteDialogItemName = computed(() => {
         </v-card>
         <v-dialog v-model="showModal" persistent max-width="600px">
             <AssignedHouseForm
-                :user-id="props.userId"
+                :user-id="props.user.id"
                 @added-assigned="getHousesByUserId"
                 @close-modal="closeModal"
             >

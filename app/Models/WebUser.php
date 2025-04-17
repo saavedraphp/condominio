@@ -47,4 +47,13 @@ class WebUser extends Authenticatable
             ->withTimestamps();
     }
 
+    public function ownedHouses()
+    {
+        return $this->houses()->wherePivot('is_owner', true);
+    }
+
+    public function rentedHouses()
+    {
+        return $this->houses()->wherePivot('is_resident', true);
+    }
 }

@@ -18,6 +18,7 @@ const mySnackbar = ref(null);
 const dialogDeleteVisible = ref(false);
 const itemToDelete = ref(null);
 const isDeleting = ref(false); // Para el estado de carga
+const houses = ref([]);
 
 const TABS_KEYS = {
     'PROFILE': 'profile',
@@ -167,6 +168,25 @@ async function getVehiclesData() {
     }
 }
 
+async function getHousesData() {
+    loading.value = true;
+
+    try {
+        const response = await axios.get(`/user/houses/`);
+
+        if (response.data.length) {
+            houses.value = response.data;
+            houseId.value = houses.value[0].id;
+        }
+
+    } catch (error) {
+        mySnackbar.value.show('Lo sentimos, hubo un problema al obtener  las casas asignadas. Intenta de nuevo, por favor.', 'error');
+        console.error('Ocurrió un error inesperado:', error);
+    } finally {
+        loading.value = false;
+    }
+}
+
 const addVehicle = async (item) => {
     try {
         const response = await axios.post('/user/vehicles/', {
@@ -279,7 +299,7 @@ const {handleSubmit, handleReset} = useForm({
     },
 })
 const user = ref(null)
-const houseId = ref(1)
+const houseId = ref()
 const loading = ref(true)
 const error = ref(null)
 const name = useField('name')
@@ -336,10 +356,13 @@ const showModalMember = (member) => {
 };
 
 
-onMounted(() => {
-    getUserData();
-    getResidentsData();
-    getVehiclesData();
+onMounted(async () => {
+    await getUserData();
+    await getHousesData();
+    if (houseId.value) {
+        await getResidentsData();
+    }
+    await getVehiclesData();
 });
 
 const deleteDialogMessage = computed(() => {
@@ -377,7 +400,7 @@ const closeDeleteDialogModal = () => {
 // Imagen de perfil
 const image = ref(null)
 const previewImage = ref(null)
-const defaultImage = '/images/default-profile.png' // Imagen predeterminada
+const defaultImage = '/storage/images/web_user/default-profile.jpg' // Imagen predeterminada
 
 const fileInput = ref(null) // Referencia al input file
 
@@ -429,6 +452,11 @@ function closeModalVehicle() {
     selectedVehicle.value = null;
     showModalFormVehicle.value = false;
 }
+
+function getImage(fileName, imageDefault = '') {
+    let image = fileName || imageDefault;
+    return `/storage/web_user/${image}`;
+}
 </script>
 <template>
     <v-container>
@@ -439,7 +467,8 @@ function closeModalVehicle() {
                 <v-card class="pa-4">
                     <!-- Imagen de Perfil -->
                     <v-avatar size="100">
-                        <img :src="previewImage || defaultImage" alt="User Profile" class="profile-preview">
+                        <img :src="`/storage/images/web_user/default-profile.jpg`" alt="User Profile"
+                             class="profile-preview">
                     </v-avatar>
 
                     <h3 class="mt-3 text-center">{{ name.value.value }}</h3>
@@ -512,12 +541,7 @@ function closeModalVehicle() {
                                         :error-messages="email.errorMessage.value"
                                         label="E-mail"
                                     ></v-text-field>
-
-                                    <!--                                    <v-checkbox v-model="terms"
-                                                                                    label="I agree to the terms and conditions"></v-checkbox>-->
-
                                     <v-btn color="red" class="mt-3" type="submit">Grabar</v-btn>
-                                    <!-- Snackbar centrado en la parte superior -->
                                     <v-snackbar
                                         v-model="snackbar"
                                         :timeout="3000"
@@ -532,35 +556,80 @@ function closeModalVehicle() {
                             </v-window-item>
                             <!-- Pestaña 2: House -->
                             <v-window-item :value="TABS_KEYS.HOUSES">
-                                <House
-                                    :houseId="houseId"
-                                />
-                                <v-divider class="my-6" style="height: 2px; background-color: black;"></v-divider>
-                                <v-btn color="primary" class="mt-3" @click="showModal = true"> + Agregar Integrantes
-                                </v-btn>
-                                <v-dialog max-width="500px" v-model="showModal">
-                                    <AddMemberModal
-                                        :member="selectedMember"
-                                        @member-added="addMember"
-                                        @member-edit="editMember"
-                                        @close-modal="closeModalMember"
-                                    />
-                                </v-dialog>
-                                <v-data-table v-show="members.length"
-                                              :headers="headerMembers"
-                                              :items="members"
-                                              class="elevation-1"
-                                              dense
+                                <div v-if="houseId">
+                                    <House :houseId="houseId"/>
+                                    <v-divider class="my-6" style="height: 2px; background-color: black;"></v-divider>
+                                    <v-btn color="primary" class="mt-3" @click="showModal = true"> + Agregar Integrantes
+                                    </v-btn>
+                                    <v-dialog max-width="500px" v-model="showModal">
+                                        <AddMemberModal
+                                            :member="selectedMember"
+                                            @member-added="addMember"
+                                            @member-edit="editMember"
+                                            @close-modal="closeModalMember"
+                                        />
+                                    </v-dialog>
+                                    <v-data-table v-if="members.length"
+                                                  :headers="headerMembers"
+                                                  :items="members"
+                                                  class="elevation-1"
+                                                  density="compact"
+                                    >
+                                        <template v-slot:item.name="{ item }">
+                                            <v-tooltip location="top">
+                                                <template v-slot:activator="{ props }">
+                                                    <span v-bind="props" class="truncate-text">
+                                                        {{ item.name }}
+                                                    </span>
+                                                </template>
+                                                <span>{{ item.name }}</span>
+                                            </v-tooltip>
+                                        </template>
+                                        <template v-slot:item.actions="{ item }">
+                                            <div class="d-flex align-center">
+                                                <v-tooltip text="Editar">
+                                                    <template v-slot:activator="{ props }">
+                                                        <v-btn
+                                                            v-bind="props"
+                                                            icon="mdi-pencil"
+                                                            variant="text"
+                                                            color="primary"
+                                                            size="small"
+                                                            class="me-2"
+                                                            @click="showModalMember(item)"
+                                                        ></v-btn>
+                                                    </template>
+                                                </v-tooltip>
+                                                <v-tooltip text="Eliminar">
+                                                    <template v-slot:activator="{ props }">
+                                                        <v-btn
+                                                            v-bind="props"
+                                                            icon="mdi-delete"
+                                                            variant="text"
+                                                            color="error"
+                                                            size="small"
+                                                            @click="openDeleteDialog(item)"
+                                                        ></v-btn>
+                                                    </template>
+                                                </v-tooltip>
+                                            </div>
+                                        </template>
+                                    </v-data-table>
+                                </div>
+                                <v-alert
+                                    v-else
+                                    type="info"
+                                    variant="tonal"
+                                    border="start"
+                                    prominent
+                                    icon="mdi-information-outline"
+                                    class="ma-4"
                                 >
-                                    <template v-slot:item.actions="{ item }">
-                                        <v-btn icon color="blue" @click="showModalMember(item)">
-                                            <v-icon>mdi-pencil</v-icon>
-                                        </v-btn>
-                                        <v-btn icon color="red" @click="openDeleteDialog(item)">
-                                            <v-icon>mdi-delete</v-icon>
-                                        </v-btn>
-                                    </template>
-                                </v-data-table>
+      <span class="text-body-1 font-weight-medium">
+        Aún no se le ha asignado una casa para su administración. Por favor, contacte con el administrador.
+      </span>
+                                </v-alert>
+
 
                             </v-window-item>
 
@@ -584,12 +653,31 @@ function closeModalVehicle() {
                                               dense
                                 >
                                     <template v-slot:item.actions="{ item }">
-                                        <v-btn icon color="blue" @click="showModalVehicle(item)">
-                                            <v-icon>mdi-pencil</v-icon>
-                                        </v-btn>
-                                        <v-btn icon color="red" @click="openDeleteDialogModal(item)">
-                                            <v-icon>mdi-delete</v-icon>
-                                        </v-btn>
+                                        <v-tooltip text="Editar">
+                                            <template v-slot:activator="{ props }">
+                                                <v-btn
+                                                    v-bind="props"
+                                                    icon="mdi-pencil"
+                                                    variant="text"
+                                                    color="primary"
+                                                    size="small"
+                                                    class="me-2"
+                                                    @click="showModalVehicle(item)"
+                                                ></v-btn>
+                                            </template>
+                                        </v-tooltip>
+                                        <v-tooltip text="Eliminar">
+                                            <template v-slot:activator="{ props }">
+                                                <v-btn
+                                                    v-bind="props"
+                                                    icon="mdi-delete"
+                                                    variant="text"
+                                                    color="error"
+                                                    size="small"
+                                                    @click="openDeleteDialogModal(item)"
+                                                ></v-btn>
+                                            </template>
+                                        </v-tooltip>
                                     </template>
                                 </v-data-table>
                                 <DeleteConfirmationModal
@@ -687,6 +775,20 @@ function closeModalVehicle() {
 
 .v-btn {
     text-transform: none;
+}
+
+.truncate-text {
+    display: block; /* O inline-block */
+    max-width: 200px; /* ¡AJUSTA ESTE VALOR! Define el ancho máximo deseado */
+    white-space: nowrap; /* Evita que el texto salte a la siguiente línea */
+    overflow: hidden; /* Oculta el texto que sobrepasa el max-width */
+    text-overflow: ellipsis; /* Muestra "..." al final del texto truncado */
+}
+
+/* Opcional: Estilo para asegurar que las celdas de acciones no se compriman demasiado */
+.action-column {
+    width: 1%; /* Intenta ocupar el mínimo espacio necesario */
+    white-space: nowrap; /* Evita que los iconos se apilen verticalmente */
 }
 </style>
 

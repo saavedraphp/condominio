@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Models\HouseResident;
+use App\Models\WebUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -11,25 +12,6 @@ use Illuminate\Support\Facades\Log;
 
 class HouseResidentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request): JsonResponse
     {
         try {
@@ -39,15 +21,17 @@ class HouseResidentController extends Controller
                 'phone' => 'required|string|max:20',
                 'email' => 'required|email'
             ]);
-            $userId = Auth::id();
-            $resident = HouseResident::create(array_merge($validateData, ['user_id' => $userId]));
+
+            $resident = HouseResident::create($validateData);
             return response()->json([
                 'success' => true,
                 'message' => '¡Excelente! se agregado un integrante correctamente.',
                 'data' => $resident,
             ]);
         } catch (\exception $e) {
-            return response()->json(['success' => false, 'message' => 'Ócurrio un error al intentar agregar un integrante: ' . $e->getMessage()], 500);
+            $messageError = "Ócurrio un error al intentar agregar un integrante:";
+            Log::error($messageError. ': ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => $messageError], 500);
         }
 
     }

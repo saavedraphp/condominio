@@ -41,6 +41,9 @@
 
                             </v-autocomplete>
                         </v-col>
+                        <v-col cols="12" md="6" align="end">
+                            <v-btn color="blue-darken-1" variant="text" @click="close" v-if="!selectedHouse">Cancelar</v-btn>
+                        </v-col>
                     </v-row>
                     <v-divider class="my-4" v-if="selectedHouse"></v-divider>
 
@@ -107,11 +110,12 @@
 import {ref, watch, onMounted, reactive} from 'vue';
 import axios from 'axios';
 import Snackbar from "@/components/Snackbar.vue";
+import {number} from "yup";
 
 const emit = defineEmits(['added-assigned', 'edit-assigned', 'close-modal']);
 
 const props = defineProps({
-    userId: String
+    userId: String | number
 });
 // --- Estado Reactivo ---
 
@@ -247,7 +251,6 @@ onMounted(() => {
 
 const close = () => {
     emit('close-modal');
-    //resetForm();
 }
 </script>
 
