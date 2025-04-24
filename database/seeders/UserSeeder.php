@@ -22,7 +22,6 @@ class UserSeeder extends Seeder
             'email' => 'sergioastete@live.com',
             'phone' => '17863781484',
             'password' => Hash::make('123456'),
-            'phone' => '960203783',
             'status' => 'active'
         ]);
 

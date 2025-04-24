@@ -11,6 +11,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\User\DashboardController as UserDashboard;
 use App\Http\Controllers\User\HouseController;
 use App\Http\Controllers\User\HouseResidentController;
+use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\VehicleController;
 use App\Http\Controllers\User\AdsController as UserAdsController;
@@ -26,8 +27,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\BathroomsController;
 
 Route::get('/', [HomeController::class, 'showLoginType']);
-
-
 
 
 /*
@@ -72,6 +71,16 @@ Route::prefix('user')->name('user.')->group(function () {
         Route::get('/houses', [HouseController::class, 'houses'])->name('user.house.list');
         Route::post('/house/{house}', [HouseController::class, 'update'])->name('user.house.update');
 
+        Route::get('/house/{house}/payments/list', [PaymentController::class, 'showPage'])->name('user.show-page');
+        Route::resource('/house/{house}/payments', PaymentController::class);
+
+        Route::get('/payments/{payment}/download', [PaymentController::class, 'downloadPayment'])
+            ->name('payments.download');
+
+        // Descargar PDF resumen del año
+        Route::get('/house/{house}/payments/{payment}/download-year/{year}', [PaymentController::class, 'downloadYearlyPdf'])
+            ->name('payments.download.year');
+
         Route::resource('/house-residents', HouseResidentController::class);
         Route::get('/get-house-residents-data/{houseId}', [HouseResidentController::class, 'getHouseResidentsData'])->name('user.house.listResidents');
 
@@ -100,7 +109,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::post('/', [UserHouseAssignmentController::class, 'store'])->name('store');
             Route::delete('/{house}', [UserHouseAssignmentController::class, 'destroy'])->name('destroy');
         });
-
 
         /*LIST HOUSES*/
         Route::get('/houses/list', [AdminHouseController::class, 'showListPage'])->name('houses.list');

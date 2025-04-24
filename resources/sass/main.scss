@@ -1,0 +1,18 @@
+.v-card-title {
+    background-color: #f5f5f5;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.v-data-table thead th {
+    font-weight: bold !important;
+}
+
+.truncate-text {
+    display: block; /* O inline-block */
+    max-width: 300px; /* ¡AJUSTA ESTE VALOR! Define el ancho máximo deseado */
+    white-space: nowrap; /* Evita que el texto salte a la siguiente línea */
+    overflow: hidden; /* Oculta el texto que sobrepasa el max-width */
+    text-overflow: ellipsis; /* Muestra "..." al final del texto truncado */
+}
+
+
