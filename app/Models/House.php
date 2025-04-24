@@ -43,4 +43,14 @@ class House extends Model
         return $this->hasMany(HouseResident::class);
     }
 
+    public function payments(): HasMany
+    {
+        return $this->hasMany(HousePayment::class);
+    }
+
+/*    public function owner(): BelongsTo
+    {
+        // Asume que tienes una columna 'current_owner_id' en la tabla 'houses'
+        return $this->belongsTo(WebUser::class, 'current_owner_id');
+    }*/
 }

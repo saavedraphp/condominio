@@ -105,8 +105,8 @@ const editMember = async (item) => {
 };
 
 const openDeleteDialog = (item) => {
-    memberToDelete.value = item; // Guarda el objeto completo
-    showDialogDelete.value = true; // Abre el diálogo
+    memberToDelete.value = item;
+    showDialogDelete.value = true;
 };
 
 const closeDeleteDialog = () => {
@@ -579,6 +579,7 @@ function getImage(fileName, imageDefault = '') {
                                             <v-tooltip location="top">
                                                 <template v-slot:activator="{ props }">
                                                     <span v-bind="props" class="truncate-text">
+                                                        {{ item.name }}
                                                         {{ item.name }}
                                                     </span>
                                                 </template>

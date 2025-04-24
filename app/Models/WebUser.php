@@ -56,4 +56,9 @@ class WebUser extends Authenticatable
     {
         return $this->houses()->wherePivot('is_resident', true);
     }
+
+    public function paymentsMade(): HasMany
+    {
+        return $this->hasMany(HousePayment::class);
+    }
 }

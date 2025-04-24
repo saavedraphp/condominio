@@ -147,7 +147,7 @@ export default {
         <p v-else-if="error"> {{ error }}</p>
         <v-row v-else dense>
             <!-- Columna Izquierda (Bienvenida y Deuda) -->
-            <v-col cols="12" md="5">
+            <v-col cols="12">
                 <v-row dense>
                     <!-- Card Bienvenida -->
                     <v-col cols="12">
@@ -251,13 +251,83 @@ export default {
                         </v-card>
                     </v-col>
 
+                    <v-col cols="12" md="6">
+                        <v-card
+                            class="mx-auto"
+                            elevation="4"
+                        >
+                        <v-card-item>
+                            <div>
+                                <div class="text-overline mb-1">
+                                    ADMINISTRACIÓN
+                                </div>
+                                <div class="text-h6 mb-1">
+                                    Gestión de Casas
+                                </div>
+                                <div class="text-caption">Administra propiedades residenciales.</div>
+                            </div>
+                        </v-card-item>
+
+                        <v-card-text>
+                            Accede a las herramientas para añadir, editar o eliminar información sobre las casas disponibles.
+                        </v-card-text>
+
+                        <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn
+                                color="primary"
+                                variant="elevated"
+                            @click="navegarACasas"
+                            >
+                            Ir a Casas
+                            </v-btn>
+                        </v-card-actions>
+                        </v-card>
+                    </v-col>
+
+                    <!-- Card para Gestión de Autos -->
+                    <v-col cols="12" md="6">
+                        <v-card
+                            class="mx-auto"
+                            elevation="4"
+                        >
+                            <v-card-item>
+                                <div>
+                                    <div class="text-overline mb-1">
+                                        ADMINISTRACIÓN
+                                    </div>
+                                    <div class="text-h6 mb-1">
+                                        Gestión de Autos
+                                    </div>
+                                    <div class="text-caption">Administra la flota de vehículos.</div>
+                                </div>
+                            </v-card-item>
+
+                            <v-card-text>
+                                Accede a las herramientas para añadir, editar o eliminar información sobre los autos.
+                            </v-card-text>
+
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn
+                                    color="secondary"
+                                variant="elevated"
+                                @click="navegarAAutos"
+                                >
+                                Ir a Autos
+                                </v-btn>
+                            </v-card-actions>
+                        </v-card>
+                    </v-col>
+
+
                 </v-row>
             </v-col>
 
-            <!-- Columna Derecha (Gráficos) -->
+<!--            &lt;!&ndash; Columna Derecha (Gráficos) &ndash;&gt;
             <v-col cols="12" md="7" v-if="false">
                 <v-row dense>
-                    <!-- Card Gráfico de Consumo (Ejemplo) -->
+                    &lt;!&ndash; Card Gráfico de Consumo (Ejemplo) &ndash;&gt;
                     <v-col cols="12" lg="6">
                         <v-card elevation="2" class="mb-4">
                             <v-card-item>
@@ -268,7 +338,7 @@ export default {
                             </v-card-item>
                             <v-divider></v-divider>
                             <v-card-text>
-                                <!-- Aquí va el componente del gráfico -->
+                                &lt;!&ndash; Aquí va el componente del gráfico &ndash;&gt;
                                 <apexchart
                                     v-if="chartDataConsumo.series.length > 0"
                                     type="area"
@@ -283,7 +353,7 @@ export default {
                         </v-card>
                     </v-col>
 
-                    <!-- Card Gráfico Historial Pagos (Ejemplo) -->
+                    &lt;!&ndash; Card Gráfico Historial Pagos (Ejemplo) &ndash;&gt;
                     <v-col cols="12" lg="6">
                         <v-card elevation="2" class="mb-4">
                             <v-card-item>
@@ -294,7 +364,7 @@ export default {
                             </v-card-item>
                             <v-divider></v-divider>
                             <v-card-text>
-                                <!-- Aquí va el componente del gráfico -->
+                                &lt;!&ndash; Aquí va el componente del gráfico &ndash;&gt;
                                 <apexchart
                                     v-if="chartDataPagos.series.length > 0"
                                     type="donut"
@@ -309,10 +379,10 @@ export default {
                         </v-card>
                     </v-col>
 
-                    <!-- Puedes añadir más cards/gráficos aquí -->
+                    &lt;!&ndash; Puedes añadir más cards/gráficos aquí &ndash;&gt;
 
                 </v-row>
-            </v-col>
+            </v-col>-->
             <Snackbar ref="mySnackbar"/>
         </v-row>
     </v-container>
