@@ -18,6 +18,8 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             WebUserSeeder::class,
             AdSeeder::class,
+            HouseSeeder::class,
+            HousePaymentSeeder::class,
         ]);
     }
 }
