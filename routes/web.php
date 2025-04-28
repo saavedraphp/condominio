@@ -2,6 +2,7 @@
 
 
 use App\Http\Controllers\Admin\UserHouseAssignmentController;
+use App\Http\Controllers\PaymentServiceController;
 use App\Http\Controllers\User\Auth\LoginUserController;
 use App\Http\Controllers\Admin\Auth\LoginUserController as AdminLogin;
 
@@ -67,11 +68,13 @@ Route::prefix('user')->name('user.')->group(function () {
         Route::get('/get-vehicles-data/{userId}', [VehicleController::class, 'getVehiclesByUserId'])->name('user.vehicles.list');
 
 
-        Route::get('/get-house/{house}', [HouseController::class, 'getHouse'])->name('user.house.show');
-        Route::get('/houses', [HouseController::class, 'houses'])->name('user.house.list');
+        Route::get('/houses/{house}/dashboard', [HouseController::class, 'dashboard'])->name('user.house.dashboard');
+        Route::get('/houses/show/{house}', [HouseController::class, 'show'])->name('user.house.show');
+        Route::get('/houses', [HouseController::class, 'index'])->name('user.house.index');
+        Route::get('/houses/list', [HouseController::class, 'showPage'])->name('user.house.showPage');
         Route::post('/house/{house}', [HouseController::class, 'update'])->name('user.house.update');
 
-        Route::get('/house/{house}/payments/list', [PaymentController::class, 'showPage'])->name('user.show-page');
+        Route::get('/houses/{house}/payments/list', [PaymentController::class, 'showPage'])->name('user.show-page');
         Route::resource('/house/{house}/payments', PaymentController::class);
 
         Route::get('/payments/{payment}/download', [PaymentController::class, 'downloadPayment'])
@@ -80,6 +83,12 @@ Route::prefix('user')->name('user.')->group(function () {
         // Descargar PDF resumen del año
         Route::get('/house/{house}/payments/{payment}/download-year/{year}', [PaymentController::class, 'downloadYearlyPdf'])
             ->name('payments.download.year');
+
+        Route::get('/houses/{house}/electricity-records/list', [PaymentServiceController::class, 'showPage'])->name('houses.electricity-history.show-page');
+        Route::get('/houses/{house}/electricity-records/', [PaymentServiceController::class,'index'])->name('houses.electricity-history.index');
+
+        Route::get('/houses/{house}/water-records/list', [PaymentServiceController::class, 'showPageWater'])->name('houses.electricity-history.show-page-water');
+        Route::get('/houses/{house}/water-records/', [PaymentServiceController::class,'index'])->name('houses.electricity-history.index');
 
         Route::resource('/house-residents', HouseResidentController::class);
         Route::get('/get-house-residents-data/{houseId}', [HouseResidentController::class, 'getHouseResidentsData'])->name('user.house.listResidents');

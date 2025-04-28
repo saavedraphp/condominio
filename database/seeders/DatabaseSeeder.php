@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             AdSeeder::class,
             HouseSeeder::class,
             HousePaymentSeeder::class,
+            PaymentServiceSeeder::class,
         ]);
     }
 }

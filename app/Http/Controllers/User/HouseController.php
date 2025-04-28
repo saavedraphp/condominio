@@ -5,21 +5,43 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\House;
 use App\Models\WebUser;
+use App\Traits\ManagesHouseSession;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
+use Illuminate\View\View;
 
 class HouseController extends Controller
 {
-    public function getHouse(House $house): JsonResponse
+    use ManagesHouseSession;
+    public function showPage(): View
     {
-        $user = auth()->user();
+        $this->clearHouseSession();
+        $webUserId = Auth::guard('web_user')->user();
+        return view('user.houses.houses', ['webUserId' => $webUserId]);
+    }
 
-        if (!$user) {
-            return response()->json(['message' => 'Registro no encontrado'], 404);
+    public function dashboard(House $house): View
+    {
+        Session::put('selected_house_id', $house->id);
+        Session::put('selected_house_name', $house->property_unit);
+
+        $webUserId = Auth::guard('web_user')->id();
+        return view('user.houses.dashboard', ['webUserId' => $webUserId, 'houseId' => $house->id]);
+    }
+
+    public function show(House $house): JsonResponse
+    {
+        $user = Auth::guard('web_user')->user();
+        $isRelated = $house->webUsers()->where('web_user_id', $user->id)->exists();
+
+        if (!$user || !$isRelated) {
+            return response()->json(['message' => 'No autorizado para acceder a este recurso o no encontrado.'], JsonResponse::HTTP_FORBIDDEN);
         }
-        return response()->json($house, 200);
+
+        return response()->json($house, JsonResponse::HTTP_OK);
     }
 
     public function update(Request $request, House $house): JsonResponse
@@ -38,7 +60,7 @@ class HouseController extends Controller
         }
     }
 
-    public function houses(): JsonResponse
+    public function index(): JsonResponse
     {
         try {
             $userId = Auth::guard('web_user')->id();
