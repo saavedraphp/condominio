@@ -128,6 +128,9 @@ async function getUserData() {
         loading.value = false;
     }
 }
+const goToHouses = () => {
+    window.location.href = '/user/houses/list';
+}
 
 </script>
 
@@ -277,7 +280,7 @@ export default {
                             <v-btn
                                 color="primary"
                                 variant="elevated"
-                            @click="navegarACasas"
+                            @click="goToHouses"
                             >
                             Ir a Casas
                             </v-btn>
@@ -319,15 +322,13 @@ export default {
                             </v-card-actions>
                         </v-card>
                     </v-col>
-
-
                 </v-row>
             </v-col>
 
-<!--            &lt;!&ndash; Columna Derecha (Gráficos) &ndash;&gt;
+<!--            Columna Derecha (Gráficos) -->
             <v-col cols="12" md="7" v-if="false">
                 <v-row dense>
-                    &lt;!&ndash; Card Gráfico de Consumo (Ejemplo) &ndash;&gt;
+                    <!-- Card Gráfico de Consumo (Ejemplo) -->
                     <v-col cols="12" lg="6">
                         <v-card elevation="2" class="mb-4">
                             <v-card-item>
@@ -338,7 +339,7 @@ export default {
                             </v-card-item>
                             <v-divider></v-divider>
                             <v-card-text>
-                                &lt;!&ndash; Aquí va el componente del gráfico &ndash;&gt;
+                                <!-- Aquí va el componente del gráfico -->
                                 <apexchart
                                     v-if="chartDataConsumo.series.length > 0"
                                     type="area"
@@ -352,8 +353,7 @@ export default {
                             </v-card-text>
                         </v-card>
                     </v-col>
-
-                    &lt;!&ndash; Card Gráfico Historial Pagos (Ejemplo) &ndash;&gt;
+                    <!--  Card Gráfico Historial Pagos (Ejemplo) -->
                     <v-col cols="12" lg="6">
                         <v-card elevation="2" class="mb-4">
                             <v-card-item>
@@ -364,7 +364,7 @@ export default {
                             </v-card-item>
                             <v-divider></v-divider>
                             <v-card-text>
-                                &lt;!&ndash; Aquí va el componente del gráfico &ndash;&gt;
+                                <!--  Aquí va el componente del gráfico -->
                                 <apexchart
                                     v-if="chartDataPagos.series.length > 0"
                                     type="donut"
@@ -379,10 +379,10 @@ export default {
                         </v-card>
                     </v-col>
 
-                    &lt;!&ndash; Puedes añadir más cards/gráficos aquí &ndash;&gt;
+                    <!-- Puedes añadir más cards/gráficos aquí -->
 
                 </v-row>
-            </v-col>-->
+            </v-col>
             <Snackbar ref="mySnackbar"/>
         </v-row>
     </v-container>

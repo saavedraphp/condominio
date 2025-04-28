@@ -336,85 +336,36 @@ return [
             'can' => 'view_ads',
         ],
         [
-            'text' => 'Home',
-            'url' => 'user/dashboard',
-            'can' => 'view_payment_history',
-        ],
-        [
-            'text' => 'Recivos de Mantenimiento',
-            'url' => 'admin/blog',
-            'can' => 'view_payment_history',
-        ],
-        [
-            'text' => 'Historial de Pagos',
-            'url' => 'user/house/1/payments/list',
-            'can' => 'view_payment_history',
-        ],
-        [
-            'text' => 'Comsumo de luz',
-            'url' => 'admin/blog',
-            'can' => 'view_payment_history',
-        ],
-        [
-            'text' => 'Comsumo de agua',
-            'url' => 'admin/blog',
-            'can' => 'view_payment_history',
-        ],
-        [
-            'text' => 'Mi (Codigo QR)',
-            'url' => 'admin/blog',
-            'can' => 'view_payment_history',
-        ],
-        [
-            'text' => 'Presupuesto vs Gastos',
-            'url' => 'admin/blog',
-            'can' => 'view_payment_history',
-        ],
-        [
-            'text' => 'Docs del Condominio',
-            'url' => 'admin/blog',
-            'can' => 'view_payment_history',
-        ],
-        [
-            'text' => 'Cotizaciones Presentadas',
-            'url' => 'admin/blog',
-            'can' => 'view_payment_history',
-        ],
-        [
             'text' => 'Recibos de Caja Chica',
             'url' => 'admin/blog',
-            'can' => 'view_payment_history',
+            'can' => 'view_ads',
         ],
         [
             'text' => 'Recibos por honorarios',
             'url' => 'admin/blog',
-            'can' => 'view_payment_history',
+            'can' => 'view_ads',
         ],
         [
             'text' => 'Estadisticas',
             'url' => 'admin/blog',
-            'can' => 'view_payment_history',
+            'can' => 'view_ads',
         ],
         [
             'text' => 'Peticiones al Vocal',
             'url' => 'admin/blog',
-            'can' => 'view_payment_history',
-        ],
-        ['header' => 'account_settings',
-            'can' => 'view_payment_history',
+            'can' => 'view_ads',
         ],
         [
             'text' => 'Perfil',
             'url' => 'user/profile',
             'icon' => 'fas fa-fw fa-user',
-            'can' => 'view_payment_history',
+            'can' => 'view_ads',
         ],
-
         [
             'text' => 'change_password',
             'url' => 'admin/settings',
             'icon' => 'fas fa-fw fa-lock',
-            'can' => 'view_payment_history',
+            'can' => 'view_adss',
         ],
         /*        [
                     'text' => 'multilevel',

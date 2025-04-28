@@ -98,8 +98,7 @@ const submitForm = handleSubmit(async (values) => {
         if (fileToUpload instanceof File) {
             formData.append('file_path', fileToUpload, fileToUpload.name);
         } else {
-            console.error("Error: No se encontró el archivo a pesar de la validación.");
-            alert("Ocurrió un error al procesar el archivo.");
+            mySnackbar.value.show('La imagen del comprobante es requerido', 'error');
             return;
         }
 

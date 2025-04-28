@@ -5,17 +5,20 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\WebUser;
+use App\Traits\ManagesHouseSession;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class ProfileController extends Controller
 {
+    use ManagesHouseSession;
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
+        $this->clearHouseSession();
         return view('user.profile',['userId' => Auth::id()]);
     }
 
