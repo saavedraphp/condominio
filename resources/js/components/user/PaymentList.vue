@@ -157,9 +157,9 @@ const handlePaymentAdded = (message) => {
 };
 const downloadPaymentFile = async (payment) => {
     const url = `/user/payments/${payment.id}/download`;
-    currentlyDownloading.value = paymentId; // Opcional
+    currentlyDownloading.value = payment.id;
     await handleAxiosDownload(url, `comprobante-${payment.id}.pdf`); // Fallback filename
-    currentlyDownloading.value = null; // Opcional
+    currentlyDownloading.value = null;
 };
 
 
@@ -235,7 +235,8 @@ const handleAxiosDownload = async (url, fallbackFilename = 'download') => {
                     // Intenta leer el Blob como texto y luego parsearlo como JSON
                     const errorText = await error.response.data.text();
                     const errorJson = JSON.parse(errorText);
-                    errorMessage = errorJson.message || `Error ${error.response.status}: Respuesta inesperada del servidor.`;
+                    //errorMessage = errorJson.message || `Error ${error.response.status}: Respuesta inesperada del servidor.`;
+                    mySnackbar.value.show(errorJson.message, 'error');
                 } catch (parseError) {
                     console.error('Error parsing error blob:', parseError);
                     errorMessage = `Error ${error.response.status}: No se pudo leer el mensaje de error del servidor.`;
@@ -254,7 +255,7 @@ const handleAxiosDownload = async (url, fallbackFilename = 'download') => {
             console.error('Error message:', error.message);
             errorMessage = `Error al preparar la descarga: ${error.message}`;
         }
-        downloadError.value = errorMessage; // Almacenar mensaje para mostrar al usuario
+
         return errorMessage; // Devolver el mensaje de error
 
     } finally {

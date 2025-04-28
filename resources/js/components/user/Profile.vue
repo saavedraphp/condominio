@@ -168,25 +168,6 @@ async function getVehiclesData() {
     }
 }
 
-async function getHousesData() {
-    loading.value = true;
-
-    try {
-        const response = await axios.get(`/user/houses/`);
-
-        if (response.data.length) {
-            houses.value = response.data;
-            houseId.value = houses.value[0].id;
-        }
-
-    } catch (error) {
-        mySnackbar.value.show('Lo sentimos, hubo un problema al obtener  las casas asignadas. Intenta de nuevo, por favor.', 'error');
-        console.error('Ocurrió un error inesperado:', error);
-    } finally {
-        loading.value = false;
-    }
-}
-
 const addVehicle = async (item) => {
     try {
         const response = await axios.post('/user/vehicles/', {

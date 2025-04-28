@@ -35,10 +35,10 @@ class PaymentController extends Controller
             $userId = Auth::guard('web_user')->id();
             $user = WebUser::findOrFail($userId);
             $paymentsMade = $user->paymentsMade()->get();
-            $firstPayment = $paymentsMade->first();
+
             return response()->json($paymentsMade);
         } catch (\Exception $e) {
-            $errorMessage = 'Error al intentar obtener las los pagos. ';
+            $errorMessage = 'Error al intentar obtener los pagos. ';
             Log::error($errorMessage . $e->getMessage());
 
             return response()->json([
