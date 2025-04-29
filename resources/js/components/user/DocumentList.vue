@@ -70,6 +70,7 @@
 <script setup>
 import {ref, onMounted} from 'vue';
 import DocumentDetailDialog from './DocumentDetailDialog.vue'; // Importa el diálogo
+import {formatDate} from "@/utils/functions.js";
 
 // --- State ---
 const documents = ref([]);
@@ -115,12 +116,6 @@ const viewDocument = (document) => {
     showDetailDialog.value = true;
 };
 
-// Función para formatear fecha (puedes usar una librería como date-fns o moment)
-const formatDate = (dateString) => {
-    if (!dateString) return '-';
-    const options = {year: 'numeric', month: 'short', day: 'numeric'};
-    return new Date(dateString).toLocaleDateString(undefined, options);
-};
 
 // Función para obtener la URL de descarga directa (si decides poner el botón en la tabla)
 // Es mejor tenerlo en el detalle para cargar los datos completos primero.
