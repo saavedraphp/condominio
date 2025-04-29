@@ -1,0 +1,36 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('documents', function (Blueprint $table) {
+            $table->id();
+            $table->string('title');
+            $table->text('description')->nullable();
+            $table->string('file_path');
+            $table->string('original_filename');
+            $table->string('mime_type'); // Tipo MIME (e.g., application/pdf, image/jpeg)
+            $table->unsignedBigInteger('size');
+            $table->string('type')->nullable(); // Tipo de documento (e.g., Acta, Reglamento, Comunicado)
+            $table->boolean('is_visible')->default(true);
+            $table->foreignId('uploaded_by_web_user_id')->nullable()->constrained('web_user_id')->onDelete('set null');
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('documents');
+    }
+};
