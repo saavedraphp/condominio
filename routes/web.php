@@ -2,6 +2,7 @@
 
 
 use App\Http\Controllers\Admin\UserHouseAssignmentController;
+use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\PaymentServiceController;
 use App\Http\Controllers\User\Auth\LoginUserController;
 use App\Http\Controllers\Admin\Auth\LoginUserController as AdminLogin;
@@ -63,6 +64,18 @@ Route::prefix('user')->name('user.')->group(function () {
         Route::get('/ads', [UserAdsController::class, 'index']);
         Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
         Route::resource('/profile', ProfileController::class);
+
+        /* INICIO rutas documentos*/
+        Route::get('/documents/list', [DocumentController::class, 'showPage'])->name('documents.show-page');
+        Route::get('/documents', [DocumentController::class, 'index']);
+        Route::get('/documents/{document}', [DocumentController::class, 'show'])
+            ->where('document', '[0-9]+'); // Asegura que el ID sea numérico
+
+        // Ruta nombrada para la descarga segura
+        Route::get('/documents/{document}/download', [DocumentController::class, 'download'])
+            ->name('documents.download') // Nombre de la ruta usado en el Modelo
+            ->where('document', '[0-9]+');
+        /* FIN rutas documentos*/
 
         Route::resource('/vehicles', VehicleController::class);
         Route::get('/get-vehicles-data/{userId}', [VehicleController::class, 'getVehiclesByUserId'])->name('user.vehicles.list');

@@ -113,7 +113,7 @@ class AdminlteMenuServiceProvider extends ServiceProvider
                 ]);
                 $event->menu->add([
                     'text' => 'Docs del Condominio',
-                    'url' => 'admin/blog',
+                    'route' => 'user.documents.show-page',
                     'can' => 'view_payment_history',
                 ]);
                 $event->menu->add([
@@ -122,7 +122,10 @@ class AdminlteMenuServiceProvider extends ServiceProvider
                     'can' => 'view_payment_history',
                 ]);
 
+
+
             }
+            //  'route' => ['nombre.ruta.con.parametro', ['parametro_id' => $algunaVariableId]], // Pasa parámetros como array
             // --- COMBINAR CON LÓGICA DE ROLES ---
             // Si ya tenías lógica de roles aquí, asegúrate de que coexista.
             // Por ejemplo, un item podría requerir un rol Y que una casa esté seleccionada.
