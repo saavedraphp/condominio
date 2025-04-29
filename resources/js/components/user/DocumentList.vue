@@ -4,7 +4,7 @@
             <v-card-title class="d-flex align-center pe-2">
                 <v-icon icon="mdi mdi-file-document-multiple-outline"></v-icon>
                  
-                Documentos del Condominio
+                Documentos del Condominios
             </v-card-title>
             <v-divider></v-divider>
             <v-data-table
