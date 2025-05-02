@@ -67,7 +67,7 @@ Route::prefix('user')->name('user.')->group(function () {
 
         /* INICIO rutas documentos*/
         Route::get('/documents/list', [DocumentController::class, 'showPage'])->name('documents.show-page');
-        Route::get('/documents', [DocumentController::class, 'index']);
+        Route::get('/documents', [DocumentController::class, 'index'])->name('documents.index');
         Route::get('/documents/{document}', [DocumentController::class, 'show'])
             ->where('document', '[0-9]+'); // Asegura que el ID sea numérico
 
@@ -118,6 +118,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::middleware(['auth:web'])->group(function () {
         Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
+
+        /* ANUNCIOS */
         Route::get('/ads/list', [AdsController::class, 'showListPage'])->name('ads.list');
         Route::resource('/ads', AdsController::class);
 
@@ -135,6 +137,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         /*LIST HOUSES*/
         Route::get('/houses/list', [AdminHouseController::class, 'showListPage'])->name('houses.list');
         Route::resource('/houses', AdminHouseController::class);
+
+        /* DOCUMENTS*/
+        Route::get('/documents/list', [DocumentController::class, 'showListPageAdmin'])->name('documents.show-page');
+        Route::resource('/documents', DocumentController::class);
+        Route::get('/documents/{document}/download', [DocumentController::class, 'download'])
+            ->name('documents.download')
+            ->where('document', '[0-9]+');
     });
 
 });

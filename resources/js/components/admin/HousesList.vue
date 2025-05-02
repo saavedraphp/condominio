@@ -1,3 +1,145 @@
+<script setup>
+import {ref, reactive, watch, computed, onMounted} from 'vue';
+import axios from "axios";
+import Snackbar from "@/components/Snackbar.vue";
+import DeleteConfirmationModal from "@/components/DeleteConfirmationModal.vue";
+import House from "@/components/admin/House.vue";
+
+
+const mySnackbar = ref(null);
+
+const headers = ref([
+    {title: 'Unid', key: 'property_unit', align: 'start', sortable: true},
+    {title: 'Cod Pago', key: 'payment_code', sortable: true},
+    {title: 'Direccion', key: 'address', sortable: true},
+    {title: 'Area Cons', key: 'construction_area', sortable: true},
+    {title: '% Part', key: 'participation_percentage', sortable: true},
+    {title: 'Acciones', key: 'actions', sortable: false, align: 'end'},
+]);
+
+const houses = ref([]);
+const loading = ref(true);
+const search = ref('Buscando resultados');
+const showModal = ref(false)
+const dialogDelete = ref(false);
+const isDeleting = ref(false);
+const itemToDelete = ref(null);
+
+
+const selectedElement = ref(null)
+
+// --- METHODS ---
+onMounted(() => {
+    getHouses();
+})
+
+const deleteDialogItemName = computed(() => {
+    if (!itemToDelete.value) return '';
+    return `${itemToDelete.value.address} ID: ${itemToDelete.value.property_unit}`;
+
+});
+
+async function getHouses() {
+    loading.value = true;
+
+    try {
+        const response = await axios.get(`/admin/houses/`);
+        houses.value = response.data;
+
+    } catch (error) {
+        mySnackbar.value.show('Lo sentimos, hubo un problema obtener la información. Intenta de nuevo, por favor.', 'error');
+    } finally {
+        loading.value = false;
+    }
+}
+
+const addHouse = async (item) => {
+    try {
+        const response = await axios.post('/admin/houses/', item);
+        if (response.data.success) {
+            mySnackbar.value.show(response.data.message, 'success');
+            houses.value.push(response.data.data);
+        } else {
+            mySnackbar.value.show(response.data.message, 'error');
+        }
+    } catch (error) {
+        mySnackbar.value.show('Lo sentimos, hubo un problema al guardar la información. Intenta de nuevo, por favor.', 'error');
+    }
+
+    showModal.value = false;
+};
+
+const editHouse = async (item) => {
+    try {
+        const response = await axios.put(`/admin/houses/${item.id}`, item);
+        if (response.data.success) {
+            houses.value = houses.value.map(element => {
+                if (element.id === item.id) {
+                    return response.data.data;
+                }
+                return element;
+            });
+            mySnackbar.value.show(response.data.message, 'success');
+        } else {
+            mySnackbar.value.show(response.data.message, 'error');
+        }
+    } catch (error) {
+        mySnackbar.value.show(error.response.data.errors, 'error');
+        console.log(error);
+    }
+
+    showModal.value = false;
+};
+
+const deleteHouse = async () => {
+    try {
+        if (!itemToDelete.value) return;
+        const id = itemToDelete.value.id;
+
+        const response = await axios.delete(`/admin/houses/${id}`)
+
+        if (response.data && response.data.success) {
+            houses.value = houses.value.filter(element => element.id !== id);
+            mySnackbar.value.show(response.data.message, 'success');
+
+        } else {
+            mySnackbar.value.show(response.data.message, 'error');
+        }
+
+    } catch (error) {
+        mySnackbar.value.show(error.response?.data?.errors, 'error');
+
+    } finally {
+        closeDeleteModal();
+    }
+};
+
+const openModalEdit = (item) => {
+    selectedElement.value = {...item};
+    showModal.value = true;
+};
+
+const closeModal = (() => {
+    selectedElement.value = null;
+    showModal.value = false;
+});
+
+const openDeleteModal = (item) => {
+    itemToDelete.value = item;
+    dialogDelete.value = true;
+};
+
+const closeDeleteModal = () => {
+    dialogDelete.value = false;
+    setTimeout(() => {
+        itemToDelete.value = null;
+        isDeleting.value = false;
+    }, 300);
+};
+
+// --FIN METHODS
+
+</script>
 <template>
     <v-container fluid>
         <v-card>
@@ -90,151 +232,6 @@
         <Snackbar ref="mySnackbar"/>
     </v-container>
 </template>
-
-<script setup>
-import {ref, reactive, watch, computed, onMounted} from 'vue';
-import axios from "axios";
-import Snackbar from "@/components/Snackbar.vue";
-import DeleteConfirmationModal from "@/components/DeleteConfirmationModal.vue";
-import House from "@/components/admin/House.vue";
-
-
-const mySnackbar = ref(null);
-
-const headers = ref([
-    {title: 'Unid', key: 'property_unit', align: 'start', sortable: true},
-    {title: 'Cod Pago', key: 'payment_code', sortable: true},
-    {title: 'Direccion', key: 'address', sortable: true},
-    {title: 'Area Cons', key: 'construction_area', sortable: true},
-    {title: '% Part', key: 'participation_percentage', sortable: true},
-    {title: 'Acciones', key: 'actions', sortable: false, align: 'end'},
-]);
-
-const houses = ref([]);
-const loading = ref(true);
-const search = ref('Buscando resultados');
-const showModal = ref(false)
-const dialogDelete = ref(false);
-const isDeleting = ref(false);
-const itemToDelete = ref(null);
-
-
-const selectedElement = ref(null)
-
-// --- METHODS ---
-onMounted(() => {
-    getHouses();
-})
-
-const deleteDialogItemName = computed(() => {
-    if (!itemToDelete.value) return '';
-    return `${itemToDelete.value.address} ID: ${itemToDelete.value.property_unit}`;
-
-});
-
-async function getHouses() {
-    loading.value = true;
-
-    try {
-        const response = await axios.get(`/admin/houses/`);
-        houses.value = response.data;
-
-    } catch (error) {
-        mySnackbar.value.show('Lo sentimos, hubo un problema obtener la información. Intenta de nuevo, por favor.', 'error');
-    } finally {
-        loading.value = false;
-    }
-}
-
-const addHouse = async (item) => {
-    try {
-        const response = await axios.post('/admin/houses/', item);
-        if (response.data.success) {
-            mySnackbar.value.show(response.data.message, 'success');
-            houses.value.push(response.data.data);
-        } else {
-            mySnackbar.value.show(response.data.message, 'error');
-        }
-    } catch (error) {
-        mySnackbar.value.show('Lo sentimos, hubo un problema al guardar la información. Intenta de nuevo, por favor.', 'error');
-    }
-
-    showModal.value = false;
-};
-
-const editHouse = async (item) => {
-    console.log(item);
-    try {
-        const response = await axios.put(`/admin/houses/${item.id}`, item);
-        if (response.data.success) {
-            houses.value = houses.value.map(element => {
-                if (element.id === item.id) {
-                    return response.data.data;
-                }
-                return element;
-            });
-            mySnackbar.value.show(response.data.message, 'success');
-        } else {
-            mySnackbar.value.show(response.data.message, 'error');
-        }
-    } catch (error) {
-        mySnackbar.value.show(error.response.data.errors, 'error');
-        console.log(error);
-    }
-
-    showModal.value = false;
-};
-
-const deleteHouse = async () => {
-    try {
-        if (!itemToDelete.value) return;
-        const id = itemToDelete.value.id;
-
-        const response = await axios.delete(`/admin/houses/${id}`)
-
-        if (response.data && response.data.success) {
-            houses.value = houses.value.filter(element => element.id !== id);
-            mySnackbar.value.show(response.data.message, 'success');
-
-        } else {
-            mySnackbar.value.show(response.data.message, 'error');
-        }
-
-    } catch (error) {
-        mySnackbar.value.show(error.response?.data?.errors, 'error');
-
-    } finally {
-        closeDeleteModal();
-    }
-};
-
-const openModalEdit = (item) => {
-    selectedElement.value = {...item};
-    showModal.value = true;
-};
-
-const closeModal = (() => {
-    selectedElement.value = null;
-    showModal.value = false;
-});
-
-const openDeleteModal = (item) => {
-    itemToDelete.value = item;
-    dialogDelete.value = true;
-};
-
-const closeDeleteModal = () => {
-    dialogDelete.value = false;
-    setTimeout(() => {
-        itemToDelete.value = null;
-        isDeleting.value = false;
-    }, 300);
-};
-
-// --FIN METHODS
-
-</script>
-
 <style scoped>
 /* Puedes añadir estilos específicos aquí si los necesitas */
 .v-card-title {

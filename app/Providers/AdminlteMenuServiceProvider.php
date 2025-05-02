@@ -30,11 +30,13 @@ class AdminlteMenuServiceProvider extends ServiceProvider
                 'text' => 'Inicio',
                 'url' => 'user/dashboard', // Cambia a tu ruta
                 'icon' => 'fas fa-fw fa-tachometer-alt',
+                'can' => 'view_payment_history',
             ]);
             $event->menu->add([
                 'text' => 'Casas',
                 'url' => 'user/houses/list',
                 'icon' => 'fas fa-fw fa-home',
+                'can' => 'view_payment_history',
             ]);
 
             // --- Aquí puedes agregar otros items básicos ---
@@ -121,8 +123,6 @@ class AdminlteMenuServiceProvider extends ServiceProvider
                     'url' => 'admin/blog',
                     'can' => 'view_payment_history',
                 ]);
-
-
 
             }
             //  'route' => ['nombre.ruta.con.parametro', ['parametro_id' => $algunaVariableId]], // Pasa parámetros como array

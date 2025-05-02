@@ -1,3 +1,91 @@
+<script setup>
+import { ref, watch, computed } from 'vue';
+import axios from 'axios';
+
+// --- Props & Emits ---
+const props = defineProps({
+    modelValue: Boolean, // Para controlar la visibilidad del diálogo (v-model)
+    documentId: {
+        type: [Number, String, null],
+        default: null,
+    },
+    apiBaseUrl: {
+        type: String,
+        default: '/api/documents',
+    },
+});
+const emit = defineEmits(['update:modelValue', 'close']);
+
+// --- State ---
+const documentData = ref(null);
+const loading = ref(false);
+const error = ref(false);
+const errorMessage = ref('');
+
+// --- Computed ---
+const dialogVisible = computed({
+    get: () => props.modelValue,
+    set: (value) => emit('update:modelValue', value)
+});
+
+
+// --- Methods ---
+const fetchDocumentDetails = async (id) => {
+    if (!id) return;
+    loading.value = true;
+    error.value = false;
+    errorMessage.value = '';
+    documentData.value = null;
+    try {
+        const response = await axios.get(`${props.apiBaseUrl}/${id}`);
+        documentData.value = response.data;
+    } catch (err) {
+        console.error(`Error fetching document ${id}:`, err);
+        error.value = true;
+        errorMessage.value = 'No se pudieron cargar los detalles del documento.';
+        if (err.response && err.response.status === 404) {
+            errorMessage.value = 'Documento no encontrado o no tienes permiso para verlo.';
+        } else if (err.response && err.response.status === 401) {
+            errorMessage.value = 'No estás autorizado.';
+        }
+    } finally {
+        loading.value = false;
+    }
+};
+
+const closeDialog = () => {
+    emit('close'); // Emite el evento close también por si se usa externamente
+    dialogVisible.value = false; // Cierra usando el computed property
+};
+
+const trackDownload = () => {
+    // Opcional: Puedes añadir lógica aquí si quieres registrar la descarga
+    // console.log(`Iniciando descarga para: ${documentData.value?.original_filename}`);
+    // No necesitas cerrar el diálogo aquí, el usuario puede querer mantenerlo abierto.
+}
+
+// Función para formatear fecha
+const formatDate = (dateString) => {
+    if (!dateString) return '-';
+    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+};
+
+// --- Watchers ---
+// Observa cambios en documentId y si el diálogo se hace visible
+watch(() => [props.documentId, props.modelValue], ([newId, isVisible]) => {
+    if (isVisible && newId) {
+        fetchDocumentDetails(newId);
+    } else if (!isVisible) {
+        // Limpia el estado cuando el diálogo se cierra
+        documentData.value = null;
+        loading.value = false;
+        error.value = false;
+        errorMessage.value = '';
+    }
+});
+
+</script>
 <template>
     <v-dialog
         :model-value="modelValue"
@@ -77,8 +165,8 @@
                     color="primary"
                     variant="flat"
                     prepend-icon="mdi-download"
-                    :disabled="loading || error || !documentData?.download_url"
-                    :href="documentData?.download_url"
+                    :disabled="loading || error || !documentData?.file_path_url"
+                    :href="documentData?.file_path_url"
                     target="_blank"
                     @click="trackDownload"
                 >
@@ -88,92 +176,6 @@
         </v-card>
     </v-dialog>
 </template>
-
-<script setup>
-import { ref, watch, computed } from 'vue';
-import axios from 'axios';
-
-// --- Props & Emits ---
-const props = defineProps({
-    modelValue: Boolean, // Para controlar la visibilidad del diálogo (v-model)
-    documentId: {
-        type: [Number, String, null],
-        default: null,
-    },
-});
-const emit = defineEmits(['update:modelValue', 'close']);
-
-// --- State ---
-const documentData = ref(null);
-const loading = ref(false);
-const error = ref(false);
-const errorMessage = ref('');
-
-// --- Computed ---
-const dialogVisible = computed({
-    get: () => props.modelValue,
-    set: (value) => emit('update:modelValue', value)
-});
-
-
-// --- Methods ---
-const fetchDocumentDetails = async (id) => {
-    if (!id) return;
-    loading.value = true;
-    error.value = false;
-    errorMessage.value = '';
-    documentData.value = null; // Limpia datos anteriores
-    try {
-        const response = await axios.get(`/api/documents/${id}`);
-        documentData.value = response.data;
-    } catch (err) {
-        console.error(`Error fetching document ${id}:`, err);
-        error.value = true;
-        errorMessage.value = 'No se pudieron cargar los detalles del documento.';
-        if (err.response && err.response.status === 404) {
-            errorMessage.value = 'Documento no encontrado o no tienes permiso para verlo.';
-        } else if (err.response && err.response.status === 401) {
-            errorMessage.value = 'No estás autorizado.';
-        }
-    } finally {
-        loading.value = false;
-    }
-};
-
-const closeDialog = () => {
-    emit('close'); // Emite el evento close también por si se usa externamente
-    dialogVisible.value = false; // Cierra usando el computed property
-};
-
-const trackDownload = () => {
-    // Opcional: Puedes añadir lógica aquí si quieres registrar la descarga
-    // console.log(`Iniciando descarga para: ${documentData.value?.original_filename}`);
-    // No necesitas cerrar el diálogo aquí, el usuario puede querer mantenerlo abierto.
-}
-
-// Función para formatear fecha
-const formatDate = (dateString) => {
-    if (!dateString) return '-';
-    const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-};
-
-// --- Watchers ---
-// Observa cambios en documentId y si el diálogo se hace visible
-watch(() => [props.documentId, props.modelValue], ([newId, isVisible]) => {
-    if (isVisible && newId) {
-        fetchDocumentDetails(newId);
-    } else if (!isVisible) {
-        // Limpia el estado cuando el diálogo se cierra
-        documentData.value = null;
-        loading.value = false;
-        error.value = false;
-        errorMessage.value = '';
-    }
-});
-
-</script>
-
 <style scoped>
 /* Estilos si son necesarios */
 .v-list-item-title {

@@ -22,11 +22,11 @@ class AdRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'required|string|min:10|max:50', // CORREGIDO EJEMPLO
+            'title' => 'required|string|min:10|max:50',
             'description' => 'required|string|min:20|max:250',
             'start_day' => 'required|date',
             'end_day' => 'required|date|after_or_equal:start_day',
-            'status' => 'required',
+            'active' => 'required',
         ];
     }
 

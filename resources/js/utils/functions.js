@@ -25,3 +25,17 @@ export function formatDate  (dateString)  {
     const date = new Date(dateString);
     return date.toLocaleDateString('es-ES', options);
 }
+
+export function getMegabytes(bytes) {
+    if (bytes === undefined || bytes === null || typeof bytes !== 'number' || bytes < 0) {
+        return '0.00';
+    }
+
+    if (bytes === 0) {
+        return '0.00';
+    }
+
+    const megabytes = bytes / 1024 / 1024;
+
+    return megabytes.toFixed(2);
+}
