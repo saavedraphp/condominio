@@ -20,7 +20,7 @@ return new class extends Migration
             $table->date('end_day')->nullable();
             $table->time('end_time')->nullable();
             $table->string('image_url')->nullable();
-            $table->enum('status', ['active', 'inactive'])->default('active');
+            $table->boolean('active');
             $table->timestamps();
         });
     }

@@ -21,9 +21,9 @@ const schema = yup.object({
 const {handleSubmit, resetForm} = useForm({
     validationSchema: schema,
     initialValues: {
-        name: 'Adecon Peru',
-        email: 'adeconperuventas@gmail.com',
-        phone: '960203783',
+        name: '',
+        email: '',
+        phone: '',
         status: true
     }
 });
@@ -122,8 +122,7 @@ const close = () => {
                         </v-col>
                     </v-row>
                 </v-container>
-                <small>*Campos requeridos</small>
-                <blockquote>*Se requiere verificación por correo electrónico.
+                <blockquote v-if="false">*Se requiere verificación por correo electrónico.
                     Se enviará un mensaje a {{ email.value}} con los pasos para confirmar
                     su cuenta. Una vez confirmada, podrá acceder y modificar su contraseña.</blockquote>
                 <v-card-actions>

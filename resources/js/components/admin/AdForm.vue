@@ -34,11 +34,11 @@ const schema = yup.object({
 const {handleSubmit, resetForm} = useForm({
     validationSchema: schema,
     initialValues: {
-        title: 'Mantenimiento de rejas',
-        description: 'Mantenimiento de rejas en la puerta principal',
-        start_day: '2025-08-02',
-        end_day: '2025-08-02',
-        status: true
+        title: '',
+        description: '',
+        start_day: '',
+        end_day: '',
+        active: true
     }
 });
 
@@ -46,7 +46,7 @@ const title = useField('title');
 const description = useField('description')
 const start_day = useField('start_day')
 const end_day = useField('end_day')
-const status = useField('status')
+const active = useField('active')
 
 let formTitle = 'Adicionar Anuncio';
 
@@ -56,7 +56,7 @@ watch(() => props.ad, (newValue) => {
         description.value.value = newValue.description || "";
         start_day.value.value = newValue.start_day || "";
         end_day.value.value = newValue.end_day || "";
-        status.value.value = newValue.status === 'active';
+        active.value.value = newValue.active === true;
     }
     if(props.ad?.id) {
         formTitle = 'Editar Anuncio';
@@ -73,7 +73,7 @@ const submitForm = handleSubmit((values) => {
             description: values.description,
             start_day: values.start_day,
             end_day: values.end_day,
-            status: values.status,
+            active: values.active ? 1 : 0,
         });
     } else {
         emit('ad-added', {
@@ -81,11 +81,11 @@ const submitForm = handleSubmit((values) => {
             description: values.description,
             start_day: values.start_day,
             end_day: values.end_day,
-            status: values.status,
+            active: values.active ? 1 : 0,
         });
     }
 
-    resetForm({values: {title: '', description: '', start_day: '', end_day: '', status: true}});
+    resetForm({values: {title: '', description: '', start_day: '', end_day: '', active: true}});
     close();
 });
 
@@ -141,11 +141,11 @@ const close = () => {
                         </v-col>
                         <v-col cols="12" sm="6">
                             <v-switch
-                                v-model="status.value.value"
-                                :label="status.value.value ? 'Activo' : 'Inactivo'"
+                                v-model="active.value.value"
+                                :label="active.value.value ? 'Activo' : 'Inactivo'"
                                 color="success"
                                 inset
-                            ></v-switch>
+                            ></v-switch> {{ active.value.value}}
                         </v-col>
                     </v-row>
                 </v-container>
@@ -157,10 +157,5 @@ const close = () => {
                 </v-card-actions>
             </v-form>
         </v-card-text>
-
     </v-card>
 </template>
-
-<style scoped>
-
-</style>

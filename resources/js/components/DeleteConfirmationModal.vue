@@ -78,16 +78,12 @@ const emit = defineEmits([
 
 // --- Métodos (Handlers de eventos internos) ---
 const emitConfirm = () => {
-    // Notifica al padre que se confirmó la acción
-    emit('confirm');
-    // ¡Importante! El modal NO se cierra aquí. El padre decidirá cuándo cerrarlo
-    // después de que la operación de eliminación termine (éxito o fracaso).
+        emit('confirm');
 };
 
 const emitCancel = () => {
-    // Notifica al padre que se canceló y pide cerrar el modal
     emit('update:show', false); // Actualiza el v-model en el padre
-    emit('cancel'); // Emite evento de cancelación por si el padre necesita hacer algo más
+    emit('cancel');
 };
 </script>
 
