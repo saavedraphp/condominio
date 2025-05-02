@@ -9,44 +9,37 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class AccountActivationMail extends Mailable
+class AccountActivationMail extends Mailable implements ShouldQueue // Es buena práctica implementar ShouldQueue para enviar correos en segundo plano
 {
     use Queueable, SerializesModels;
 
+    // Haz la propiedad pública para que esté disponible automáticamente en la vista
     public $activationUrl;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($activationUrl)
+    public function __construct(string $activationUrl)
     {
         $this->activationUrl = $activationUrl;
     }
 
-    public function build()
-    {
-        return $this->subject('Activa tu cuenta')
-            ->view('emails.account_activation')
-            ->with(['url' => $this->activationUrl]);
-    }
-
-    /**
-     * Get the message envelope.
-     */
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Account Activation Mail',
+            subject: 'Activa tu cuenta',
+        // Puedes añadir remitente, destinatarios CC/BCC aquí si es necesario
+        // from: new Address('info@example.com', 'Tu Aplicación'),
         );
     }
 
-    /**
-     * Get the message content definition.
-     */
     public function content(): Content
     {
         return new Content(
-            view: 'view.name',
+            view: 'emails.account_activation',
+            with: [
+                'url' => $this->activationUrl,
+            ]
         );
     }
 

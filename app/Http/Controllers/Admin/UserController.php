@@ -53,29 +53,27 @@ class UserController extends Controller
             $dataToCreate = array_merge(
                 $validatedData,
                 [
-                    'password' => bcrypt(Str::random(10)),
-                    'status' => 'inactive'
+                    'password' => bcrypt('123456'), //bcrypt(Str::random(10)),
+                    'status' => 'active'
                 ]);
 
-            $user = User::create($dataToCreate);
+            $webUser = WebUser::create($dataToCreate);
 
             $token = Str::random(64);
 
-            DB::table('account_activations')->insert([
-                'email' => $user->email,
-                'token' => $token,
-                'created_at' => Carbon::now()
-            ]);
+            $webUser->activationToken()->create(['token' => $token]);
+
+
 
             $activationUrl = url('/activar-cuenta/' . $token);
 
-            Mail::to($user->email)->send(new AccountActivationMail($activationUrl));
+            //Mail::to($webUser->email)->send(new AccountActivationMail($activationUrl));
 
 
             return response()->json([
                 'success' => true,
-                'message' => '¡Excelente! Usuario registrado. A la espera de que confirme su cuenta para la activación.',
-                'data' => $user,
+                'message' => '¡Excelente! Usuario registrado.',
+                'data' => $webUser,
             ], 201);
         } catch (\exception $e) {
             Log::error('Error al adicionar un usuario' . $e->getMessage());
@@ -83,7 +81,7 @@ class UserController extends Controller
         }
     }
 
-    public function update(UserRequest $request, User $user): JsonResponse
+    public function update(UserRequest $request, WebUser $user): JsonResponse
     {
         try {
             $updateSuccessful = $user->update($request->only(['name', 'phone', 'status']));
@@ -108,7 +106,7 @@ class UserController extends Controller
     }
 
 
-    public function destroy(User $user): JsonResponse
+    public function destroy(WebUser $user): JsonResponse
     {
         try {
             $user->delete();

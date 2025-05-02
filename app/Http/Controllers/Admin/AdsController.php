@@ -17,7 +17,7 @@ class AdsController extends Controller
     {
         try {
             $ads = Ad::query()
-                ->select(['id', 'title', 'description', 'status', 'start_day', 'end_day', 'created_at'])
+                ->select(['id', 'title', 'description', 'active', 'start_day', 'end_day', 'created_at'])
                 ->orderBy('created_at', 'desc')
                 ->get();
 
@@ -44,7 +44,7 @@ class AdsController extends Controller
                 'description' => 'required|string:max:250',
                 'start_day' => 'required|date',
                 'end_day' => 'required|date',
-                'status' => 'required|string|max:10',
+                'active' => 'required',
             ]);
 
             $vehicle = Ad::create($validateData);
@@ -52,7 +52,8 @@ class AdsController extends Controller
                 'success' => true,
                 'message' => '¡Excelente! se agregado un Anuncio correctamente.',
                 'data' => $vehicle,
-            ],201);
+            ],JsonResponse::HTTP_CREATED);
+
         } catch (\exception $e) {
             Log::error('Error al adicionar un Anuncio' . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'Ócurrio un error al intentar agregar un Anuncio: ' . $e->getMessage()], 500);
@@ -71,7 +72,6 @@ class AdsController extends Controller
                 return response()->json([
                     'success' => true,
                     'message' => '¡Excelente! se edito el registro correctamente.',
-                    'data' => $ad,
                 ], 201);
             } else {
                 Log::warning('Fallo al actualizar el registro.', ['id' => $ad->id]);

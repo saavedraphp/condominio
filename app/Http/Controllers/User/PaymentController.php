@@ -207,7 +207,7 @@ class PaymentController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => '¡Excelente! El registro y su archivo asociado se han eliminado correctamente.',
-                JsonResponse::HTTP_CREATED
+                JsonResponse::HTTP_OK
             ]);
 
         } catch (Throwable $e) {

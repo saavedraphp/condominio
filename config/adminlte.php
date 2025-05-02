@@ -318,9 +318,9 @@ return [
               'text' => 'search',
           ],*/
         [
-            'text' => 'Anuncios',
-            'url' => 'admin/ads/list',
-            'icon' => 'fas fa-list',
+            'text' => 'Home',
+            'url' => 'admin/dashboard',
+            'icon' => 'fas fa-user',
             'can' => 'view_ads',
         ],
         [
@@ -333,6 +333,18 @@ return [
             'text' => 'Casas',
             'url' => 'admin/houses/list',
             'icon' => 'fas fa-home',
+            'can' => 'view_ads',
+        ],
+        [
+            'text' => 'Anuncios',
+            'url' => 'admin/ads/list',
+            'icon' => 'fas fa-list',
+            'can' => 'view_ads',
+        ],
+        [
+            'text' => 'Documentos',
+            'url' => 'admin/documents/list',
+            'icon' => 'fas fa-file',
             'can' => 'view_ads',
         ],
         [
@@ -351,15 +363,15 @@ return [
             'can' => 'view_ads',
         ],
         [
-            'text' => 'Peticiones al Vocal',
+            'text' => 'Gestión de Comunicaciones',
             'url' => 'admin/blog',
             'can' => 'view_ads',
         ],
         [
             'text' => 'Perfil',
-            'url' => 'user/profile',
+            'url' => 'admin/profile',
             'icon' => 'fas fa-fw fa-user',
-            'can' => 'view_ads',
+            'can' => 'view_adsss',
         ],
         [
             'text' => 'change_password',

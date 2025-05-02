@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             HouseSeeder::class,
             HousePaymentSeeder::class,
             PaymentServiceSeeder::class,
+            DocumentSeeder::class,
         ]);
     }
 }

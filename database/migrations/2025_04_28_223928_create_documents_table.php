@@ -16,12 +16,12 @@ return new class extends Migration
             $table->string('title');
             $table->text('description')->nullable();
             $table->string('file_path');
-            $table->string('original_filename');
-            $table->string('mime_type'); // Tipo MIME (e.g., application/pdf, image/jpeg)
-            $table->unsignedBigInteger('size');
+            $table->string('original_filename')->nullable();
+            $table->string('extension')->nullable();
+            $table->unsignedBigInteger('size')->nullable();
             $table->string('type')->nullable(); // Tipo de documento (e.g., Acta, Reglamento, Comunicado)
-            $table->boolean('is_visible')->default(true);
-            $table->foreignId('uploaded_by_web_user_id')->nullable()->constrained('web_user_id')->onDelete('set null');
+            $table->boolean('active')->default(true);
+            $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
             $table->timestamps();
         });
     }
