@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -66,5 +67,15 @@ class WebUser extends Authenticatable
     public function paymentsMade(): HasMany
     {
         return $this->hasMany(HousePayment::class);
+    }
+
+    public function petitions(): HasMany
+    {
+        return $this->hasMany(Petition::class);
+    }
+
+    public function petitionReplies(): MorphMany
+    {
+        return $this->morphMany(PetitionReply::class, 'repliable');
     }
 }

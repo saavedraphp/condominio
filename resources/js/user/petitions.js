@@ -1,12 +1,12 @@
 import { createApp } from 'vue';
 import vuetify from '../app';
-import UserList from '../components/admin/UserList.vue';
+import PetitionList from "@/components/user/PetitionList.vue";
+
 import './../../sass/main.scss';
+
 const app = createApp({
-    components: { UserList },
-    methods: {
-    }
+    components: { PetitionList },
 });
 
 app.use(vuetify)
-app.mount('#users-container');
+app.mount('#petition-list-container');

@@ -4,6 +4,8 @@
 use App\Http\Controllers\Admin\UserHouseAssignmentController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\PaymentServiceController;
+use App\Http\Controllers\PetitionController;
+use App\Http\Controllers\Admin\PetitionController as AdminPetitionController;
 use App\Http\Controllers\User\Auth\LoginUserController;
 use App\Http\Controllers\Admin\Auth\LoginUserController as AdminLogin;
 
@@ -106,6 +108,16 @@ Route::prefix('user')->name('user.')->group(function () {
         Route::resource('/house-residents', HouseResidentController::class);
         Route::get('/get-house-residents-data/{houseId}', [HouseResidentController::class, 'getHouseResidentsData'])->name('user.house.listResidents');
 
+        /* PETITICIONS */
+        /*Route::get('/petitions/list', [PetitionController::class, 'showPage'])->name('petitions.show-page');;
+        Route::resource('/petitions', PetitionController::class);
+        Route::post('/petitions/{petition}/replies', [PetitionController::class, 'addReply'])->name('petitions.replies.store');*/
+
+        Route::get('/petitions/list', [PetitionController::class, 'showPage'])->name('petitions.show-page');;
+        Route::get('/petitions', [PetitionController::class, 'index'])->name('petitions.index');
+        Route::post('/petitions', [PetitionController::class, 'store'])->name('petitions.store');
+        Route::get('/petitions/{petition}', [PetitionController::class, 'show'])->name('petitions.show');
+        Route::post('/petitions/{petition}/replies', [PetitionController::class, 'addReply'])->name('petitions.replies.store');
     });
 
 });
@@ -144,6 +156,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/documents/{document}/download', [DocumentController::class, 'download'])
             ->name('documents.download')
             ->where('document', '[0-9]+');
+
+        /* PETITIONS */
+        Route::get('/petitions/list', [AdminPetitionController::class, 'showPage'])->name('petitions.show-page');;
+        Route::get('/petitions', [AdminPetitionController::class, 'index'])->name('petitions.index');
+        Route::get('/petitions/{petition}', [AdminPetitionController::class, 'show'])->name('petitions.show');
+        Route::post('/petitions/{petition}/replies', [AdminPetitionController::class, 'addReply'])->name('petitions.replies.store');
+        Route::put('/petitions/{petition}/status', [AdminPetitionController::class, 'updateStatus'])->name('petitions.status.update');
     });
 
 });

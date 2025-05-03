@@ -26,6 +26,12 @@ export function formatDate  (dateString)  {
     return date.toLocaleDateString('es-ES', options);
 }
 
+export function formatDateTime(dateString)  {
+    if (!dateString) return '-';
+    const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+}
+
 export function getMegabytes(bytes) {
     if (bytes === undefined || bytes === null || typeof bytes !== 'number' || bytes < 0) {
         return '0.00';
