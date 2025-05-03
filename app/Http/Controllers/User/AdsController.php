@@ -14,8 +14,8 @@ class AdsController extends Controller
     {
         try {
             $ads = Ad::query()
-                ->select(['id', 'title', 'description', 'status', 'start_day', 'end_day', 'created_at'])
-                ->where('status', 'active')
+                ->select(['id', 'title', 'description', 'active', 'start_day', 'end_day', 'created_at'])
+                ->where('active', true)
                 ->orderBy('start_day', 'desc')
                 ->limit(5)
                 ->get();

@@ -1,8 +1,8 @@
 import { createApp } from 'vue';
 import vuetify from '../app';
 import AdsList from '../components/admin/AdsList.vue';
-import VueApexCharts from "vue3-apexcharts";
 
+import './../../sass/main.scss';
 
 const app = createApp({
     components: { AdsList },
