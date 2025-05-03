@@ -363,8 +363,9 @@ return [
             'can' => 'view_ads',
         ],
         [
-            'text' => 'Gestión de Comunicaciones',
-            'url' => 'admin/blog',
+            'text' => 'Peticiones al Vocal',
+            'route' => 'admin.petitions.show-page',
+            'icon' => 'fas fa-fw fa-envelope',
             'can' => 'view_ads',
         ],
         [

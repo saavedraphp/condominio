@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -54,6 +55,12 @@ class User extends Authenticatable
     public function activationToken(): MorphOne
     {
         return $this->morphOne(AccountActivation::class, 'activatable');
+    }
+
+
+    public function petitionReplies(): MorphMany
+    {
+        return $this->morphMany(PetitionReply::class, 'repliable');
     }
 
 }

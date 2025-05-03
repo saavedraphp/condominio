@@ -52,7 +52,7 @@ const getDocuments = async () => {
         const response = await axios.get(props.apiBaseUrl);
         documents.value = response.data.map(doc => ({
             ...doc,
-            format_size: getMegabytes(doc.size)+' MB',
+            format_size: getMegabytes(doc.size) + ' MB',
         }));
     } catch (err) {
         error.value = true;
@@ -291,7 +291,7 @@ onMounted(() => {
                             ></v-btn>
                         </template>
                     </v-tooltip>
-                    <v-tooltip text="Ver" v-if="true">
+                    <v-tooltip text="Ver" v-if="isAdmin">
                         <template v-slot:activator="{ props }">
                             <v-btn
                                 v-bind="props"
@@ -304,7 +304,7 @@ onMounted(() => {
                             ></v-btn>
                         </template>
                     </v-tooltip>
-                    <v-tooltip text="Eliminar">
+                    <v-tooltip text="Eliminar" v-if="isAdmin">
                         <template v-slot:activator="{ props }">
                             <v-btn
                                 v-bind="props"

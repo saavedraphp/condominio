@@ -6,6 +6,7 @@
         "build": "vite build"
     },
     "devDependencies": {
+        "@types/lodash-es": "^4.17.12",
         "@vitejs/plugin-vue": "^5.2.1",
         "axios": "^1.6.4",
         "laravel-vite-plugin": "^1.0.0",
@@ -15,6 +16,7 @@
     },
     "dependencies": {
         "@mdi/font": "^7.4.47",
+        "lodash-es": "^4.17.21",
         "vee-validate": "^4.15.0",
         "vue3-apexcharts": "^1.8.0",
         "vuetify": "^3.7.0-beta.1",

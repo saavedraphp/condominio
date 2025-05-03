@@ -85,7 +85,7 @@ class AdminlteMenuServiceProvider extends ServiceProvider
                         [
                             'text' => 'Políticas',
                             'url' => "admin/casas/{$selectedHouseId}/politicas",
-                            'icon' => 'fas fa-fw fa-file-alt',
+                                'icon' => 'fas fa-fw fa-file-alt',
                         ],
                     ],
                 ]);
@@ -104,17 +104,13 @@ class AdminlteMenuServiceProvider extends ServiceProvider
                     'can' => 'view_payment_history',
                 ]);
                 $event->menu->add([
-                    'text' => 'Peticiones al Vocal',
-                    'url' => 'admin/blog',
-                    'can' => 'view_payment_history',
-                ]);
-                $event->menu->add([
                     'text' => 'Presupuesto vs Gastos',
                     'url' => 'admin/blog',
                     'can' => 'view_payment_history',
                 ]);
                 $event->menu->add([
                     'text' => 'Docs del Condominio',
+                    'icon' => 'fas fa-fw fa-file',
                     'route' => 'user.documents.show-page',
                     'can' => 'view_payment_history',
                 ]);
@@ -123,7 +119,12 @@ class AdminlteMenuServiceProvider extends ServiceProvider
                     'url' => 'admin/blog',
                     'can' => 'view_payment_history',
                 ]);
-
+                $event->menu->add([
+                    'text' => 'Peticiones al Vocal',
+                    'route' => 'user.petitions.show-page',
+                    'icon' => 'fas fa-fw fa-envelope',
+                    'can' => 'view_payment_history',
+                ]);
             }
             //  'route' => ['nombre.ruta.con.parametro', ['parametro_id' => $algunaVariableId]], // Pasa parámetros como array
             // --- COMBINAR CON LÓGICA DE ROLES ---
