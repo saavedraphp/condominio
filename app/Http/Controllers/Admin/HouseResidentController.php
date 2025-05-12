@@ -1,17 +1,26 @@
 <?php
 
-namespace App\Http\Controllers\User;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\House;
 use App\Models\HouseResident;
 use App\Models\WebUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\View\View;
 
 class HouseResidentController extends Controller
 {
+    public function showListPage(WebUser $webUser, House $house): View
+    {
+        return view('admin.users.house_attributes',[
+            'webUser' => $webUser,
+            'house' => $house,
+        ]);
+    }
     public function store(Request $request): JsonResponse
     {
         try {
@@ -36,40 +45,25 @@ class HouseResidentController extends Controller
 
     }
 
-    public function getHouseResidentsData(int $houseId): JsonResponse
+    public function index(WebUser $webUser, House $house): JsonResponse
     {
-        $user = Auth::guard('web_user')->id();
+        $isAuthorized = $webUser->houses()
+            ->whereKey($house->getKey())
+            ->exists();
 
-        if (!$user) {
-            return response()->json(['message' => 'Usuario no encontrado'], 404);
+        if (!$isAuthorized) {
+            return response()->json(['message' => 'Acceso denegado: El usuario no tiene permisos de propietario o gestor para esta casa.'], 403);
         }
 
-        $houseResidents = HouseResident::query()->where('house_id', $houseId)->get();
+        $houseResidents = HouseResident::query()->where('house_id', $house->id)->get();
+
         return response()->json($houseResidents, 200);
 
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function update(Request $request, WebUser $webUser, House $house, HouseResident $houseResident): JsonResponse
     {
-        //
-    }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, HouseResident $houseResident): JsonResponse
-    {
         try {
             $validateData = $request->validate([
                 'house_id' => 'required|exists:houses,id',
@@ -77,10 +71,8 @@ class HouseResidentController extends Controller
                 'phone' => 'required|string|max:20',
                 'email' => 'required|email'
             ]);
-            $userId = Auth::id();
-            $dataToUpdate = array_merge($validateData, ['user_id' => $userId]);
 
-            $updateSuccessful = $houseResident->update($dataToUpdate);
+            $updateSuccessful = $houseResident->update($validateData);
 
             if ($updateSuccessful) {
                 return response()->json([
@@ -101,10 +93,8 @@ class HouseResidentController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(HouseResident $houseResident)
+
+    public function destroy(WebUser $webUser, House $house, HouseResident $houseResident): JsonResponse
     {
         try {
             $houseResident->delete();

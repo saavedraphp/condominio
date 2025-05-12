@@ -116,7 +116,10 @@ class DocumentController extends Controller
         } catch (\exception $e) {
             $messageError = 'Ócurrio un error al intentar subir el documento. ';
             Log::error($messageError . $e->getMessage());
-            return response()->json(['success' => false, 'message' => $messageError . $e->getMessage()], 500);
+            return response()->json([
+                'success' => false,
+                'message' => $messageError],
+                500);
         }
     }
 

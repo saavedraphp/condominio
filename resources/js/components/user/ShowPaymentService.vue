@@ -1,26 +1,26 @@
 <script setup>
+import {formatDate} from "../../utils/functions.js";
+
 const emit = defineEmits(['close-modal']);
 const props = defineProps({
     element: {
         type: Object,
         default: null
+    },
+    typeServiceUnit: {
+        type: String,
+        default: 'kWh'
     }
 });
 
 const close = () => {
     emit('close-modal');
 }
-
-const formatDate = (dateString) => {
-    const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', options);
-};
 </script>
 <template>
     <v-card>
         <!-- 1. Título del Modal -->
-        <v-card-title class="headline grey lighten-2" primary-title>
+        <v-card-title>
             Detalles del Registro de Consumo
         </v-card-title>
 
@@ -33,8 +33,8 @@ const formatDate = (dateString) => {
                         <div class="text-body-1">{{ formatDate(element.payment_date) }}</div>
                     </v-col>
                     <v-col cols="12" sm="6">
-                        <div class="text-caption text-grey">Consumo (kWh)</div>
-                        <div class="text-body-1">{{ element.quantity ?? 'N/A' }} kWh</div>
+                        <div class="text-caption text-grey">Consumo ({{typeServiceUnit}})</div>
+                        <div class="text-body-1">{{ element.quantity ?? 'N/A' }} {{ typeServiceUnit}}</div>
                     </v-col>
                     <v-col cols="12" sm="6">
                         <div class="text-caption text-grey">¿Hubo Remplazo?</div>

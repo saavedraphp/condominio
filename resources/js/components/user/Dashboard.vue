@@ -4,6 +4,7 @@ import { ref, reactive, onMounted } from 'vue';
 import VueApexCharts from 'vue3-apexcharts';
 import axios from "axios";
 import Snackbar from "@/components/Snackbar.vue";
+import {formatDate, formatDateTime} from "../../utils/functions.js";
 
 const props = defineProps({
     userId: String
@@ -103,7 +104,6 @@ onMounted(() => {
 
 async function getAdsData() {
     isLoadingAds.value = true;
-
     try {
         const response = await axios.get('/user/ads');
         ads.value = response.data;
@@ -237,7 +237,7 @@ export default {
                                     target="_blank"
                                 >
                                     <v-list-item-title class="font-weight-medium">{{ ad.title }}</v-list-item-title>
-                                    <v-list-item-subtitle>{{ ad.start_day }} al {{ ad.end_day }}</v-list-item-subtitle>
+                                    <v-list-item-subtitle>{{ formatDate(ad.start_day) }} al {{ formatDate(ad.end_day) }}</v-list-item-subtitle>
                                     <template v-slot:append>
                                         <v-icon icon="mdi-chevron-right"></v-icon>
                                     </template>

@@ -45,3 +45,17 @@ export function getMegabytes(bytes) {
 
     return megabytes.toFixed(2);
 }
+
+const units = {
+    electricity: 1,
+    water: 0,
+};
+export function getUnitConsumption(typeConsumption) {
+    if (typeConsumption === units.electricity) {
+        return 'kWh';
+    } else if (typeConsumption === units.water) {
+        return 'm³';
+    }
+
+    return typeConsumption;
+}

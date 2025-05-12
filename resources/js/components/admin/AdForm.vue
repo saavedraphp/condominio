@@ -111,6 +111,7 @@ const close = () => {
                                 :error-messages="title.errorMessage.value"
                                 label="Título del Anuncio*"
                                 required
+                                variant="outlined"
                             ></v-text-field>
                         </v-col>
                         <v-col cols="12">
@@ -119,6 +120,7 @@ const close = () => {
                                 :error-messages="description.errorMessage.value"
                                 label="Contenido del Anuncio*"
                                 rows="3"
+                                variant="outlined"
                                 required
                             ></v-textarea>
                         </v-col>
@@ -128,6 +130,7 @@ const close = () => {
                                 v-model="start_day.value.value"
                                 :error-messages="start_day.errorMessage.value"
                                 label="Fecha de Inicio (YYYY-MM-DD)"
+                                variant="outlined"
                                 type="date"
                             ></v-text-field>
                         </v-col>
@@ -137,6 +140,7 @@ const close = () => {
                                 :error-messages="end_day.errorMessage.value"
                                 label="Fecha de Fin (YYYY-MM-DD)"
                                 type="date"
+                                variant="outlined"
                             ></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6">
@@ -145,7 +149,7 @@ const close = () => {
                                 :label="active.value.value ? 'Activo' : 'Inactivo'"
                                 color="success"
                                 inset
-                            ></v-switch> {{ active.value.value}}
+                            ></v-switch>
                         </v-col>
                     </v-row>
                 </v-container>

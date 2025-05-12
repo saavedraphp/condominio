@@ -66,6 +66,7 @@ const formTitle = computed(() => isEditing.value ? 'Editar Documento' : 'Adicion
 // --- Métodos ---
 const submitForm = handleSubmit(async (values) => {
     let fileToUpload = null;
+
     if (Array.isArray(values.documentFile) && values.documentFile.length > 0) {
         fileToUpload = values.documentFile[0];
     } else if (values.documentFile instanceof File) {
