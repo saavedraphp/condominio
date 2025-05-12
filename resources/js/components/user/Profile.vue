@@ -17,7 +17,7 @@ const props = defineProps({
 const mySnackbar = ref(null);
 const dialogDeleteVisible = ref(false);
 const itemToDelete = ref(null);
-const isDeleting = ref(false); // Para el estado de carga
+const isDeleting = ref(false);
 const houses = ref([]);
 
 const TABS_KEYS = {
@@ -50,59 +50,7 @@ const members = ref([])
 const showDialogDelete = ref(false);
 const memberToDelete = ref(null);
 
-const addMember = async (member) => {
-    try {
-        const response = await axios.post('/user/house-residents/', {
-            house_id: houseId.value,
-            name: member.name,
-            email: member.email,
-            phone: member.phone
-        });
-        if (response.data.success) {
-            mySnackbar.value.show(response.data.message, 'success');
-            members.value.push(response.data.data);
-        } else {
-            mySnackbar.value.show(response.data.message, 'error');
-        }
-    } catch (error) {
-        mySnackbar.value.show('Lo sentimos, hubo un problema al guardar la información. Intenta de nuevo, por favor.', 'error');
-        console.error('Ocurrió un error al intentar agregar un mienbro:', error);
-    }
 
-    showModal.value = false;
-};
-
-const editMember = async (item) => {
-
-    try {
-        const response = await axios.put(`/user/house-residents/${item.id}`, {
-            house_id: houseId.value,
-            name: item.name,
-            email: item.email,
-            phone: item.phone
-        });
-
-        if (response.data.success) {
-            const updateMemberArray = members.value.map(member => {
-                if (member.id === item.id) {
-                    return response.data.data;
-                }
-                return member;
-            });
-
-            members.value = updateMemberArray;
-            message.value = response.data.message;
-            snackbar.value = true;
-
-        } else {
-            alert('Error :', response.data.message);
-        }
-    } catch (error) {
-        console.error('Ocurrió un error al intentar editar un mienbro:', error);
-    }
-
-    showModal.value = false;
-};
 
 const openDeleteDialog = (item) => {
     memberToDelete.value = item;
@@ -224,6 +172,7 @@ const editVehicle = async (item) => {
 
 const deleteVehicle = async () => {
     try {
+        loading.value = true;
         if (!itemToDelete.value) return;
         const id = itemToDelete.value.id;
 
@@ -291,7 +240,7 @@ const checkbox = useField('checkbox')
 const username = ref('')
 const snackbar = ref(false);
 const message = ref('');
-const selectedMember = ref(null);
+
 const experience = ref('')
 const skills = ref('')
 const terms = ref(false)
@@ -331,36 +280,18 @@ async function getResidentsData() {
     }
 }
 
-const showModalMember = (member) => {
-    selectedMember.value = {...member};
-    showModal.value = true;
-};
+const deleteDialogItemName = computed(() => {
+    if (!itemToDelete.value) return '';
+    return itemToDelete.value.name;
+});
 
 
 onMounted(async () => {
     await getUserData();
-    await getHousesData();
     if (houseId.value) {
         await getResidentsData();
     }
     await getVehiclesData();
-});
-
-const deleteDialogMessage = computed(() => {
-    // Ejemplo: Personalizar mensaje según el tipo si lo sabes
-    if (itemToDelete.value?.plate_number) { // Asumiendo que los vehículos tienen plate_number
-        return '¿Estás seguro de que deseas eliminar el siguiente vehículo?';
-    }
-    if (itemToDelete.value?.name) { // Asumiendo que los miembros tienen name
-        return '¿Estás seguro de que deseas eliminar al siguiente miembro?';
-    }
-    return '¿Estás seguro de que deseas eliminar este elemento?';
-});
-
-const deleteDialogItemName = computed(() => {
-    if (!itemToDelete.value) return '';
-    // Devuelve una representación del ítem (nombre, placa, id, etc.)
-    return itemToDelete.value.name || itemToDelete.value.plate_number || `ID: ${itemToDelete.value.id}`;
 });
 
 // --- Métodos del Componente Padre ---

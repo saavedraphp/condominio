@@ -15,7 +15,9 @@ const emit = defineEmits(['update:modelValue', 'petition-created']);
 // --- Estado ---
 const dialog = computed({
     get: () => props.modelValue,
-    set: (value) => emit('update:modelValue', value),
+    set: (value) => {
+        emit('update:modelValue', value);
+    }
 });
 
 const formRef = ref(null);
@@ -45,10 +47,8 @@ const resetForm = () => {
 };
 
 const closeDialog = () => {
-    if (!loading.value) {
         resetForm();
         dialog.value = false;
-    }
 };
 
 const submit = async () => {
@@ -59,7 +59,7 @@ const submit = async () => {
         loading.value = true;
         try {
             const response = await axios.post(`${props.apiBaseUrl}`, formData.value);
-            emit('petition-created', response.data); // Emitir evento con la nueva petición
+            emit('petition-created', response.data);
             closeDialog();
         } catch (error) {
             console.error("Error creating petition:", error);

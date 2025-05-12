@@ -1,0 +1,13 @@
+public/storage
+node_modules
+resources/js
+resources/css
+vite.config.js
+package.json
+package-lock.json
+pnpm-lock.yaml
+tsconfig.json
+.babelrc
+.browserslistrc
+.eslintrc.js
+postcss.config.js

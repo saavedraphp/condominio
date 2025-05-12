@@ -13,7 +13,5 @@ class Ad extends Model
 
     protected $casts = [
         'active' => 'boolean',
-        'start_day' => 'date',
-        'end_day' => 'date',
     ];
 }

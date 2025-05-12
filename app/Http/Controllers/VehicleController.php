@@ -1,23 +1,38 @@
 <?php
 
-namespace App\Http\Controllers\User;
+namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Http\Requests\VehicleRequest;
 use App\Models\Vehicle;
+use App\Models\WebUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\View\View;
 
 class VehicleController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+
+    public function showPage(): View
     {
-        //
+        return view('admin.user.documents', [
+            'urlBase' => route('user.documents.index'),
+            'isAdmin' => false,
+        ]);
+    }
+
+    public function index(WebUser $webUser)
+    {
+        try {
+            $vehicles = Vehicle::query()->where('web_user_id', $webUser->id)->get();
+
+            return response()->json($vehicles);
+        } catch (\Exception $e) {
+            Log::error('Error al intentar obtener los vehiculos del usuario ' . $userId . ': ' . $e->getMessage());
+
+            return response()->json(['success' => false, 'message' => 'Ócurrio un error al intentar obtener los vehículos: ' . $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -27,14 +42,13 @@ class VehicleController extends Controller
     {
         try {
             $validateData = $request->validate([
-                'user_id' => 'required|exists:users,id',
+                'web_user_id' => 'required|exists:web_users,id',
                 'plate_number' => 'required|string|max:10',
                 'brand' => 'required|string|max:25',
                 'model' => 'required|string|max:25',
             ]);
 
-            $data = array_merge($validateData, ['web_user_id' => $request->input('user_id')]);
-            $vehicle = Vehicle::create($data);
+            $vehicle = Vehicle::create($validateData);
             return response()->json([
                 'success' => true,
                 'message' => '¡Excelente! se agregado un vehículo correctamente.',
@@ -51,12 +65,11 @@ class VehicleController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(VehicleRequest $request, Vehicle $vehicle): JsonResponse
+    public function update(VehicleRequest $request, WebUser $webUser, Vehicle $vehicle): JsonResponse
     {
         try {
             $validatedData = $request->validated();
-            $data = array_merge($validatedData, ['web_user_id' => $request->input('user_id')]);
-            $updateSuccessful = $vehicle->update($data);
+            $updateSuccessful = $vehicle->update($validatedData);
 
             if ($updateSuccessful) {
                 return response()->json([
@@ -80,7 +93,7 @@ class VehicleController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Vehicle $vehicle)
+    public function destroy(WebUser $webUser, Vehicle $vehicle): JsonResponse
     {
         try {
             $vehicle->delete();
