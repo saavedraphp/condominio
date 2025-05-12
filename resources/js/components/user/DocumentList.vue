@@ -261,7 +261,6 @@ onMounted(() => {
                     <div :title="item.title" class="text-truncate">
                         {{ item.title }}
                     </div>
-
                 </template>
                 <!-- Columna de Acciones -->
                 <template v-slot:item.actions="{ item }">

@@ -13,6 +13,10 @@ const props = defineProps({
         type: String,
         required: true
     },
+    webUserId: {
+        type: Number,
+        required: true
+    }
 });
 const emit = defineEmits(['update:modelValue', 'close', 'updated']);
 
@@ -35,8 +39,7 @@ function obtenerIdUsuarioActual() {
     // Ejemplo: leer de localStorage, Vuex, Pinia, etc.
     // return JSON.parse(localStorage.getItem('webUser'))?.id;
     // ¡¡¡IMPORTANTE: IMPLEMENTA TU LÓGICA REAL AQUÍ!!!
-    console.warn("Implementa obtenerIdUsuarioActual() con tu lógica de autenticación.");
-    return 1; // Placeholder - ¡¡¡CÁMBIALO!!!
+    return props.webUserId;
 }
 
 

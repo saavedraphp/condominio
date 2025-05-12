@@ -3,9 +3,10 @@
 @section('content')
     <div id="payment-service-container">
         <electricity-consumption-list
-            :user-id="'{{ $webUserId }}'"
-            :house-id="'{{ $houseId }}'"
-            type-service-id="{{ $typeServiceId }}"
+            :user-id="'{{ $webUserId ?? null }}'"
+            :house-id="'{{ $houseId ?? null }}'"
+            :is-admin="{{ $isAdmin ? 'true' : 'false' }}"
+            :type-service-id={{ $typeServiceId }}
         >
         </electricity-consumption-list>
     </div>

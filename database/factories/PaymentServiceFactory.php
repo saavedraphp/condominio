@@ -21,7 +21,6 @@ class PaymentServiceFactory extends Factory
         $imagePath = $this->faker->imageUrl(640, 480, 'car', true, 'payment');
 
         return [
-            'web_user_id' => WebUser::inRandomOrder()->first()->id,
             'house_id' => House::inRandomOrder()->first()->id,
             'quantity' => rand(1000, 1500),
             'file_path' => $imagePath,

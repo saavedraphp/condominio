@@ -13,6 +13,10 @@ const props = defineProps({
     isAdmin: {
         type: Boolean,
         default: false
+    },
+    webUserId: {
+        type: Number,
+        required: true
     }
 });
 // --- Estado ---
@@ -144,13 +148,14 @@ onMounted(() => {
         <TenantPetitionCreateDialog
             v-model="showModal"
             @petition-created="onPetitionCreated"
-            :api-base-url="props.apiBaseUrl"
+            :api-base-url="apiBaseUrl"
         />
 
         <TenantPetitionViewDialog
             v-model="showViewDialog"
+            :web-user-id="props.webUserId"
             :petition-id="selectedPetitionId"
-            :api-base-url="props.apiBaseUrl"
+            :api-base-url="apiBaseUrl"
             @close="showViewDialog = false"
             @updated="getPetitions"
         />

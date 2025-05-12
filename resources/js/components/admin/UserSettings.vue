@@ -5,6 +5,7 @@ import axios from "axios";
 import AssignedHouseForm from "@/components/admin/AssignedHouseForm.vue";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal.vue";
 import Snackbar from "@/components/Snackbar.vue";
+import VehicleList from "@/components/admin/VehicleList.vue";
 
 const props = defineProps({
     user: Object
@@ -55,6 +56,10 @@ async function getHousesByUserId() {
 const openDeleteModal = (item) => {
     itemToDelete.value = item;
     dialogDelete.value = true;
+};
+
+const gotToMembers = (item) => {
+    window.location.href = `${window.location.origin}/admin/user/${props.user.id}/house/${item.id}/members/list`;
 };
 
 const deleteHouseAssignment = async () => {
@@ -123,7 +128,7 @@ const goBack = () => {
             </v-card-title>
             <v-divider></v-divider>
             <v-tabs v-model="activeKey">
-                <v-tab :value="TABS_KEYS.HOUSES">Casa e Integrantes</v-tab>
+                <v-tab :value="TABS_KEYS.HOUSES">Casas e Integrantes</v-tab>
                 <v-tab :value="TABS_KEYS.VEHICLES">Vehículos</v-tab>
             </v-tabs>
             <v-card-text>
@@ -159,6 +164,19 @@ const goBack = () => {
                                         ></v-btn>
                                     </template>
                                 </v-tooltip>
+                                <v-tooltip text="Integrantes">
+                                    <template v-slot:activator="{ props }">
+                                        <v-btn
+                                            v-bind="props"
+                                            icon="mdi mdi-account-group"
+                                            variant="text"
+                                            color="primary"
+                                            size="small"
+                                            class="me-2"
+                                            @click="gotToMembers(item)"
+                                        ></v-btn>
+                                    </template>
+                                </v-tooltip>
                                 <v-tooltip text="Eliminar">
                                     <template v-slot:activator="{ props }">
                                         <v-btn
@@ -189,6 +207,12 @@ const goBack = () => {
                             </template>
                         </v-data-table>
                     </v-window-item>
+                    <v-window-item :value="TABS_KEYS.VEHICLES">
+                        <VehicleList
+                            :user="user"
+                        >
+                        </VehicleList>
+                    </v-window-item>
                 </v-window>
             </v-card-text>
         </v-card>
@@ -199,7 +223,6 @@ const goBack = () => {
                 @close-modal="closeModal"
             >
             </AssignedHouseForm>
-
         </v-dialog>
         <DeleteConfirmationModal
             v-model:show="dialogDelete"

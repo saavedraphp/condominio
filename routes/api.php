@@ -1,5 +1,5 @@
 <?php
-
+/*
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\DocumentController;
@@ -16,4 +16,4 @@ Route::get('/documents/{document}/download', [DocumentController::class, 'downlo
     ->name('documents.download') // Nombre de la ruta usado en el Modelo
     ->where('document', '[0-9]+');
 
-});
+});*/
