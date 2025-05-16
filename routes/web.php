@@ -59,7 +59,6 @@ Route::prefix('user')->name('user.')->group(function () {
         Route::get('/get-user-data', [ProfileController::class, 'getUserData'])->name('user.profile.show');
         Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
         Route::get('/ads', [UserAdsController::class, 'index']);
-        Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
         Route::resource('/profile', ProfileController::class);
 
         /* INICIO rutas documentos*/
@@ -74,9 +73,9 @@ Route::prefix('user')->name('user.')->group(function () {
             ->where('document', '[0-9]+');
         /* FIN rutas documentos*/
 
-        Route::resource('/vehicles', VehicleController::class);
-        Route::get('/get-vehicles-data/{userId}', [VehicleController::class, 'getVehiclesByUserId'])->name('user.vehicles.list');
-
+       // Route::resource('/vehicles', VehicleController::class);
+        Route::get('/vehicles/list', [VehicleController::class, 'showPage'])->name('vehicles.list');
+        Route::get('/vehicles/', [VehicleController::class, 'getVehicles'])->name('vehicles.getVehicles');
 
         Route::get('/houses/{house}/dashboard', [HouseController::class, 'dashboard'])->name('user.house.dashboard');
         Route::get('/houses/show/{house}', [HouseController::class, 'show'])->name('user.house.show');
@@ -95,16 +94,11 @@ Route::prefix('user')->name('user.')->group(function () {
             ->name('payments.download.year');
 
         Route::get('/houses/{house}/electricity-records/list', [PaymentServiceController::class, 'showPage'])->name('houses.electricity-history.show-page');
-        //Route::get('/houses/{house}/electricity-records/', [PaymentServiceController::class,'index'])->name('houses.electricity-history.index');
 
         Route::get('/houses/{house}/water-records/list', [PaymentServiceController::class, 'showPageWater'])->name('houses.electricity-history.show-page-water');
         Route::get('/houses/{house}/consumption/', [PaymentServiceController::class,'index'])->name('houses.consumption.index');
 
         /* PETITICIONS */
-        /*Route::get('/petitions/list', [PetitionController::class, 'showPage'])->name('petitions.show-page');;
-        Route::resource('/petitions', PetitionController::class);
-        Route::post('/petitions/{petition}/replies', [PetitionController::class, 'addReply'])->name('petitions.replies.store');*/
-
         Route::get('/petitions/list', [PetitionController::class, 'showPage'])->name('petitions.show-page');;
         Route::get('/petitions', [PetitionController::class, 'index'])->name('petitions.index');
         Route::post('/petitions', [PetitionController::class, 'store'])->name('petitions.store');

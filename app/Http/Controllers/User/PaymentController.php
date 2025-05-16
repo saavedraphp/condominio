@@ -32,18 +32,16 @@ class PaymentController extends Controller
     public function index(House $house): JsonResponse
     {
         try {
-            $userId = Auth::guard('web_user')->id();
-            $user = WebUser::findOrFail($userId);
-            $paymentsMade = $user->paymentsMade()->get();
+            $paymentsMade = $house->payments()->get();
 
             return response()->json($paymentsMade);
         } catch (\Exception $e) {
             $errorMessage = 'Error al intentar obtener los pagos. ';
-            Log::error($errorMessage . $e->getMessage());
+            Log::error($errorMessage . $e);
 
             return response()->json([
                 'success' => false,
-                'message' => $errorMessage . $e->getMessage()
+                'message' => $errorMessage
             ], 500);
         }
     }

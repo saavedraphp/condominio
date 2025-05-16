@@ -24,6 +24,7 @@ const dialogDelete = ref(false); // Controla visibilidad del diálogo Delete
 const isDeleting = ref(false); // Para el estado de carga
 const itemToDelete = ref(null); // Item a eliminar
 const form = ref(null); // Referencia al v-form
+const apiBaseForm = `${window.location.origin}/admin/ads`;
 
 // Modelo para el item editado/nuevo
 const selectedElement = ref(null)
@@ -55,44 +56,9 @@ async function getData() {
     }
 }
 
-const addAd = async (item) => {
-    try {
-        const response = await axios.post('/admin/ads/', item);
-        if (response.data.success) {
-            await getData();
-            mySnackbar.value.show(response.data.message, 'success');
-        } else {
-            mySnackbar.value.show(response.data.message, 'error');
-        }
-    } catch (error) {
-        mySnackbar.value.show('Lo sentimos, hubo un problema al guardar la información. Intenta de nuevo, por favor.', 'error');
-    }
-
-    showModal.value = false;
-};
-
-const adEdit = async (item) => {
-    try {
-        const response = await axios.put(`/admin/ads/${item.id}`, {
-            title: item.title,
-            description: item.description,
-            start_day: item.start_day,
-            end_day: item.end_day,
-            active: item.active ? 1 : 0
-        });
-
-        if (response.data.success) {
-            await getData();
-            mySnackbar.value.show(response.data.message, 'success');
-        } else {
-            mySnackbar.value.show(response.data.message, 'error');
-        }
-    } catch (error) {
-        mySnackbar.value.show(error.response.data.errors, 'error');
-        console.log(error);
-    }
-
-    showModal.value = false;
+const updateList = (message) => {
+    mySnackbar.value.show(message, 'success');
+    getData();
 };
 
 const deleteAd = async () => {
@@ -100,7 +66,7 @@ const deleteAd = async () => {
         if (!itemToDelete.value) return;
         const id = itemToDelete.value.id;
 
-        const response = await axios.delete(`/admin/ads/${id}`)
+        const response = await axios.delete(`${apiBaseForm}/${id}`)
 
         if (response.data && response.data.success) {
             ads.value = ads.value.filter(element => element.id !== id);
@@ -118,15 +84,20 @@ const deleteAd = async () => {
     }
 };
 
+const handleModalAdd = () => {
+    selectedElement.value = null;
+    showModal.value = true;
+};
+
 const openModalEdit = (item) => {
     selectedElement.value = {...item};
     showModal.value = true;
 };
 
-const closeModal = (() => {
+const closeModal = () => {
     selectedElement.value = null;
     showModal.value = false;
-});
+};
 
 const openDeleteModal = (item) => {
     itemToDelete.value = item;
@@ -155,7 +126,7 @@ const closeDeleteModal = () => {
                 <v-btn
                     color="primary"
                     prepend-icon="mdi-plus"
-                    @click="showModal = true"
+                    @click="handleModalAdd"
                 >
                     Agregar Anuncio
                 </v-btn>
@@ -214,19 +185,16 @@ const closeDeleteModal = () => {
 
             </v-data-table>
         </v-card>
+        <AdForm
+            v-model="showModal"
+            :element="selectedElement"
+            :url-base="apiBaseForm"
+            @ad-created="updateList"
+            @ad-updated="updateList"
+            @close-modal="closeModal"
+        >
+        </AdForm>
 
-        <!-- Diálogo para Agregar/Editar Anuncio -->
-
-        <v-dialog v-model="showModal" persistent max-width="600px">
-            <AdForm
-                :ad="selectedElement"
-                @ad-added="addAd"
-                @ad-edit="adEdit"
-                @close-modal="closeModal"
-            >
-            </AdForm>
-
-        </v-dialog>
 
         <!-- Diálogo de Confirmación de Eliminación -->
         <DeleteConfirmationModal

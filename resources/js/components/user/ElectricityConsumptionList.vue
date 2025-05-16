@@ -36,10 +36,19 @@ const mySnackbar = ref(null);
 const headers = ref([
     {title: 'Fecha', key: 'payment_date', align: 'start', sortable: true},
     {title: 'Consumo', key: 'quantity', sortable: true},
+    {title: 'Propiedad', key: 'house.property_unit', sortable: true},
     {title: 'Observaciones', key: 'observations', sortable: true},
     {title: 'Remplazo', key: 'replace', sortable: true},
     {title: 'Acciones', key: 'actions', sortable: false, align: 'end'},
 ]);
+
+const filteredHeaders  = computed(() => {
+    if (!props.isAdmin) {
+        return headers.value.filter(header => header.key !== 'house.property_unit');
+    } else {
+        return headers.value;
+    }
+});
 
 const data = ref([]);
 const loading = ref(true);
@@ -87,8 +96,8 @@ const updateList = (message) => {
     getConsumption();
 };
 
-const openModal = (item) => {
-    selectedElement.value = {...item};
+const openModalAdd = (item) => {
+    selectedElement.value = null;
     showModalForm.value = true;
 };
 
@@ -129,7 +138,6 @@ const deleteDocument = async () => {
     try {
         if (!itemToDelete.value) return;
         const id = itemToDelete.value.id;
-        console.log(apiBaseForm);
         const response = await axios.delete(`${apiBaseForm}/${id}`)
 
         if (response.data && response.data.success) {
@@ -161,7 +169,7 @@ const deleteDocument = async () => {
                     v-if="isAdmin"
                     color="primary"
                     prepend-icon="mdi-plus"
-                    @click="showModalForm = true"
+                    @click="openModalAdd"
                 >
                     Agregar consumo
                 </v-btn>
@@ -170,19 +178,19 @@ const deleteDocument = async () => {
             <v-divider></v-divider>
 
             <v-data-table v-show="data.length"
-                          :headers="headers"
+                          :headers="filteredHeaders"
                           :items="data"
                           class="elevation-1"
                           dense
             >
                 <template v-slot:item.quantity="{ item }">
-                    <span>{{ item.quantity }}({{typeServiceUnit}})</span>
+                    <span>{{ item.quantity }}({{ typeServiceUnit }})</span>
                 </template>
                 <template v-slot:item.payment_date="{ item }">
                     <span>{{ item.payment_date_format }}</span>
                 </template>
                 <template v-slot:item.replace="{ item }">
-                    <span>{{ !!item.replace ? 'Si' : 'No'}}</span>
+                    <span>{{ !!item.replace ? 'Si' : 'No' }}</span>
                 </template>
                 <!-- Columna de Acciones Personalizada -->
                 <template v-slot:item.actions="{ item }">

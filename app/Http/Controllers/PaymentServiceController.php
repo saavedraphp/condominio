@@ -103,7 +103,6 @@ class PaymentServiceController extends Controller
     public function store(Request $request): JsonResponse
     {
         try {
-
             $filePath = null;
             if ($request->hasFile('file_path') && $request->file('file_path')->isValid()) {
                 $file = $request->file('file_path');

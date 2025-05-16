@@ -20,7 +20,7 @@ class AdSeeder extends Seeder
             'start_time' => '14:30',
             'end_day' => '2025-01-10',
             'end_time' => '14:30',
-            'image_url' => 'https://example.com/banner1.jpg',
+            'file_path' => 'https://example.com/banner1.jpg',
             'active' => true,
         ]);
 
@@ -31,7 +31,7 @@ class AdSeeder extends Seeder
             'start_time' => '08:20',
             'end_day' => '2025-03-08',
             'end_time' => '08:20',
-            'image_url' => 'https://example.com/banner2.jpg',
+            'file_path' => 'https://example.com/banner2.jpg',
             'active' => true,
         ]);
         Ad::create([
@@ -41,7 +41,7 @@ class AdSeeder extends Seeder
             'start_time' => '18:20',
             'end_day' => '2025-05-08',
             'end_time' => '18:20',
-            'image_url' => 'https://example.com/banner2.jpg',
+            'file_path' => 'https://example.com/banner2.jpg',
             'active' => true,
         ]);
     }

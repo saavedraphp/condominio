@@ -18,6 +18,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('phone')->nullable();
+            $table->string('file_path')->nullable();
             $table->string('status',15);
             $table->bigInteger('white_label_id')->nullable();
             $table->rememberToken();

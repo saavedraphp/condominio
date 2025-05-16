@@ -43,8 +43,8 @@ const rules = {
 const fetchPetitionDetails = async () => {
     if (!props.petitionId) return;
     loading.value = true;
-    petition.value = null; // Resetear
-    statusError.value = ''; // Resetear error de estado
+    petition.value = null;
+    statusError.value = '';
     try {
         const response = await axios.get(`${props.apiBaseUrl}/${props.petitionId}`);
         petition.value = response.data;
@@ -170,7 +170,7 @@ watch(() => props.modelValue, (newValue) => {
                 <v-btn icon dark @click="closeDialog">
                     <v-icon>mdi-close</v-icon>
                 </v-btn>
-                <v-toolbar-title>Petición #{{ petition?.id }} - {{ petition?.webUser?.name || 'Inquilino' }}</v-toolbar-title>
+                <v-toolbar-title>Petición #{{ petition?.id }} - {{ petition?.web_user?.name || 'Inquilino' }}</v-toolbar-title>
                 <v-spacer></v-spacer>
                 <!-- Selector de Estado -->
                 <v-select
@@ -200,7 +200,7 @@ watch(() => props.modelValue, (newValue) => {
                 <!-- Detalles (similar al inquilino, puedes añadir más info si quieres) -->
                 <v-row>
                     <v-col cols="12" md="6">
-                        <p><strong>Inquilino:</strong> {{ petition.webUser?.name || 'N/A' }} ({{ petition.webUser?.email || 'N/A' }})</p>
+                        <p><strong>Inquilino:</strong> {{ petition.web_user?.name || 'N/A' }} ({{ petition.web_user?.email || 'N/A' }})</p>
                         <p><strong>Asunto:</strong> {{ petition.subject }}</p>
                         <p><strong>Tipo:</strong> {{ petition.type }}</p>
                         <p><strong>Fecha Creación:</strong> {{ formatDate(petition.created_at) }}</p>
@@ -213,7 +213,7 @@ watch(() => props.modelValue, (newValue) => {
 
                 <!-- Mensaje Inicial del Inquilino -->
                 <div class="mb-5 message-bubble tenant-message">
-                    <p><strong>{{ petition.webUser?.name || 'Inquilino' }}</strong> ({{ formatDate(petition.created_at) }}):</p>
+                    <p><strong>{{ petition.web_user?.name || 'Inquilino' }}</strong> ({{ formatDate(petition.created_at) }}):</p>
                     <p style="white-space: pre-wrap;">{{ petition.description }}</p>
                 </div>
 
