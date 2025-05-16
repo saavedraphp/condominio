@@ -33,7 +33,7 @@ const pagination = reactive({
 });
 
 const headers = [
-    { title: 'Inquilino', key: 'webUser.name', sortable: false }, // O usa un campo específico si lo cargas
+    { title: 'Remitente', key: 'webUser.name', sortable: false }, // O usa un campo específico si lo cargas
     { title: 'Asunto', key: 'subject', sortable: true },
     { title: 'Tipo', key: 'type', sortable: true },
     { title: 'Estado', key: 'status', sortable: true },

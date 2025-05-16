@@ -8,6 +8,10 @@ import VehicleForm from "@/components/admin/VehicleForm.vue";
 const props = defineProps({
     user: Object,
     house: Object,
+    isAdmin: {
+        type: Boolean,
+        default: false
+    }
 });
 
 let apiBaseMemberUrl = `${window.location.origin}/admin/user/${props.user.id}/vehicles`;
@@ -20,17 +24,31 @@ const dialogDeleteVisible = ref(false);
 const itemToDelete = ref(null);
 const isDeleting = ref(false);
 const mySnackbar = ref(null);
-const headerVehicles = ref([
-    {text: 'Marca', value: 'brand'},
-    {text: 'Modelo', value: 'model'},
-    {text: 'Número de placa', value: 'plate_number'},
-    {text: "Acciones", value: "actions", sortable: false},
-])
+
+const header = computed(() => {
+    const baseHeaders = [
+        { title: 'Marca', key: 'brand' },
+        { title: 'Modelo', key: 'model' },
+        { title: 'Número de placa', key: 'plate_number' },
+    ];
+
+    if (props.isAdmin) {
+        return [
+            ...baseHeaders,
+            { title: "Acciones", key: "actions", sortable: false },
+        ];
+    }
+
+    return baseHeaders;
+});
 
 async function getVehicles() {
     loading.value = true;
     try {
-        const response = await axios.get(`${apiBaseMemberUrl}`);
+        let url = props.isAdmin
+            ? apiBaseMemberUrl
+            : `/user/vehicles/`;
+        const response = await axios.get(`${url}`);
         vehicles.value = response.data;
     } catch (error) {
         error.value = 'Error al obtener los vehículos';
@@ -95,6 +113,7 @@ onMounted(() => {
 <template>
     <div class="d-flex justify-end mb-4">
         <v-btn
+            v-show="props.isAdmin"
             color="primary"
             prepend-icon="mdi-plus"
             @click="showModal = true"
@@ -103,7 +122,7 @@ onMounted(() => {
         </v-btn>
     </div>
     <v-data-table
-        :headers="headerVehicles"
+        :headers="header"
         :items="vehicles"
         class="elevation-1"
         density="compact"

@@ -1,10 +1,11 @@
 <script setup>
-import { ref, reactive, onMounted } from 'vue';
+import {ref, reactive, onMounted} from 'vue';
 // IMPORTANTE: Registrar ApexCharts globalmente (main.js) o localmente aquí
 import VueApexCharts from 'vue3-apexcharts';
 import axios from "axios";
 import Snackbar from "@/components/Snackbar.vue";
 import {formatDate, formatDateTime} from "../../utils/functions.js";
+import AdForm from "@/components/admin/AdForm.vue";
 
 const props = defineProps({
     userId: String
@@ -17,6 +18,10 @@ const mySnackbar = ref(null);
 
 const deuda = ref(985.00);
 const ads = ref([]);
+const showModalAd = ref(false);
+const selectedElement = ref(null);
+const apiBaseForm = `${window.location.origin}/admin/ads`;
+
 
 // --- Configuración de Gráficos (Ejemplos) ---
 
@@ -24,18 +29,18 @@ const ads = ref([]);
 const chartOptionsConsumo = reactive({
     chart: {
         id: 'consumo-agua',
-        toolbar: { show: false },
-        zoom: { enabled: false },
+        toolbar: {show: false},
+        zoom: {enabled: false},
     },
     xaxis: {
         categories: ['Oct', 'Nov', 'Dic', 'Ene', 'Feb', 'Mar'], // Últimos 6 meses
-        labels: { style: { colors: '#888' } }
+        labels: {style: {colors: '#888'}}
     },
     yaxis: {
-        labels: { style: { colors: '#888' } }
+        labels: {style: {colors: '#888'}}
     },
-    dataLabels: { enabled: false },
-    stroke: { curve: 'smooth', width: 2 },
+    dataLabels: {enabled: false},
+    stroke: {curve: 'smooth', width: 2},
     fill: {
         type: 'gradient',
         gradient: {
@@ -47,8 +52,8 @@ const chartOptionsConsumo = reactive({
     },
     tooltip: {
         theme: 'dark', // O 'light' si prefieres
-        x: { format: 'MMM' },
-        y: { formatter: (val) => `${val} m³` }
+        x: {format: 'MMM'},
+        y: {formatter: (val) => `${val} m³`}
     },
     colors: ['#008FFB'], // Azul
 });
@@ -60,14 +65,14 @@ const chartDataConsumo = reactive({
 const chartOptionsPagos = reactive({
     chart: {
         id: 'historial-pagos',
-        toolbar: { show: false },
+        toolbar: {show: false},
     },
     labels: ['Pagado a Tiempo', 'Pagado con Retraso', 'Pendiente'],
     colors: ['#00E396', '#FEB019', '#FF4560'], // Verde, Naranja, Rojo
-    legend: { position: 'bottom' },
+    legend: {position: 'bottom'},
     tooltip: {
         theme: 'dark',
-        y: { formatter: (val) => `${val} pagos` }
+        y: {formatter: (val) => `${val} pagos`}
     },
     dataLabels: {
         formatter: (val, opts) => opts.w.globals.series[opts.seriesIndex], // Muestra el valor
@@ -79,7 +84,7 @@ const chartDataPagos = reactive({
 
 // --- Funciones Auxiliares ---
 const formatCurrency = (value) => {
-    return value.toLocaleString('es-PE', { style: 'currency', currency: 'PEN' }); // Formato Soles Perú
+    return value.toLocaleString('es-PE', {style: 'currency', currency: 'PEN'}); // Formato Soles Perú
 };
 
 // --- Carga de Datos (Simulada) ---
@@ -114,6 +119,7 @@ async function getAdsData() {
         isLoadingAds.value = false;
     }
 }
+
 async function getUserData() {
     loading.value = true;
 
@@ -128,10 +134,23 @@ async function getUserData() {
         loading.value = false;
     }
 }
+
 const goToHouses = () => {
     window.location.href = '/user/houses/list';
 }
+const goToVehicles = () => {
+    window.location.href = '/user/vehicles/list';
+}
 
+const showDetailsAd = (item) => {
+    showModalAd.value = true;
+    selectedElement.value = item;
+}
+
+const closeModalAd = (() => {
+    selectedElement.value = null;
+    showModalAd.value = false;
+});
 </script>
 
 <script>
@@ -222,29 +241,34 @@ export default {
                                 <v-skeleton-loader
                                     v-for="n in 3" :key="'skel-' + n"
                                     class="mx-auto border mb-2"
-                                type="list-item-two-line"
-                                boilerplate
+                                    type="list-item-two-line"
+                                    boilerplate
                                 ></v-skeleton-loader>
                             </div>
                             <v-list
-                                    v-else-if="!isLoadingAds && ads && ads.length > 0"
-                                    lines="two" density="compact"
+                                v-else-if="!isLoadingAds && ads && ads.length > 0"
+                                lines="two" density="compact"
                             >
                                 <v-list-item
                                     v-for="ad in ads"
                                     :key="ad.id"
-                                    :href="ad.link || '#'"
+                                    @click="showDetailsAd(ad)"
                                     target="_blank"
                                 >
                                     <v-list-item-title class="font-weight-medium">{{ ad.title }}</v-list-item-title>
-                                    <v-list-item-subtitle>{{ formatDate(ad.start_day) }} al {{ formatDate(ad.end_day) }}</v-list-item-subtitle>
+                                    <v-list-item-subtitle>{{ formatDate(ad.start_day) }} al {{
+                                            formatDate(ad.end_day)
+                                        }}
+                                    </v-list-item-subtitle>
                                     <template v-slot:append>
+                                        Ver detalle
                                         <v-icon icon="mdi-chevron-right"></v-icon>
                                     </template>
                                 </v-list-item>
                                 <!-- Mensaje si no hay anuncios -->
                                 <v-list-item v-if="!ads.length">
-                                    <v-list-item-title class="text-center text-disabled">No hay anuncios recientes.</v-list-item-title>
+                                    <v-list-item-title class="text-center text-disabled">No hay anuncios recientes.
+                                    </v-list-item-title>
                                 </v-list-item>
                             </v-list>
                             <v-card-actions v-if="ads.length > 5">
@@ -259,32 +283,33 @@ export default {
                             class="mx-auto"
                             elevation="4"
                         >
-                        <v-card-item>
-                            <div>
-                                <div class="text-overline mb-1">
-                                    ADMINISTRACIÓN
+                            <v-card-item>
+                                <div>
+                                    <div class="text-overline mb-1">
+                                        ADMINISTRACIÓN
+                                    </div>
+                                    <div class="text-h6 mb-1">
+                                        Gestión de Casas
+                                    </div>
+                                    <div class="text-caption">Administra propiedades residenciales.</div>
                                 </div>
-                                <div class="text-h6 mb-1">
-                                    Gestión de Casas
-                                </div>
-                                <div class="text-caption">Administra propiedades residenciales.</div>
-                            </div>
-                        </v-card-item>
+                            </v-card-item>
 
-                        <v-card-text>
-                            Accede a las herramientas para añadir, editar o eliminar información sobre las casas disponibles.
-                        </v-card-text>
+                            <v-card-text>
+                                Accede a las herramientas para añadir, editar o eliminar información sobre las casas
+                                disponibles.
+                            </v-card-text>
 
-                        <v-card-actions>
-                            <v-spacer></v-spacer>
-                            <v-btn
-                                color="primary"
-                                variant="elevated"
-                            @click="goToHouses"
-                            >
-                            Ir a Casas
-                            </v-btn>
-                        </v-card-actions>
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn
+                                    color="primary"
+                                    variant="elevated"
+                                    @click="goToHouses"
+                                >
+                                    Ir a Casas
+                                </v-btn>
+                            </v-card-actions>
                         </v-card>
                     </v-col>
 
@@ -300,24 +325,24 @@ export default {
                                         ADMINISTRACIÓN
                                     </div>
                                     <div class="text-h6 mb-1">
-                                        Gestión de Autos
+                                        Gestión de vehículos
                                     </div>
-                                    <div class="text-caption">Administra la flota de vehículos.</div>
+                                    <div class="text-caption">Administrar vehículos.</div>
                                 </div>
                             </v-card-item>
 
                             <v-card-text>
-                                Accede a las herramientas para añadir, editar o eliminar información sobre los autos.
+                                Accede a la lista de los vehículos registrados. podras ver detalles como placa, marca, modelo.
                             </v-card-text>
 
                             <v-card-actions>
                                 <v-spacer></v-spacer>
                                 <v-btn
                                     color="secondary"
-                                variant="elevated"
-                                @click="navegarAAutos"
+                                    variant="elevated"
+                                    @click="goToVehicles"
                                 >
-                                Ir a Autos
+                                    Ir a Autos
                                 </v-btn>
                             </v-card-actions>
                         </v-card>
@@ -325,7 +350,7 @@ export default {
                 </v-row>
             </v-col>
 
-<!--            Columna Derecha (Gráficos) -->
+            <!--            Columna Derecha (Gráficos) -->
             <v-col cols="12" md="7" v-if="false">
                 <v-row dense>
                     <!-- Card Gráfico de Consumo (Ejemplo) -->
@@ -378,18 +403,20 @@ export default {
                             </v-card-text>
                         </v-card>
                     </v-col>
-
-                    <!-- Puedes añadir más cards/gráficos aquí -->
-
                 </v-row>
             </v-col>
+            <AdForm
+                v-model="showModalAd"
+                :element="selectedElement"
+                :url-base="apiBaseForm"
+                :isReadonly="true"
+                @close-modal="closeModalAd"
+            >
+            </AdForm>
             <Snackbar ref="mySnackbar"/>
         </v-row>
     </v-container>
 </template>
-
-
-
 <style scoped>
 /* Ajustes finos si son necesarios */
 .v-card-item .v-card-title {

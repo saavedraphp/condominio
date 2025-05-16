@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\User\Auth;
 
+use App\Models\WebUser;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -25,9 +26,18 @@ class LoginUserController extends Controller
             'password' => 'required|min:6',
         ]);
 
-        if (Auth::guard('web_user')->attempt($credentials, $request->boolean('remember'))) {
-            $request->session()->regenerate();
-            return redirect()->intended(route('user.dashboard'));
+        if (Auth::guard('web_user')->validate($credentials)) {
+            $user = WebUser::where('email', $credentials['email'])->first();
+            if ($user && $user->status === 'active') {
+                if (Auth::guard('web_user')->attempt($credentials, $request->boolean('remember'))) {
+                    $request->session()->regenerate();
+                    return redirect()->intended(route('user.dashboard'));
+                }
+            } else if ($user && $user->status !== 'active') {
+                throw ValidationException::withMessages([
+                    'email' => ['Tu cuenta no se encuentra activa. Por favor, contacta al administrador.'],
+                ]);
+            }
         }
 
         throw ValidationException::withMessages([

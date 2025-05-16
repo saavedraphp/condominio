@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -9,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Permission\Traits\HasRoles;
@@ -24,6 +26,7 @@ class WebUser extends Authenticatable
         'email',
         'password',
         'phone',
+        'file_path',
         'status'
     ];
 
@@ -36,6 +39,8 @@ class WebUser extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    protected $appends = ['file_path_url'];
 
     public function activationToken(): MorphOne
     {
@@ -77,5 +82,18 @@ class WebUser extends Authenticatable
     public function petitionReplies(): MorphMany
     {
         return $this->morphMany(PetitionReply::class, 'repliable');
+    }
+
+    protected function filePathUrl(): Attribute
+    {
+        return Attribute::make(
+            get: function ($value, $attributes) {
+                if (!empty($attributes['file_path']) && Storage::disk('public')->exists($attributes['file_path'])) {
+                    // Retorna la URL completa generada por Laravel Storage
+                    return Storage::disk('public')->url($attributes['file_path']);
+                }
+                return null;
+            }
+        );
     }
 }

@@ -3,27 +3,18 @@ import axios from "axios";
 import {computed, onMounted, ref} from 'vue'
 import {useField, useForm} from 'vee-validate'
 
-import House from "@/components/user/House.vue";
-import AddMemberModal from "@/components/user/AddMemberModal.vue";
 import Snackbar from "@/components/Snackbar.vue";
-import VehicleForm from "@/components/user/VehicleForm.vue";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal.vue";
 
 const props = defineProps({
     userId: String
 });
 
-
 const mySnackbar = ref(null);
-const dialogDeleteVisible = ref(false);
-const itemToDelete = ref(null);
-const isDeleting = ref(false);
-const houses = ref([]);
+ const documentFile = useField('documentFile');
 
 const TABS_KEYS = {
     'PROFILE': 'profile',
-    'HOUSES': 'houses',
-    'VEHICLES': 'vehicles',
 };
 
 const activeKey = ref(TABS_KEYS.PROFILE);
@@ -39,161 +30,6 @@ const rules = {
     email: value => (/^[a-z.-]+@[a-z.-]+\.[a-z]+$/i.test(value)) || 'Correo inválido'
 };
 
-const headerMembers = ref([
-    {text: 'Nombre', value: 'name'},
-    {text: 'Teléfono', value: 'phone'},
-    {text: 'email', value: 'email'},
-    {text: "Acciones", value: "actions", sortable: false},
-])
-
-const members = ref([])
-const showDialogDelete = ref(false);
-const memberToDelete = ref(null);
-
-
-
-const openDeleteDialog = (item) => {
-    memberToDelete.value = item;
-    showDialogDelete.value = true;
-};
-
-const closeDeleteDialog = () => {
-    showDialogDelete.value = false;
-    setTimeout(() => {
-        memberToDelete.value = null;
-    }, 300); // Pequeño delay para que no desaparezca info del diálogo bruscamente
-};
-
-const deleteMember = async () => {
-    try {
-        if (!memberToDelete.value) return;
-        const id = memberToDelete.value.id;
-
-        const response = await axios.delete(`/user/house-residents/${id}`)
-
-        if (response.data && response.data.success) {
-            members.value = members.value.filter(member => member.id !== id);
-            mySnackbar.value.show(response.data.message, 'success');
-
-        } else {
-            mySnackbar.value.show(response.data.message, 'error');
-        }
-
-    } catch (error) {
-        console.error('Error al eliminar el residente:', error);
-        const errorMessage = error.response?.data?.message || 'Ocurrió un error al eliminar.';
-        mySnackbar.value.show(`Error: ${errorMessage}`, 'error');
-    } finally {
-        closeDeleteDialogModal();
-    }
-};
-
-/* METHODS VEHICLES*/
-
-const vehicles = ref([]);
-const selectedVehicle = ref(null)
-const showModalFormVehicle = ref(false)
-
-const headerVehicles = ref([
-    {text: 'Placa', value: 'plate_number'},
-    {text: 'Marcar', value: 'brand'},
-    {text: 'Modelo', value: 'model'},
-    {text: "Acciones", value: "actions", sortable: false},
-])
-
-async function getVehiclesData() {
-    loading.value = true;
-
-    try {
-        const response = await axios.get(`/user/get-vehicles-data/${props.userId}`);
-        vehicles.value = response.data;
-
-    } catch (error) {
-        mySnackbar.value.show('Lo sentimos, hubo un problema obtener la información. Intenta de nuevo, por favor.', 'error');
-        console.error('Ocurrió un error inesperado:', error);
-    } finally {
-        loading.value = false;
-    }
-}
-
-const addVehicle = async (item) => {
-    try {
-        const response = await axios.post('/user/vehicles/', {
-            user_id: props.userId,
-            plate_number: item.plate_number,
-            brand: item.brand,
-            model: item.model
-        });
-        if (response.data.success) {
-            mySnackbar.value.show(response.data.message, 'success');
-            vehicles.value.push(response.data.data);
-        } else {
-            mySnackbar.value.show(response.data.message, 'error');
-        }
-    } catch (error) {
-        mySnackbar.value.show('Lo sentimos, hubo un problema al guardar la información. Intenta de nuevo, por favor.', 'error');
-        console.error('Ocurrió un error inesperado:', error);
-    }
-
-    showModalFormVehicle.value = false;
-};
-
-const showModalVehicle = (vehicle) => {
-    selectedVehicle.value = {...vehicle};
-    showModalFormVehicle.value = true;
-};
-
-const editVehicle = async (item) => {
-    try {
-        const response = await axios.put(`/user/vehicles/${item.id}`, {
-            user_id: props.userId,
-            plate_number: item.plate_number,
-            brand: item.brand,
-            model: item.model
-        });
-
-        if (response.data.success) {
-            vehicles.value = vehicles.value.map(vehicle => {
-                if (vehicle.id === item.id) {
-                    return response.data.data;
-                }
-                return vehicle;
-            });
-            mySnackbar.value.show(response.data.message, 'success');
-        } else {
-            mySnackbar.value.show(response.data.message, 'error');
-        }
-    } catch (error) {
-        mySnackbar.value.show(error.response.data.errors, 'error');
-    }
-
-    showModal.value = false;
-};
-
-const deleteVehicle = async () => {
-    try {
-        loading.value = true;
-        if (!itemToDelete.value) return;
-        const id = itemToDelete.value.id;
-
-        const response = await axios.delete(`/user/vehicles/${id}`)
-
-        if (response.data && response.data.success) {
-            vehicles.value = vehicles.value.filter(vehicle => vehicle.id !== id);
-            mySnackbar.value.show(response.data.message, 'success');
-
-        } else {
-            mySnackbar.value.show(response.data.message, 'error');
-        }
-
-    } catch (error) {
-        const errorMessage = error.response?.data?.errors || messageError;
-        mySnackbar.value.show(`Error: ${errorMessage}`, 'error');
-        console.error(errorMessage);
-    } finally {
-        closeDeleteDialogModal();
-    }
-};
 
 /* EVENTOS PROFILE*/
 const {handleSubmit, handleReset} = useForm({
@@ -249,6 +85,11 @@ function initialValues(data) {
     name.value.value = data.name;
     phone.value.value = data.phone;
     email.value.value = data.email;
+    if(data.file_path) {
+        previewImage.value = data.file_path_url;
+    } else {
+        previewImage.value = defaultImage;
+    }
 }
 
 async function getUserData() {
@@ -266,48 +107,11 @@ async function getUserData() {
     }
 }
 
-async function getResidentsData() {
-    loading.value = true;
-
-    try {
-        const response = await axios.get(`/user/get-house-residents-data/${houseId.value}`);
-        members.value = response.data;
-    } catch (error) {
-        error.value = 'Error al obtener los recidentes';
-        console.error(error);
-    } finally {
-        loading.value = false;
-    }
-}
-
-const deleteDialogItemName = computed(() => {
-    if (!itemToDelete.value) return '';
-    return itemToDelete.value.name;
-});
-
-
 onMounted(async () => {
     await getUserData();
-    if (houseId.value) {
-        await getResidentsData();
-    }
-    await getVehiclesData();
+
 });
 
-// --- Métodos del Componente Padre ---
-const openDeleteDialogModal = (item) => {
-    itemToDelete.value = item; // Guarda la referencia al ítem
-    dialogDeleteVisible.value = true; // Abre el modal
-};
-
-const closeDeleteDialogModal = () => {
-    dialogDeleteVisible.value = false;
-    // Es buena idea limpiar itemToDelete después de que el diálogo se cierre (opcional, con timeout)
-    setTimeout(() => {
-        itemToDelete.value = null;
-        isDeleting.value = false; // Asegurarse de resetear el loading si se cancela
-    }, 300); // Espera a la animación de cierre
-};
 
 // Imagen de perfil
 const image = ref(null)
@@ -339,9 +143,18 @@ const removeImage = () => {
 }
 
 const submit = handleSubmit(async values => {
-    //values.image = image.value // Agregar la imagen a los valores del formulario
+    const formData = new FormData();
+    formData.append('name', values.name);
+    formData.append('phone', values.phone);
+    formData.append('email', values.email);
+
+    if(image.value instanceof File) {
+        formData.append('file_path', image.value);
+    }
+
+    formData.append('_method', 'PUT');
     try {
-        const response = await axios.put(`/user/profile/${props.userId}`, values);
+        const response = await axios.post(`/user/profile/${props.userId}`, formData);
         if (response.data.success) {
             message.value = response.data.message;
             snackbar.value = true;
@@ -355,15 +168,7 @@ const submit = handleSubmit(async values => {
 //    alert(JSON.stringify(values, null, 2))
 })
 
-function closeModalMember() {
-    selectedMember.value = null;
-    showModal.value = false;
-}
 
-function closeModalVehicle() {
-    selectedVehicle.value = null;
-    showModalFormVehicle.value = false;
-}
 
 function getImage(fileName, imageDefault = '') {
     let image = fileName || imageDefault;
@@ -379,12 +184,12 @@ function getImage(fileName, imageDefault = '') {
                 <v-card class="pa-4">
                     <!-- Imagen de Perfil -->
                     <v-avatar size="100">
-                        <img :src="`/storage/images/web_user/default-profile.jpg`" alt="User Profile"
+                        <img :src="previewImage" alt="User Profile"
                              class="profile-preview">
                     </v-avatar>
 
                     <h3 class="mt-3 text-center">{{ name.value.value }}</h3>
-                    <p class="text-center text-grey">Software Engineer</p>
+                    <p class="text-center text-grey"></p>
                     <div class="image-upload">
                         <label for="imageUpload">
                             <v-btn color="primary" class="mt-2" @click="fileInput.click()">
@@ -401,7 +206,7 @@ function getImage(fileName, imageDefault = '') {
                         />
                     </div>
                     <v-list lines="two">
-                        <v-list-subheader inset>Folders</v-list-subheader>
+                        <v-list-subheader inset></v-list-subheader>
 
                         <v-list-item
                             v-for="folder in items"
@@ -423,8 +228,6 @@ function getImage(fileName, imageDefault = '') {
                 <v-card>
                     <v-tabs v-model="activeKey">
                         <v-tab :value="TABS_KEYS.PROFILE">Perfil</v-tab>
-                        <v-tab :value="TABS_KEYS.HOUSES">Casa e Integrantes</v-tab>
-                        <v-tab :value="TABS_KEYS.VEHICLES">Vehículos</v-tab>
                     </v-tabs>
 
                     <v-card-text>
@@ -466,188 +269,11 @@ function getImage(fileName, imageDefault = '') {
                                     </v-snackbar>
                                 </v-form>
                             </v-window-item>
-                            <!-- Pestaña 2: House -->
-                            <v-window-item :value="TABS_KEYS.HOUSES">
-                                <div v-if="houseId">
-                                    <House :houseId="houseId"/>
-                                    <v-divider class="my-6" style="height: 2px; background-color: black;"></v-divider>
-                                    <v-btn color="primary" class="mt-3" @click="showModal = true"> + Agregar Integrantes
-                                    </v-btn>
-                                    <v-dialog max-width="500px" v-model="showModal">
-                                        <AddMemberModal
-                                            :member="selectedMember"
-                                            @member-added="addMember"
-                                            @member-edit="editMember"
-                                            @close-modal="closeModalMember"
-                                        />
-                                    </v-dialog>
-                                    <v-data-table v-if="members.length"
-                                                  :headers="headerMembers"
-                                                  :items="members"
-                                                  class="elevation-1"
-                                                  density="compact"
-                                    >
-                                        <template v-slot:item.name="{ item }">
-                                            <v-tooltip location="top">
-                                                <template v-slot:activator="{ props }">
-                                                    <span v-bind="props" class="truncate-text">
-                                                        {{ item.name }}
-                                                        {{ item.name }}
-                                                    </span>
-                                                </template>
-                                                <span>{{ item.name }}</span>
-                                            </v-tooltip>
-                                        </template>
-                                        <template v-slot:item.actions="{ item }">
-                                            <div class="d-flex align-center">
-                                                <v-tooltip text="Editar">
-                                                    <template v-slot:activator="{ props }">
-                                                        <v-btn
-                                                            v-bind="props"
-                                                            icon="mdi-pencil"
-                                                            variant="text"
-                                                            color="primary"
-                                                            size="small"
-                                                            class="me-2"
-                                                            @click="showModalMember(item)"
-                                                        ></v-btn>
-                                                    </template>
-                                                </v-tooltip>
-                                                <v-tooltip text="Eliminar">
-                                                    <template v-slot:activator="{ props }">
-                                                        <v-btn
-                                                            v-bind="props"
-                                                            icon="mdi-delete"
-                                                            variant="text"
-                                                            color="error"
-                                                            size="small"
-                                                            @click="openDeleteDialog(item)"
-                                                        ></v-btn>
-                                                    </template>
-                                                </v-tooltip>
-                                            </div>
-                                        </template>
-                                    </v-data-table>
-                                </div>
-                                <v-alert
-                                    v-else
-                                    type="info"
-                                    variant="tonal"
-                                    border="start"
-                                    prominent
-                                    icon="mdi-information-outline"
-                                    class="ma-4"
-                                >
-      <span class="text-body-1 font-weight-medium">
-        Aún no se le ha asignado una casa para su administración. Por favor, contacte con el administrador.
-      </span>
-                                </v-alert>
-
-
-                            </v-window-item>
-
-                            <!-- Pestaña 3:  -->
-                            <v-window-item :value="TABS_KEYS.VEHICLES">
-                                <v-btn color="primary" class="mt-3" @click="showModalFormVehicle = true"> + Agregar
-                                    Vehículos
-                                </v-btn>
-                                <v-dialog max-width="500px" v-model="showModalFormVehicle">
-                                    <VehicleForm
-                                        :vehicle="selectedVehicle"
-                                        @vehicle-added="addVehicle"
-                                        @vehicle-edit="editVehicle"
-                                        @close-modal="closeModalVehicle"
-                                    />
-                                </v-dialog>
-                                <v-data-table v-show="vehicles.length"
-                                              :headers="headerVehicles"
-                                              :items="vehicles"
-                                              class="elevation-1"
-                                              dense
-                                >
-                                    <template v-slot:item.actions="{ item }">
-                                        <v-tooltip text="Editar">
-                                            <template v-slot:activator="{ props }">
-                                                <v-btn
-                                                    v-bind="props"
-                                                    icon="mdi-pencil"
-                                                    variant="text"
-                                                    color="primary"
-                                                    size="small"
-                                                    class="me-2"
-                                                    @click="showModalVehicle(item)"
-                                                ></v-btn>
-                                            </template>
-                                        </v-tooltip>
-                                        <v-tooltip text="Eliminar">
-                                            <template v-slot:activator="{ props }">
-                                                <v-btn
-                                                    v-bind="props"
-                                                    icon="mdi-delete"
-                                                    variant="text"
-                                                    color="error"
-                                                    size="small"
-                                                    @click="openDeleteDialogModal(item)"
-                                                ></v-btn>
-                                            </template>
-                                        </v-tooltip>
-                                    </template>
-                                </v-data-table>
-                                <DeleteConfirmationModal
-                                    v-model:show="dialogDeleteVisible"
-                                    :message="deleteDialogMessage"
-                                    :item-name="deleteDialogItemName"
-                                    :loading="isDeleting"
-                                    @confirm="deleteVehicle"
-                                    @cancel="closeDeleteDialogModal"
-                                />
-                            </v-window-item>
                         </v-window>
                     </v-card-text>
                 </v-card>
             </v-col>
         </v-row>
-        <v-dialog v-model="showDialogDelete" max-width="500px" persistent>
-            <v-card>
-                <v-card-title class="text-h5 grey lighten-2">
-                    Confirmar Eliminación
-                </v-card-title>
-
-                <v-card-text>
-                    <!-- Muestra el nombre si lo guardaste -->
-                    <span v-if="memberToDelete">
-              ¿Estás seguro de que deseas eliminar a <strong>{{
-                            memberToDelete.name
-                        }}</strong>?
-          </span>
-                    <span v-else>
-              ¿Estás seguro de que deseas eliminar este residente?
-          </span>
-                    <br>
-                    Esta acción no se puede deshacer.
-                </v-card-text>
-
-                <v-divider></v-divider>
-
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn
-                        color="blue darken-1"
-                        text
-                        @click="closeDeleteDialog"
-                    >
-                        Cancelar
-                    </v-btn>
-                    <v-btn
-                        color="red darken-1"
-                        text
-                        @click="deleteMember"
-                    >
-                        Eliminar
-                    </v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
         <Snackbar ref="mySnackbar"/>
     </v-container>
 </template>

@@ -20,15 +20,21 @@ export function sum(a, b) {
     return a + b;
 }
 
-export function formatDate  (dateString)  {
-    const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+export function formatDate(dateString) {
+    const options = {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        timeZone: 'UTC'
+    };
+
     const date = new Date(dateString);
     return date.toLocaleDateString('es-ES', options);
 }
 
-export function formatDateTime(dateString)  {
+export function formatDateTime(dateString) {
     if (!dateString) return '-';
-    const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+    const options = {year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'};
     return new Date(dateString).toLocaleDateString(undefined, options);
 }
 
@@ -50,6 +56,7 @@ const units = {
     electricity: 1,
     water: 0,
 };
+
 export function getUnitConsumption(typeConsumption) {
     if (typeConsumption === units.electricity) {
         return 'kWh';
@@ -58,4 +65,13 @@ export function getUnitConsumption(typeConsumption) {
     }
 
     return typeConsumption;
+}
+
+export function getDate() {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0'); // Los meses son 0-indexados (0 para Enero)
+    const day = String(today.getDate()).padStart(2, '0');
+
+    const formattedDate = `${year}-${month}-${day}`;
 }

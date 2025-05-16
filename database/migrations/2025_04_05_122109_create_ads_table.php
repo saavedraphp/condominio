@@ -19,7 +19,7 @@ return new class extends Migration
             $table->time('start_time')->nullable();
             $table->date('end_day')->nullable();
             $table->time('end_time')->nullable();
-            $table->string('image_url')->nullable();
+            $table->string('file_path')->nullable();
             $table->boolean('active');
             $table->timestamps();
         });
