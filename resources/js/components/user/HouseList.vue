@@ -62,6 +62,7 @@ const showPageDashboard = (item) => {
 
             <v-divider></v-divider>
 
+            <div v-if="houses.length">
             <v-data-table v-show="houses.length"
                           :headers="headers"
                           :items="houses"
@@ -85,11 +86,24 @@ const showPageDashboard = (item) => {
                     </v-tooltip>
                 </template>
             </v-data-table>
+            </div>
+            <v-alert
+                v-else
+                type="info"
+                variant="tonal"
+                border="start"
+                prominent
+                icon="mdi-information-outline"
+                class="ma-4"
+            >
+          <span class="text-body-1 font-weight-medium">
+            Aún no se le ha asignado una casa para su administración. Por favor, contacte con el administrador.
+          </span>
+            </v-alert>
         </v-card>
         <Snackbar ref="mySnackbar"/>
     </v-container>
 </template>
-
 
 
 <style scoped>

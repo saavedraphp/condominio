@@ -5,8 +5,10 @@ import {useField, useForm} from "vee-validate";
 import * as yup from "yup";
 import axios from "axios";
 import Snackbar from "@/components/Snackbar.vue";
+import dayjs from 'dayjs';
 
-const emit = defineEmits(['payment-created', 'payment-updated', 'update:modelValue', 'close-modal']);
+
+const emit = defineEmits(['payment-created', 'payment-updated', 'update:modelValue']);
 const props = defineProps({
     modelValue: Boolean,
     element: {
@@ -51,10 +53,10 @@ const schema = yup.object({
 const {handleSubmit, resetForm, setValues} = useForm({
     validationSchema: schema,
     initialValues: {
-        payment_date: '2025-05-09',
-        quantity: 1000,
+        payment_date: dayjs().format('YYYY-MM-DD'),
+        quantity: '',
         replace: false,
-        observations: 'REQUERIERE ATENCION',
+        observations: '',
         documentFile: null,
     }
 });
@@ -199,7 +201,6 @@ onMounted(() => {
             <v-card-text>
                 <v-container>
                     <v-form @submit.prevent="submitForm">
-                        <input type="text" name="type_service" :value="props.typeServiceId">
                         <v-autocomplete
                             v-model="house_id.value.value"
                             :items="houses"
@@ -243,6 +244,7 @@ onMounted(() => {
                             variant="outlined"
                             :label="labelUnit"
                             v-model="quantity.value.value"
+                            placeholder="0"
                             type="number"
                         />
                         <v-textarea

@@ -9,6 +9,7 @@ use App\Traits\ManagesHouseSession;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -55,10 +56,25 @@ class ProfileController extends Controller
     public function update(Request $request, WebUser $profile): JsonResponse
     {
         try {
+            $dataBase = $request->only(['name', 'email', 'phone']);
+            if ($request->hasFile('file_path') && $request->file('file_path')->isValid()) {
 
-            $profile->update($request->only(['name', 'email', 'phone']));
+                if ($profile->file_path && Storage::disk('public')->exists($profile->file_path)) {
+                    Storage::disk('public')->delete($profile->file_path);
+                }
 
-            return response()->json(['success' => true, 'message' => 'Perfil actualizado correctamente']);
+                $file = $request->file('file_path');
+                $dataBase['file_path'] = $file->store('file_paths/profile', 'public');
+
+            }
+
+            $profile->update($dataBase);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Perfil actualizado correctamente',
+                'data' => $profile,
+            ]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Error al actualizar perfil'], 500);
         }

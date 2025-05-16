@@ -18,7 +18,6 @@ class HouseController extends Controller
         return view('admin.houses.houses');
     }
 
-
     public function showHousesByWebUserId(WebUser $webUser): JsonResponse
     {
         try {

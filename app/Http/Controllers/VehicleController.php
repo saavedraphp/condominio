@@ -16,9 +16,10 @@ class VehicleController extends Controller
 
     public function showPage(): View
     {
-        return view('admin.user.documents', [
-            'urlBase' => route('user.documents.index'),
+        $webUser = Auth::guard('web_user')->user();
+        return view('user.vehicles_list', [
             'isAdmin' => false,
+            'user' => $webUser,
         ]);
     }
 
@@ -29,7 +30,7 @@ class VehicleController extends Controller
 
             return response()->json($vehicles);
         } catch (\Exception $e) {
-            Log::error('Error al intentar obtener los vehiculos del usuario ' . $userId . ': ' . $e->getMessage());
+            Log::error('Error al intentar obtener los vehiculos del usuario ' . $webUser->id . ': ' . $e->getMessage());
 
             return response()->json(['success' => false, 'message' => 'Ócurrio un error al intentar obtener los vehículos: ' . $e->getMessage()], 500);
         }
@@ -106,12 +107,9 @@ class VehicleController extends Controller
         }
     }
 
-    public function getVehiclesByUserId(int $userId): JsonResponse
+    public function getVehicles(): JsonResponse
     {
-
-        if (Auth::guard('web_user')->id() !== $userId) {
-            return response()->json(['message' => 'Usuario no encontrado'], 404);
-        }
+        $userId = Auth::guard('web_user')->id();
 
         try {
             $vehicles = Vehicle::query()->where('web_user_id', $userId)->get();

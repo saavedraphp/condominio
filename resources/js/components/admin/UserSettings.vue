@@ -210,6 +210,7 @@ const goBack = () => {
                     <v-window-item :value="TABS_KEYS.VEHICLES">
                         <VehicleList
                             :user="user"
+                            :is-admin="true"
                         >
                         </VehicleList>
                     </v-window-item>
