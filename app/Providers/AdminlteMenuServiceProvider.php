@@ -100,7 +100,7 @@ class AdminlteMenuServiceProvider extends ServiceProvider
                 ]);
                 $event->menu->add([
                     'text' => 'Mi (Codigo QR)',
-                    'url' => 'admin/blog',
+                    'url' => 'user/my-qr-code',
                     'can' => 'view_payment_history',
                 ]);
                 $event->menu->add([
