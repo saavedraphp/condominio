@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Permission\Traits\HasRoles;
@@ -95,5 +96,29 @@ class WebUser extends Authenticatable
                 return null;
             }
         );
+    }
+
+    public function generatePublicAccessToken(bool $forceRegenerate = false): string
+    {
+        if ($forceRegenerate || is_null($this->public_access_token)) {
+            do {
+                $token = Str::random(40);
+            } while (static::where('public_access_token', $token)->exists());
+
+            $this->public_access_token = $token;
+            $this->save();
+        }
+        return $this->public_access_token;
+    }
+
+    /**
+     * Helper para obtener la URL de estado público.
+     */
+    public function getPublicStatusUrlAttribute(): string
+    {
+        if (!$this->public_access_token) {
+            $this->generatePublicAccessToken();
+        }
+        return route('public.user.status.by-token', ['token' => $this->public_access_token]);
     }
 }

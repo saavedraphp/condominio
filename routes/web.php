@@ -5,6 +5,7 @@ use App\Http\Controllers\AccountActivationController;
 use App\Http\Controllers\Admin\AdsController;
 use App\Http\Controllers\Admin\Auth\LoginUserController as AdminLogin;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
+use App\Http\Controllers\Admin\DoormanController;
 use App\Http\Controllers\Admin\HouseController as AdminHouseController;
 use App\Http\Controllers\Admin\HouseResidentController;
 use App\Http\Controllers\Admin\PetitionController as AdminPetitionController;
@@ -15,6 +16,7 @@ use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PaymentServiceController;
 use App\Http\Controllers\PetitionController;
+use App\Http\Controllers\PublicStatusController;
 use App\Http\Controllers\User\AdsController as UserAdsController;
 use App\Http\Controllers\User\Auth\LoginUserController;
 use App\Http\Controllers\User\DashboardController as UserDashboard;
@@ -44,6 +46,9 @@ Route::get('/home', function () {
     return view('home');
 });
 
+Route::get('/version', function () {
+    phpinfo();
+})->name('home');
 // web_user Auth Routes
 Route::prefix('user')->name('user.')->group(function () {
     Route::get('/login', [LoginUserController::class, 'showLoginForm'])->name('login');
@@ -55,6 +60,9 @@ Route::prefix('user')->name('user.')->group(function () {
 
 
     Route::middleware('auth:web_user')->group(function () {
+        Route::get('/my-qr-code', [UserDashboard::class, 'pageQrCode'])->name('user.my-qr-code');
+        Route::get('/get-qr-code', [UserDashboard::class, 'generateQrCode'])->name('user.get-qrcode');
+
         Route::get('/dashboard', [UserDashboard::class, 'index'])->name('dashboard');
         Route::get('/get-user-data', [ProfileController::class, 'getUserData'])->name('user.profile.show');
         Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
@@ -177,7 +185,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/petitions/{petition}', [AdminPetitionController::class, 'show'])->name('petitions.show');
         Route::post('/petitions/{petition}/replies', [AdminPetitionController::class, 'addReply'])->name('petitions.replies.store');
         Route::put('/petitions/{petition}/status', [AdminPetitionController::class, 'updateStatus'])->name('petitions.status.update');
+
+        /*PORTERO*/
+        Route::get('/doorman/scanner', [DoormanController::class, 'index'])->name('doorman-scanner');
+        Route::get('/doorman/check-access/{userId}', [DoormanController::class, 'checkAccess'])->name('doorman-check-access');
+
     });
 
 });
 
+Route::get('/status/verify/{token}', [PublicStatusController::class, 'showStatusByToken'])
+    ->name('public.user.status.by-token');
