@@ -369,6 +369,12 @@ return [
             'can' => 'view_ads',
         ],
         [
+            'text' => 'Scannear QR',
+            'route' => 'admin.doorman-scanner',
+            'icon' => 'fas fa-fw fa-envelope',
+            'can' => 'view_ads',
+        ],
+        [
             'text' => 'Perfil',
             'url' => 'admin/profile',
             'icon' => 'fas fa-fw fa-user',

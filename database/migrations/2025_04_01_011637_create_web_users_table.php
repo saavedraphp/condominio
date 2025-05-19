@@ -21,6 +21,9 @@ return new class extends Migration
             $table->string('file_path')->nullable();
             $table->string('status',15);
             $table->bigInteger('white_label_id')->nullable();
+            $table->string('public_access_token')
+                ->unique()
+                ->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

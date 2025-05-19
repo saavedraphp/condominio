@@ -17,6 +17,7 @@
     "dependencies": {
         "@mdi/font": "^7.4.47",
         "dayjs": "^1.11.13",
+        "html5-qrcode": "^2.3.8",
         "lodash-es": "^4.17.21",
         "vee-validate": "^4.15.0",
         "vue3-apexcharts": "^1.8.0",
