@@ -1,111 +1,3 @@
-<template>
-    <v-container>
-        <v-card>
-            <v-card-text>
-                <v-form @submit.prevent="submitAssignment">
-                    <v-row>
-                        <v-col cols="12">
-                            <h2>Asignar Casa</h2>
-                        </v-col>
-                    </v-row>
-                    <v-row>
-                        <v-col cols="12" md="6">
-                            <v-autocomplete
-                                v-model="selectedHouse"
-                                :items="allHouses"
-                                :loading="isLoadingHouses"
-                                :disabled="isLoadingHouses"
-                                item-title="address"
-                                item-value="id"
-                                label="Buscar y seleccionar casa..."
-                                placeholder="Escribe el nombre o dirección..."
-                                variant="outlined"
-                                return-object
-                                clearable
-                                no-data-text="No se encontraron casas"
-                                @update:search="onSearchInput"
-                            >
-                                <!-- Opcional: Personalizar cómo se muestra cada item en la lista -->
-                                <template v-slot:item="{ props, item }">
-                                    <v-list-item
-                                        v-bind="props"
-                                        :title="item.raw.name"
-                                        :subtitle="item.raw.address"
-                                    ></v-list-item>
-                                </template>
-
-                                <!-- Opcional: Mostrar algo más que el item-title cuando está seleccionado -->
-                                <template v-slot:selection="{ item }">
-                                    <span>{{ item.raw.name }} - {{ item.raw.address }}</span>
-                                </template>
-
-                            </v-autocomplete>
-                        </v-col>
-                        <v-col cols="12" md="6" align="end">
-                            <v-btn color="blue-darken-1" variant="text" @click="close" v-if="!selectedHouse">Cancelar</v-btn>
-                        </v-col>
-                    </v-row>
-                    <v-divider class="my-4" v-if="selectedHouse"></v-divider>
-
-                    <!-- Campos que se autocompletan -->
-                    <div v-if="selectedHouse">
-                        <v-row>
-                            <v-col cols="12">
-                                <h3>Detalles de la Casa Seleccionada</h3>
-                            </v-col>
-                            <v-col cols="12" md="6">
-                                <v-text-field
-                                    v-model="formDetails.address"
-                                    label="Dirección"
-                                    variant="outlined"
-                                    readonly
-                                    filled
-                                ></v-text-field>
-                            </v-col>
-                            <v-col cols="12" md="6">
-                                <v-text-field
-                                    v-model="formDetails.property_unit"
-                                    label="Unidad de propiedad"
-                                    variant="outlined"
-                                    readonly
-                                    filled
-                                ></v-text-field>
-                            </v-col>
-                            <!-- Aquí irían los checkboxes/radios para is_owner, is_resident, etc. -->
-                            <v-col cols="12">
-                                <h4>Definir Roles para esta Casa</h4>
-                                <v-checkbox v-model="formDetails.is_owner" label="Es Propietario"></v-checkbox>
-                                <v-checkbox v-model="formDetails.is_resident" label="Es Residente"></v-checkbox>
-                                <v-checkbox v-model="formDetails.is_manager" label="Es Gestor (Admin App)"></v-checkbox>
-                            </v-col>
-                        </v-row>
-                        <v-card-actions>
-                            <v-spacer></v-spacer>
-                            <v-btn color="blue-darken-1" variant="text" @click="close">Cancelar</v-btn>
-                            <v-btn color="red" type="submit">Guardar</v-btn>
-                        </v-card-actions>
-                    </div>
-                    <!-- Indicador de carga general o mensajes -->
-                    <v-row v-if="isLoadingHouses">
-                        <v-col cols="12" class="text-center">
-                            <v-progress-circular indeterminate color="primary"></v-progress-circular>
-                            <p>Cargando casas...</p>
-                        </v-col>
-                    </v-row>
-                    <v-row v-if="apiError">
-                        <v-col cols="12">
-                            <v-alert type="error" variant="tonal">
-                                Error al cargar las casas: {{ apiError }}
-                            </v-alert>
-                        </v-col>
-                    </v-row>
-                </v-form>
-            </v-card-text>
-        </v-card>
-        <Snackbar ref="mySnackbar"/>
-    </v-container>
-</template>
-
 <script setup>
 import {ref, watch, onMounted, reactive} from 'vue';
 import axios from 'axios';
@@ -253,7 +145,113 @@ const close = () => {
     emit('close-modal');
 }
 </script>
+<template>
+    <v-container>
+        <v-card>
+            <v-card-text>
+                <v-form @submit.prevent="submitAssignment">
+                    <v-row>
+                        <v-col cols="12">
+                            <h2>Asignar Casa</h2>
+                        </v-col>
+                    </v-row>
+                    <v-row>
+                        <v-col cols="12" md="6">
+                            <v-autocomplete
+                                v-model="selectedHouse"
+                                :items="allHouses"
+                                :loading="isLoadingHouses"
+                                :disabled="isLoadingHouses"
+                                item-title="address"
+                                item-value="id"
+                                label="Buscar y seleccionar casa..."
+                                placeholder="Escribe el nombre o dirección..."
+                                variant="outlined"
+                                return-object
+                                clearable
+                                no-data-text="No se encontraron casas"
+                                @update:search="onSearchInput"
+                            >
+                                <!-- Opcional: Personalizar cómo se muestra cada item en la lista -->
+                                <template v-slot:item="{ props, item }">
+                                    <v-list-item
+                                        v-bind="props"
+                                        :title="item.raw.name"
+                                        :subtitle="item.raw.address"
+                                    ></v-list-item>
+                                </template>
 
+                                <!-- Opcional: Mostrar algo más que el item-title cuando está seleccionado -->
+                                <template v-slot:selection="{ item }">
+                                    <span>{{ item.raw.name }} - {{ item.raw.address }}</span>
+                                </template>
+
+                            </v-autocomplete>
+                        </v-col>
+                        <v-col cols="12" md="6" align="end">
+                            <v-btn color="blue-darken-1" variant="text" @click="close" v-if="!selectedHouse">Cancelar</v-btn>
+                        </v-col>
+                    </v-row>
+                    <v-divider class="my-4" v-if="selectedHouse"></v-divider>
+
+                    <!-- Campos que se autocompletan -->
+                    <div v-if="selectedHouse">
+                        <v-row>
+                            <v-col cols="12">
+                                <h3>Detalles de la Casa Seleccionada</h3>
+                            </v-col>
+                            <v-col cols="12" md="6">
+                                <v-text-field
+                                    v-model="formDetails.address"
+                                    label="Dirección"
+                                    variant="outlined"
+                                    readonly
+                                    filled
+                                ></v-text-field>
+                            </v-col>
+                            <v-col cols="12" md="6">
+                                <v-text-field
+                                    v-model="formDetails.property_unit"
+                                    label="Unidad de propiedad"
+                                    variant="outlined"
+                                    readonly
+                                    filled
+                                ></v-text-field>
+                            </v-col>
+                            <!-- Aquí irían los checkboxes/radios para is_owner, is_resident, etc. -->
+                            <v-col cols="12">
+                                <h4>Definir Roles para esta Casa</h4>
+                                <v-checkbox v-model="formDetails.is_owner" label="Es Propietario"></v-checkbox>
+                                <v-checkbox v-model="formDetails.is_resident" label="Es Residente"></v-checkbox>
+                                <v-checkbox v-model="formDetails.is_manager" label="Es Gestor (Admin App)"></v-checkbox>
+                            </v-col>
+                        </v-row>
+                        <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn color="blue-darken-1" variant="text" @click="close">Cancelar</v-btn>
+                            <v-btn color="red" type="submit">Guardar</v-btn>
+                        </v-card-actions>
+                    </div>
+                    <!-- Indicador de carga general o mensajes -->
+                    <v-row v-if="isLoadingHouses">
+                        <v-col cols="12" class="text-center">
+                            <v-progress-circular indeterminate color="primary"></v-progress-circular>
+                            <p>Cargando casas...</p>
+                        </v-col>
+                    </v-row>
+                    <v-row v-if="apiError">
+                        <v-col cols="12">
+                            <v-alert type="error" variant="tonal">
+                                Error al cargar las casas: {{ apiError }}
+                            </v-alert>
+                        </v-col>
+                    </v-row>
+                </v-form>
+            </v-card-text>
+        </v-card>
+        <Snackbar ref="mySnackbar"/>
+    </v-container>
+</template>
 <style scoped>
 /* Estilos específicos si los necesitas */
 .v-text-field[readonly] {

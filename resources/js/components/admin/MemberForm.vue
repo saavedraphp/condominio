@@ -34,9 +34,9 @@ const schema = yup.object({
 const {handleSubmit, resetForm} = useForm({
     validationSchema: schema,
     initialValues: {
-        memberName: 'David Saavedra',
-        memberPhone: '987458745',
-        memberEmail: 'david@gmail.com'
+        memberName: '',
+        memberPhone: '',
+        memberEmail: ''
     }
 });
 

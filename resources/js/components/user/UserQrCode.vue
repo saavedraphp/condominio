@@ -4,6 +4,7 @@ import axios from 'axios'; // Make sure axios is installed and configured
 
 const qrCodeUrl = ref(null);
 const userName = ref('');
+const url = ref(''); // This will hold the URL for the QR code
 const loading = ref(true);
 const error = ref(null);
 
@@ -17,6 +18,7 @@ const fetchQrCodeData = async () => {
 
         qrCodeUrl.value = response.data.qr_code_url;
         userName.value = response.data.user_name;
+        url.value = response.data.url;
 
     } catch (err) {
         console.error("Error fetching QR code data:", err);

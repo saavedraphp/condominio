@@ -369,12 +369,6 @@ return [
             'can' => 'view_ads',
         ],
         [
-            'text' => 'Scannear QR',
-            'route' => 'admin.doorman-scanner',
-            'icon' => 'fas fa-fw fa-envelope',
-            'can' => 'view_ads',
-        ],
-        [
             'text' => 'Perfil',
             'url' => 'admin/profile',
             'icon' => 'fas fa-fw fa-user',
@@ -400,8 +394,31 @@ return [
                         'url' => 'admin/water-records/list-all',
                     ],
                 ]
+        ],
+        [
+            'text' => 'Gastos & Presupuestos',
+            'icon' => 'fas fa-fw fa-plus-square',
+            'can' => 'view_ads',
+            'submenu' => [
+                [
+                    'text' => 'Gestion de Presupuestos',
+                    'url' => 'admin/annual-budget/list',
+                ],
+                [
+                    'text' => 'Gestión de Gastos',
+                    'url' => 'admin/expenses/list',
+                ]
+            ]
         ]
-/*        [
+/*
+
+        [
+            'text' => 'Scannear QR',
+            'route' => 'admin.doorman-scanner',
+            'icon' => 'fas fa-fw fa-envelope',
+            'can' => 'view_ads',
+        ],
+         [
             'text' => 'multilevel',
             'icon' => 'fas fa-fw fa-share',
             'submenu' => [

@@ -23,7 +23,7 @@ const dialog = computed(({
 }));
 
 const isEditing = computed(() => !!props.vehicle?.id);
-const formTitle = computed(() => isEditing.value ? 'Editar Miembro' : 'Adicionar Miembro');
+const formTitle = computed(() => isEditing.value ? 'Editar Vehículo' : 'Adicionar Vehículo');
 
 
 // Schema de validación con Yup
@@ -37,9 +37,9 @@ const schema = yup.object({
 const {handleSubmit, resetForm} = useForm({
     validationSchema: schema,
     initialValues: {
-        plateNumber: 'AB-8888',
-        brand: 'TOYOTA',
-        model: 'AVANZA'
+        plateNumber: '',
+        brand: '',
+        model: ''
     }
 });
 
@@ -88,7 +88,7 @@ const submitForm = handleSubmit(async (values) => {
             mySnackbar.value.show(response.data.message, 'error');
         }
     } catch (error) {
-        mySnackbar.value.show('Lo sentimos, hubo un problema al guardar la información. Intenta de nuevo, por favor.', 'error');
+        mySnackbar.value.show(error.response.data.message, 'error');
     } finally {
         isLoading.value = false;
     }
