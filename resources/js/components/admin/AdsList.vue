@@ -38,8 +38,6 @@ const deleteDialogItemName = computed(() => {
     if (!itemToDelete.value) return '';
     // Devuelve una representación del ítem (nombre, placa, id, etc.)
     return `${itemToDelete.value.title} ID: ${itemToDelete.value.id}`;
-
-
 });
 
 async function getData() {

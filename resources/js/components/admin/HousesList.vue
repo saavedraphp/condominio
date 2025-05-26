@@ -24,8 +24,6 @@ const showModal = ref(false)
 const dialogDelete = ref(false);
 const isDeleting = ref(false);
 const itemToDelete = ref(null);
-
-
 const selectedElement = ref(null)
 
 // --- METHODS ---
@@ -218,7 +216,6 @@ const closeDeleteModal = () => {
                 @close-modal="closeModal"
             >
             </House>
-
         </v-dialog>
 
         <!-- Diálogo de Confirmación de Eliminación -->

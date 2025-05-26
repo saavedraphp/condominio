@@ -47,6 +47,7 @@ class DashboardController extends Controller
         return response()->json([
             'status'      => true,
             'qr_code_url' => $qrCodeBase64,
+            'url'        => $dataToEncode,
             'user_name'   => $user->name
         ]);
     }

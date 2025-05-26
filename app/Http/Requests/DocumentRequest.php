@@ -43,7 +43,7 @@ class DocumentRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'title.required' => 'El campo título es obligatorio.---',
+            'title.required' => 'El campo título es obligatorio.',
             'file_path.required' => 'El documento es obligatorio.',
             'file_path.mimes' => 'El formato del archivo es incorrecto.',
         ];

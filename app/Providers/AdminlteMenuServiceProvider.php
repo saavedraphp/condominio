@@ -105,7 +105,7 @@ class AdminlteMenuServiceProvider extends ServiceProvider
                 ]);
                 $event->menu->add([
                     'text' => 'Presupuesto vs Gastos',
-                    'url' => 'admin/blog',
+                    'route' => 'user.budgets-vs-expenses.show-page',
                     'can' => 'view_payment_history',
                 ]);
                 $event->menu->add([
@@ -123,6 +123,11 @@ class AdminlteMenuServiceProvider extends ServiceProvider
                     'text' => 'Peticiones al Vocal',
                     'route' => 'user.petitions.show-page',
                     'icon' => 'fas fa-fw fa-envelope',
+                    'can' => 'view_payment_history',
+                ]);
+                $event->menu->add([
+                    'text' => 'Reservar Espacio',
+                    'url' => '#',
                     'can' => 'view_payment_history',
                 ]);
             }

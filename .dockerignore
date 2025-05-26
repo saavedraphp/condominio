@@ -1,4 +1,5 @@
 public/storage
+public/hot
 node_modules
 vite.config.js
 package.json

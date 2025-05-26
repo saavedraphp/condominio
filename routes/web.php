@@ -12,7 +12,11 @@ use App\Http\Controllers\Admin\PetitionController as AdminPetitionController;
 use App\Http\Controllers\Admin\UserController as AdminUserAdsController;
 use App\Http\Controllers\Admin\UserHouseAssignmentController;
 use App\Http\Controllers\Admin\UserSettingPageController;
+use App\Http\Controllers\AnnualBudgetController;
+use App\Http\Controllers\BudgetReportController;
+use App\Http\Controllers\BudgetTypeController;
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PaymentServiceController;
 use App\Http\Controllers\PetitionController;
@@ -112,6 +116,11 @@ Route::prefix('user')->name('user.')->group(function () {
         Route::post('/petitions', [PetitionController::class, 'store'])->name('petitions.store');
         Route::get('/petitions/{petition}', [PetitionController::class, 'show'])->name('petitions.show');
         Route::post('/petitions/{petition}/replies', [PetitionController::class, 'addReply'])->name('petitions.replies.store');
+
+        /*ANNUAL BUDGET VS EXPENSES*/
+        Route::get('/budgets-vs-expenses/search', [BudgetReportController::class, 'showPage'])->name('budgets-vs-expenses.show-page');
+        Route::get('/reports/budget-summary-data', [BudgetReportController::class, 'generateReportData'])->name('reports.budget.data');
+        Route::get('/reports/budget-summary/download', [BudgetReportController::class, 'downloadPdfReport'])->name('reports.budget.pdf');
     });
 
 });
@@ -190,6 +199,22 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/doorman/scanner', [DoormanController::class, 'index'])->name('doorman-scanner');
         Route::get('/doorman/check-access/{userId}', [DoormanController::class, 'checkAccess'])->name('doorman-check-access');
 
+        /*PRESUPUESTO ANUAL*/
+        Route::get('/annual-budget/list', [AnnualBudgetController::class, 'showPage'])->name('annual-budget.show-page');
+        Route::get('/annual-budget', [AnnualBudgetController::class, 'index'])->name('annual-budget.index');
+        Route::post('/annual-budget', [AnnualBudgetController::class, 'store'])->name('annual-budget.store');
+        Route::put('/annual-budget/{annual_budget}', [AnnualBudgetController::class, 'update'])->name('annual-budget.update');
+        Route::delete('/annual-budget/{annual_budget}', [AnnualBudgetController::class, 'destroy'])->name('annual-budget.destroy');
+
+        /*TIPOS DE PRESUPUESTO*/
+        Route::get('/budget-types', [BudgetTypeController::class, 'index'])->name('budget-types.index');
+
+        /*EXPENSES*/
+        Route::get('/expenses/list', [ExpenseController::class, 'showPage'])->name('expenses.show-page');
+        Route::get('/expenses', [ExpenseController::class, 'index'])->name('expenses.index');
+        Route::post('/expenses', [ExpenseController::class, 'store'])->name('expenses.store');
+        Route::put('/expenses/{expense}', [ExpenseController::class, 'update'])->name('expenses.update');
+        Route::delete('/expenses/{expense}', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
     });
 
 });

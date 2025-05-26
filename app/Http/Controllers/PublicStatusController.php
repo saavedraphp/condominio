@@ -18,23 +18,21 @@ class PublicStatusController extends Controller
         }
 
         // --- Lógica para verificar la deuda (SIMPLIFICADA) ---
-        $hasDebt = $this->checkUserDebtStatus($user->id); // Reutiliza tu lógica de deuda
+        $resultDebt = $this->checkUserDebtStatus($user->id); // Reutiliza tu lógica de deuda
 
-        $statusMessage = $hasDebt
-            ? 'Presenta pagos pendientes con el condominio.'
-            : 'Se encuentra al día con sus pagos al condominio.';
-        $statusColor = $hasDebt ? 'red' : 'green';
+        return view('user.qr_verification.result', [
+            'user'      => $user,
+            'debt' => $resultDebt['debtAmount'],
+            'status' => true,
 
-        return view('qr_verification.result', [
-            'userName'      => $user->name,
-            'statusMessage' => $statusMessage,
-            'statusColor'   => $statusColor,
         ]);
     }
 
-    private function checkUserDebtStatus(int $userId): bool
+    private function checkUserDebtStatus(int $userId): array
     {
-        // Tu lógica real aquí...
-        return false; // Placeholder
+        $result = [
+            'debtAmount' => 100,
+        ];
+        return $result;
     }
 }

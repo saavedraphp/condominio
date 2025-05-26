@@ -1,5 +1,20 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import {ref, computed, onMounted} from 'vue';
+
+const props = defineProps({
+    status: {
+        type: Boolean,
+        default: false
+    },
+    user: {
+        type: Object,
+        required: true
+    },
+    debt: {
+        type: Number,
+        default: 0.00
+    }
+});
 
 // Nombre de la empresa, podría venir de una config o ser estático
 const companyName = ref('LA ESQUINA DEL VOCAL'); // O el nombre que corresponda
@@ -9,6 +24,8 @@ const userData = ref({
     name: 'Cargando...',
     debt: 0.00,
 });
+const statusMessage = ref('Cargando...');
+const hasDebt = ref(false);
 
 // Estado de verificación del usuario (esto también vendría de tu API)
 const userVerified = ref(false); // Por defecto no verificado hasta que la API responda
@@ -21,30 +38,15 @@ const debtColor = computed(() => {
 // Simulación de carga de datos desde la API después de escanear el QR
 // En una aplicación real, aquí llamarías a tu API
 onMounted(() => {
-    // Simula una llamada a la API
-    setTimeout(() => {
-        // Caso 1: Usuario con deuda y verificado
-        userData.value = {
-            name: 'Luis Saavedra',
-            debt: 100.00,
-        };
-        userVerified.value = true;
-
-        // Caso 2: Usuario sin deuda y verificado
-        // userData.value = {
-        //   name: 'Ana Torres',
-        //   debt: 0.00,
-        // };
-        // userVerified.value = true;
-
-        // Caso 3: Usuario no verificado (quizás el QR no es válido o no se encuentra)
-        // userData.value = {
-        //   name: 'Desconocido',
-        //   debt: 0.00,
-        // };
-        // userVerified.value = false;
-
-    }, 1500); // Simula un retraso de red
+    userData.value = {
+        name: props.user.name || 'Desconocido',
+        debt: props.debt || 0.00,
+    };
+    userVerified.value = props.status;
+    statusMessage.value = props.debt > 0
+        ? 'Presenta pagos pendientes.'
+        : 'Se encuentra al día con sus pagos.';
+    hasDebt.value = props.debt > 0;
 });
 
 </script>
@@ -53,7 +55,6 @@ onMounted(() => {
         <v-main>
             <v-container class="fill-height d-flex align-center justify-center pa-4">
                 <v-card class="mx-auto pa-4" max-width="450" elevation="2">
-                    <!-- Nombre de la Empresa (similar a tu referencia) -->
                     <v-card-title class="text-h5 text-center font-weight-bold mb-2 primary--text">
                         {{ companyName }}
                     </v-card-title>
@@ -89,16 +90,16 @@ onMounted(() => {
                     <div class="text-center my-4">
                         <v-icon
                             size="80"
-                            :color="userVerified ? 'success' : 'grey-lighten-1'"
+                            :color="hasDebt  ? 'red' : 'success'"
                             class="mb-2"
                         >
-                            {{ userVerified ? 'mdi-check-decagram' : 'mdi-shield-alert-outline' }}
+                            {{ hasDebt  ? 'mdi-shield-alert-outline' : 'mdi-check-decagram' }}
                         </v-icon>
                         <p
                             class="text-h6 font-weight-medium"
-                            :class="userVerified ? 'text-success' : 'text-grey-darken-1'"
+                            :class="hasDebt ? 'text-grey-darken-1' : 'text-success'"
                         >
-                            {{ userVerified ? 'USUARIO VERIFICADO' : 'USUARIO NO VERIFICADO' }}
+                            {{ statusMessage }}
                         </p>
                     </div>
 
@@ -112,9 +113,11 @@ onMounted(() => {
 .primary--text { /* Si no tienes definido 'primary' en tu tema Vuetify */
     color: #1976D2; /* Un azul por defecto, ajústalo a tu tema */
 }
+
 .v-card {
     border-radius: 8px;
 }
+
 .v-chip {
     font-size: 1rem; /* Ajusta si es necesario */
 }
