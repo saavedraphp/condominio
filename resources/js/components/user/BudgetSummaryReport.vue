@@ -1,14 +1,102 @@
+<script setup>
+import { ref, computed, onMounted } from 'vue';
+import axios from 'axios'; // Asegúrate de tener axios instalado y configurado
+
+const props = defineProps({
+    isAdmin: {
+        type: Boolean,
+        default: false
+    }
+});
+
+const filters = ref({
+    year: new Date().getFullYear(),
+    month: new Date().getMonth() + 1,
+    white_label_id: 1, // Reemplaza con tu lógica para obtener el white_label_id
+});
+
+const reportData = ref(null);
+const loading = ref(false);
+const downloadingPdf = ref(false);
+const error = ref(null);
+const yearOptions = computed(() => {
+    const currentYear = new Date().getFullYear();
+    const years = [];
+    for (let i = 0; i < 10; i++) {
+        years.push(currentYear - 5 + i);
+    }
+    return years;
+});
+
+const monthOptions = computed(() => [
+    { title: 'Enero', value: 1 }, { title: 'Febrero', value: 2 },
+    { title: 'Marzo', value: 3 }, { title: 'Abril', value: 4 },
+    { title: 'Mayo', value: 5 }, { title: 'Junio', value: 6 },
+    { title: 'Julio', value: 7 }, { title: 'Agosto', value: 8 },
+    { title: 'Septiembre', value: 9 }, { title: 'Octubre', value: 10 },
+    { title: 'Noviembre', value: 11 }, { title: 'Diciembre', value: 12 },
+]);
+
+const formatCurrency = (value, symbol = 'S/') => {
+    if (typeof value !== 'number') return value;
+    return `${symbol} ${value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}`;
+};
+
+const fetchReportData = async () => {
+    loading.value = true;
+    error.value = null;
+    reportData.value = null;
+    try {
+        const params = { ...filters.value };
+        if (!params.month) delete params.month; // No enviar 'month' si es null
+
+        const response = await axios.get('/user/reports/budget-summary-data', { params });
+        reportData.value = response.data;
+        reportData.value.report_owner = "Propietarios de Islas Cerdeñas"; // Añadido para UI
+    } catch (err) {
+        console.error("Error fetching report data:", err);
+        error.value = "Error al cargar el reporte. " + (err.response?.data?.message || err.message);
+    } finally {
+        loading.value = false;
+    }
+};
+
+const downloadPdf = () => {
+    downloadingPdf.value = true;
+    error.value = null;
+    // Construir URL para descarga
+    // Reemplaza '/reports/budget-summary/download' con tu endpoint real si es diferente
+    let url = `/user/reports/budget-summary/download?year=${filters.value.year}&white_label_id=${filters.value.white_label_id}`;
+    if (filters.value.month) {
+        url += `&month=${filters.value.month}`;
+    }
+
+    // Abrir en una nueva pestaña para iniciar la descarga
+    window.open(url, '_blank');
+
+    // No hay una forma fácil de saber cuándo termina la descarga del navegador.
+    // Simplemente quitamos el estado de carga después de un breve retraso.
+    setTimeout(() => {
+        downloadingPdf.value = false;
+    }, 2000); // Ajusta si es necesario
+};
+
+onMounted(() => {
+    // Opcional: Cargar datos iniciales al montar el componente
+    fetchReportData();
+});
+</script>
 <template>
     <v-container>
         <v-card>
             <v-card-title>
                 Reporte de Presupuestos vs. Gastos Reales
             </v-card-title>
-            <v-card-subtitle>
+            <v-card-subtitle v-if="isAdmin">
                 Filtra y genera el reporte.
             </v-card-subtitle>
             <v-card-text>
-                <v-row>
+                <v-row v-if="isAdmin">
                     <v-col cols="12" md="4">
                         <v-select
                             v-model="filters.year"
@@ -112,90 +200,6 @@
         </v-card>
     </v-container>
 </template>
-
-<script setup>
-import { ref, computed, onMounted } from 'vue';
-import axios from 'axios'; // Asegúrate de tener axios instalado y configurado
-
-const filters = ref({
-    year: new Date().getFullYear(),
-    month: null, // null para indicar "año completo" inicialmente
-    white_label_id: 1, // Reemplaza con tu lógica para obtener el white_label_id
-});
-
-const reportData = ref(null);
-const loading = ref(false);
-const downloadingPdf = ref(false);
-const error = ref(null);
-
-const yearOptions = computed(() => {
-    const currentYear = new Date().getFullYear();
-    const years = [];
-    for (let i = 0; i < 10; i++) {
-        years.push(currentYear - 5 + i);
-    }
-    return years;
-});
-
-const monthOptions = computed(() => [
-    { title: 'Enero', value: 1 }, { title: 'Febrero', value: 2 },
-    { title: 'Marzo', value: 3 }, { title: 'Abril', value: 4 },
-    { title: 'Mayo', value: 5 }, { title: 'Junio', value: 6 },
-    { title: 'Julio', value: 7 }, { title: 'Agosto', value: 8 },
-    { title: 'Septiembre', value: 9 }, { title: 'Octubre', value: 10 },
-    { title: 'Noviembre', value: 11 }, { title: 'Diciembre', value: 12 },
-]);
-
-const formatCurrency = (value, symbol = 'S/') => {
-    if (typeof value !== 'number') return value;
-    return `${symbol} ${value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,')}`;
-};
-
-const fetchReportData = async () => {
-    loading.value = true;
-    error.value = null;
-    reportData.value = null;
-    try {
-        const params = { ...filters.value };
-        if (!params.month) delete params.month; // No enviar 'month' si es null
-
-        const response = await axios.get('/user/reports/budget-summary-data', { params });
-        reportData.value = response.data;
-        reportData.value.report_owner = "Propietarios de Islas Cerdeñas"; // Añadido para UI
-    } catch (err) {
-        console.error("Error fetching report data:", err);
-        error.value = "Error al cargar el reporte. " + (err.response?.data?.message || err.message);
-    } finally {
-        loading.value = false;
-    }
-};
-
-const downloadPdf = () => {
-    downloadingPdf.value = true;
-    error.value = null;
-    // Construir URL para descarga
-    // Reemplaza '/reports/budget-summary/download' con tu endpoint real si es diferente
-    let url = `/user/reports/budget-summary/download?year=${filters.value.year}&white_label_id=${filters.value.white_label_id}`;
-    if (filters.value.month) {
-        url += `&month=${filters.value.month}`;
-    }
-
-    // Abrir en una nueva pestaña para iniciar la descarga
-    window.open(url, '_blank');
-
-    // No hay una forma fácil de saber cuándo termina la descarga del navegador.
-    // Simplemente quitamos el estado de carga después de un breve retraso.
-    setTimeout(() => {
-        downloadingPdf.value = false;
-    }, 2000); // Ajusta si es necesario
-};
-
-onMounted(() => {
-    // Opcional: Cargar datos iniciales al montar el componente
-    // fetchReportData();
-});
-</script>
-
 <style scoped>
 /* Puedes añadir estilos específicos aquí si es necesario */
 .v-table th.text-right, .v-table td.text-right {
