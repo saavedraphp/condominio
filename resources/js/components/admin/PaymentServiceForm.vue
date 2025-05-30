@@ -291,7 +291,3 @@ onMounted(() => {
         <Snackbar ref="mySnackbar"/>
     </v-dialog>
 </template>
-
-<style scoped>
-
-</style>

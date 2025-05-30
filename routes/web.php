@@ -20,6 +20,8 @@ use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PaymentServiceController;
 use App\Http\Controllers\PetitionController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ProjectQuotationController;
 use App\Http\Controllers\PublicStatusController;
 use App\Http\Controllers\User\AdsController as UserAdsController;
 use App\Http\Controllers\User\Auth\LoginUserController;
@@ -215,6 +217,28 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/expenses', [ExpenseController::class, 'store'])->name('expenses.store');
         Route::put('/expenses/{expense}', [ExpenseController::class, 'update'])->name('expenses.update');
         Route::delete('/expenses/{expense}', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
+
+
+        /*PROJECTS*/
+        Route::get('/projects/list', [ProjectController::class, 'showListPage'])->name('projects.list');
+        Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
+        Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
+        Route::put('/projects/{project}', [ProjectController::class, 'update'])->name('projects.update');
+        Route::patch('/projects/{project}/choose-quotation', [ProjectController::class, 'setChosenQuotation'])->name('projects.choose-quotation');
+
+        Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
+
+
+        /*QUOTATIONS*/
+        Route::get('/projects/{project}/quotations', [ProjectQuotationController::class, 'index'])->name('projects.quotations.index');
+        Route::post('/projects/{project}/quotations', [ProjectQuotationController::class, 'store'])->name('projects.quotations.store');
+        Route::put('/projects/{project}/quotations/{quotation}', [ProjectQuotationController::class, 'update'])
+            ->name('projects.quotations.update');
+
+        Route::delete('/projects/{project}/quotations/{quotation}', [ProjectQuotationController::class, 'destroy'])
+            ->name('projects.quotations.destroy');
+
+
     });
 
 });
