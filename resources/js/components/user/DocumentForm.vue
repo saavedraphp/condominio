@@ -73,7 +73,6 @@ const submitForm = handleSubmit(async (values) => {
         fileToUpload = values.documentFile;
     }
 
-    // Doble chequeo por si acaso, aunque yup debería haberlo atrapado
     if (!fileToUpload && (props.document?.file_path && props.document.file_path.value === null)) {
         mySnackbar.value.show('Por favor, seleccione un archivo para subir.', 'error');
         return;
@@ -87,7 +86,6 @@ const submitForm = handleSubmit(async (values) => {
     if (fileToUpload) {
         formData.append('file_path', fileToUpload, fileToUpload.name);
     }
-
 
     isSubmitting.value = true;
 

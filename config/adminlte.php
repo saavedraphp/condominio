@@ -409,7 +409,13 @@ return [
                     'url' => 'admin/expenses/list',
                 ]
             ]
-        ]
+        ],
+        [
+        'text' => 'Proyectos & Cotizaciones',
+        'route' => 'admin.projects.list',
+        'icon' => 'fas fa-fw fa-project-diagram',
+        'can' => 'view_ads',
+    ],
 /*
 
         [
