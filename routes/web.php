@@ -20,6 +20,8 @@ use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\PaymentServiceController;
 use App\Http\Controllers\PetitionController;
+use App\Http\Controllers\PettyCashFundController;
+use App\Http\Controllers\PettyCashTransactionController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectQuotationController;
 use App\Http\Controllers\PublicStatusController;
@@ -234,9 +236,18 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/projects/{project}/quotations', [ProjectQuotationController::class, 'store'])->name('projects.quotations.store');
         Route::put('/projects/{project}/quotations/{quotation}', [ProjectQuotationController::class, 'update'])
             ->name('projects.quotations.update');
-
         Route::delete('/projects/{project}/quotations/{quotation}', [ProjectQuotationController::class, 'destroy'])
             ->name('projects.quotations.destroy');
+
+
+        /*PETTY CASH*/
+        Route::get('/petty-cash/list', [PettyCashFundController::class, 'showListPage'])->name('petty-cash.list');
+        Route::get('/petty-cash', [PettyCashFundController::class, 'index'])->name('petty-cash.index');
+        Route::post('/petty-cash/funds/{fund_id}/transactions', [PettyCashFundController::class, 'show'])->name('petty-cash.details');
+
+        /* PETTY CASH FUNDS DETAILS */
+        Route::get('/petty-cash/funds/{fund_id}/list', [PettyCashTransactionController::class, 'showListPage'])->name('petty-cash-funds-transactions.list');
+        Route::get('/petty-cash/funds/{petty_cash_fund_id}', [PettyCashFundController::class, 'index'])->name('petty-cash.funds.transactions.index');
 
 
     });

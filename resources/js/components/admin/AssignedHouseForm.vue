@@ -228,8 +228,8 @@ const close = () => {
                         </v-row>
                         <v-card-actions>
                             <v-spacer></v-spacer>
-                            <v-btn color="blue-darken-1" variant="text" @click="close">Cancelar</v-btn>
-                            <v-btn color="red" type="submit">Guardar</v-btn>
+                            <v-btn color="grey" variant="flat"  @click="close">Cancelar</v-btn>
+                            <v-btn color="primary"  variant="flat" type="submit">Guardar</v-btn>
                         </v-card-actions>
                     </div>
                     <!-- Indicador de carga general o mensajes -->

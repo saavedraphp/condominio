@@ -24,6 +24,8 @@ class DatabaseSeeder extends Seeder
             DocumentSeeder::class,
             BudgetTypeSeeder::class,
             ProjectSeeder::class,
+            PettyCashFundSeeder::class,
+            PettyCashTransactionSeeder::class,
         ]);
     }
 }

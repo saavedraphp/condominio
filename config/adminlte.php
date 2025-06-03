@@ -385,15 +385,15 @@ return [
             'icon' => 'fas fa-fw fa-plus-square',
             'can' => 'view_ads',
             'submenu' => [
-                    [
-                        'text' => 'Consumo de Luz',
-                        'url' => 'admin/electricity-records/list-all',
-                    ],
-                    [
-                        'text' => 'Consumo de Agua',
-                        'url' => 'admin/water-records/list-all',
-                    ],
-                ]
+                [
+                    'text' => 'Consumo de Luz',
+                    'url' => 'admin/electricity-records/list-all',
+                ],
+                [
+                    'text' => 'Consumo de Agua',
+                    'url' => 'admin/water-records/list-all',
+                ],
+            ]
         ],
         [
             'text' => 'Gastos & Presupuestos',
@@ -411,57 +411,63 @@ return [
             ]
         ],
         [
-        'text' => 'Proyectos & Cotizaciones',
-        'route' => 'admin.projects.list',
-        'icon' => 'fas fa-fw fa-project-diagram',
-        'can' => 'view_ads',
-    ],
-/*
-
-        [
-            'text' => 'Scannear QR',
-            'route' => 'admin.doorman-scanner',
-            'icon' => 'fas fa-fw fa-envelope',
+            'text' => 'Proyectos & Cotizaciones',
+            'route' => 'admin.projects.list',
+            'icon' => 'fas fa-fw fa-project-diagram',
             'can' => 'view_ads',
         ],
-         [
-            'text' => 'multilevel',
-            'icon' => 'fas fa-fw fa-share',
-            'submenu' => [
+        [
+            'text' => 'Caja Chica',
+            'route' => 'admin.petty-cash.list',
+            'icon' => 'fas fa-fw fa-project-diagram',
+            'can' => 'view_ads',
+        ],
+        /*
+
                 [
-                    'text' => 'level_one',
-                    'url' => '#',
+                    'text' => 'Scannear QR',
+                    'route' => 'admin.doorman-scanner',
+                    'icon' => 'fas fa-fw fa-envelope',
+                    'can' => 'view_ads',
                 ],
-                [
-                    'text' => 'level_one',
-                    'url' => '#',
+                 [
+                    'text' => 'multilevel',
+                    'icon' => 'fas fa-fw fa-share',
                     'submenu' => [
                         [
-                            'text' => 'level_two',
+                            'text' => 'level_one',
                             'url' => '#',
                         ],
                         [
-                            'text' => 'level_two',
+                            'text' => 'level_one',
                             'url' => '#',
                             'submenu' => [
                                 [
-                                    'text' => 'level_three',
+                                    'text' => 'level_two',
                                     'url' => '#',
                                 ],
                                 [
-                                    'text' => 'level_three',
+                                    'text' => 'level_two',
                                     'url' => '#',
+                                    'submenu' => [
+                                        [
+                                            'text' => 'level_three',
+                                            'url' => '#',
+                                        ],
+                                        [
+                                            'text' => 'level_three',
+                                            'url' => '#',
+                                        ],
+                                    ],
                                 ],
                             ],
                         ],
+                        [
+                            'text' => 'level_one',
+                            'url' => '#',
+                        ],
                     ],
-                ],
-                [
-                    'text' => 'level_one',
-                    'url' => '#',
-                ],
-            ],
-        ],*/
+                ],*/
         /*['header' => 'labels'],
         [
             'text' => 'important',
