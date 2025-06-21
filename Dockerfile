@@ -1,50 +1,102 @@
-# Stage 1: Build assets with Node
-#FROM node:20 AS node-builder
+###############################################################################
+# 🧱 ETAPA 1 ─ Build de frontend (Node + Vite)                                 #
+###############################################################################
+FROM node:20-alpine AS node-builder
+WORKDIR /app
 
-#WORKDIR /app
+# 1) Caché de dependencias de Node
+COPY package*.json ./
+RUN npm install --frozen-lockfile
 
-#COPY package*.json ./
-#RUN npm install
+# 2) Copiar archivos que Vite necesita para compilar (config, tsconfig) y recursos
+COPY vite.config.* ./
+COPY resources ./resources
 
-#COPY . .
-#RUN npm run build
+# 3) Ejecutar build de Vite → genera /app/public/build
+RUN npm run build
 
-# Stage 2: Laravel + PHP
-FROM php:8.2-fpm
 
-# Install dependencies
-RUN apt-get update && apt-get install -y \
-    curl zip unzip libpng-dev libjpeg-dev libfreetype6-dev libonig-dev libxml2-dev libzip-dev \
-    libmagickwand-dev imagemagick \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo pdo_mysql mbstring zip exif pcntl gd \
-    && pecl install imagick \
-    && docker-php-ext-enable imagick
+###############################################################################
+# 🧱 ETAPA 2 ─ Build de backend (PHP + extensiones + Composer)                 #
+###############################################################################
+FROM php:8.2-fpm-alpine AS php-builder
 
-# Install Composer
+# 1️⃣  Librerías runtime mínimas necesarias para PHP y extensiones
+RUN apk add --no-cache \
+    curl zip unzip git bash \
+    libpng libjpeg-turbo freetype libwebp \
+    libxml2 libzip oniguruma imagemagick icu-libs
+
+# 2️⃣  Paquetes *-dev* y toolchain para compilar todas las extensiones
+RUN apk add --no-cache --virtual .build-deps \
+    $PHPIZE_DEPS pkgconf \
+    zlib-dev \
+    libpng-dev libjpeg-turbo-dev freetype-dev libwebp-dev \
+    libzip-dev \
+    mariadb-dev \
+    oniguruma-dev \
+    libxml2-dev \
+    icu-dev \
+    imagemagick-dev \
+    libsodium-dev
+
+# 3️⃣  Compilar extensiones internas requeridas por Laravel
+RUN docker-php-ext-install \
+      gd \
+      mbstring \
+      pdo_mysql \
+      zip \
+      exif \
+      pcntl \
+      intl \
+      xml \
+      bcmath \
+      sodium
+
+# 4️⃣  Instalar Redis e Imagick vía PECL y habilitarlas
+RUN pecl install redis \
+ && docker-php-ext-enable redis \
+ && pecl install imagick \
+ && docker-php-ext-enable imagick
+
+# 5️⃣  Eliminar toolchain para aligerar la imagen
+RUN apk del .build-deps
+
+# 6️⃣  Copiar Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www
 
-# Copy source files
-#COPY . .
-
-# Copy built assets from node stage
-#COPY --from=node-builder /app/public/build ./public/build
-
+# 6.1) Copiar TODO el proyecto Laravel (controladores, vistas, config, rutas, artisan, etc.)
 COPY . .
-COPY ./deployment/.env .
-# Set correct permissions
-RUN chown -R www-data:www-data /var/www \
-    && chmod -R 755 /var/www
+COPY /deployment/.env ./
 
-# Install PHP dependencies
-RUN composer install -vvv --no-interaction --prefer-dist --optimize-autoloader
+# 6.2) Ejecutar Composer install una vez que el código completo esté presente
+RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader \
+ && php artisan storage:link \
+ && chown -R www-data:www-data /var/www
 
-RUN php artisan storage:link && \
-    chown -R www-data:www-data /var/www
+# 6.3) Copiar los assets compilados desde node-builder
+COPY --from=node-builder /app/public/build ./public/build
 
-# Expose port
+
+###############################################################################
+# 🚀 ETAPA 3 ─ Runtime ligera                                                   #
+###############################################################################
+FROM php:8.2-fpm-alpine AS runtime
+
+# 1️⃣  Librerías runtime mínimas (sin *-dev*)
+RUN apk add --no-cache \
+    libpng libjpeg-turbo freetype libwebp \
+    libxml2 libzip oniguruma imagemagick icu-libs
+
+# 2️⃣  Copiar extensiones compiladas y configuración de PHP
+COPY --from=php-builder /usr/local/lib/php/extensions /usr/local/lib/php/extensions
+COPY --from=php-builder /usr/local/etc/php/conf.d   /usr/local/etc/php/conf.d
+
+# 3️⃣  Copiar código completo (incluye vendor/ y public/build)
+COPY --from=php-builder /var/www /var/www
+
+WORKDIR /var/www
 EXPOSE 9000
-
 CMD ["php-fpm"]

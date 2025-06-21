@@ -21,6 +21,8 @@ export function sum(a, b) {
 }
 
 export function formatDate(dateString) {
+    if (!dateString) return '-';
+
     const options = {
         year: 'numeric',
         month: '2-digit',
@@ -74,4 +76,13 @@ export function getDate() {
     const day = String(today.getDate()).padStart(2, '0');
 
     const formattedDate = `${year}-${month}-${day}`;
+}
+
+export function getStructureTypes(type) {
+     return {
+         'owners_board': 'JP Isla cerdeña',
+         'association_only': 'Asociación I.S.P',
+         'owners_board_with_association': 'Junta y Asociación'
+     };
+
 }

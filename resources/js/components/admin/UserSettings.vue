@@ -26,8 +26,8 @@ const TABS_KEYS = {
 };
 
 const headers = ref([
-    {title: 'Identificador', key: 'property_unit', align: 'start', sortable: true},
-    {title: 'Direccion', key: 'address', sortable: true},
+    {title: 'Dirección', key: 'address', sortable: true},
+    {title: 'Unit', key: 'property_unit', align: 'start', sortable: true},
     {title: 'Propietario', key: 'pivot.is_owner', sortable: true},
     {title: 'Recidente', key: 'pivot.is_resident', sortable: true},
     {title: 'Gestor', key: 'pivot.is_manager', sortable: true},
@@ -105,7 +105,7 @@ const goBack = () => {
 </script>
 
 <template>
-    <v-container>
+    <v-container fluid>
         <p v-if="loading">Cargango datos</p>
         <p v-else-if="error"> {{ error }}</p>
         <v-card>

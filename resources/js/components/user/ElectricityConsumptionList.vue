@@ -35,7 +35,7 @@ const mySnackbar = ref(null);
 
 const headers = ref([
     {title: 'Fecha', key: 'payment_date', align: 'start', sortable: true},
-    {title: 'Consumo', key: 'quantity', sortable: true},
+    {title: 'Consumo', key: 'consumption', sortable: true},
     {title: 'Propiedad', key: 'house.property_unit', sortable: true},
     {title: 'Observaciones', key: 'observations', sortable: true},
     {title: 'Remplazo', key: 'replace', sortable: true},
@@ -183,8 +183,8 @@ const deleteDocument = async () => {
                           class="elevation-1"
                           dense
             >
-                <template v-slot:item.quantity="{ item }">
-                    <span>{{ item.quantity }}({{ typeServiceUnit }})</span>
+                <template v-slot:item.consumption="{ item }">
+                    <span>{{ item.consumption }}({{ typeServiceUnit }})</span>
                 </template>
                 <template v-slot:item.payment_date="{ item }">
                     <span>{{ item.payment_date_format }}</span>

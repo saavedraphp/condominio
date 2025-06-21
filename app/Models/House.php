@@ -18,6 +18,9 @@ class House extends Model
         'address',
         'construction_area',
         'participation_percentage',
+        'ownership_structure',
+        'opening_balance',
+        'is_department',
     ];
 
     public function webUsers(): BelongsToMany
@@ -26,6 +29,11 @@ class House extends Model
             ->withPivot('is_resident', 'is_owner', 'is_manager')
             ->withTimestamps();
 
+    }
+
+    public function monthlyCharges(): HasMany
+    {
+        return $this->hasMany(HouseMonthlyCharge::class);
     }
 
     public function owner()
@@ -48,9 +56,4 @@ class House extends Model
         return $this->hasMany(HousePayment::class);
     }
 
-/*    public function owner(): BelongsTo
-    {
-        // Asume que tienes una columna 'current_owner_id' en la tabla 'houses'
-        return $this->belongsTo(WebUser::class, 'current_owner_id');
-    }*/
 }

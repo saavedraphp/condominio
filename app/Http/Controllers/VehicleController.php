@@ -39,15 +39,10 @@ class VehicleController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): JsonResponse
+    public function store(VehicleRequest $request): JsonResponse
     {
         try {
-            $validateData = $request->validate([
-                'web_user_id' => 'required|exists:web_users,id',
-                'plate_number' => 'required|string|max:10',
-                'brand' => 'required|string|max:25',
-                'model' => 'required|string|max:25',
-            ]);
+            $validateData = $request->validated();
 
             $vehicle = Vehicle::create($validateData);
             return response()->json([

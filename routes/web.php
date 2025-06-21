@@ -12,10 +12,19 @@ use App\Http\Controllers\Admin\PetitionController as AdminPetitionController;
 use App\Http\Controllers\Admin\UserController as AdminUserAdsController;
 use App\Http\Controllers\Admin\UserHouseAssignmentController;
 use App\Http\Controllers\Admin\UserSettingPageController;
+use App\Http\Controllers\AnnualBudgetController;
+use App\Http\Controllers\BudgetReportController;
+use App\Http\Controllers\BudgetTypeController;
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\HouseMonthlyChargeController;
 use App\Http\Controllers\PaymentServiceController;
 use App\Http\Controllers\PetitionController;
+use App\Http\Controllers\PettyCashFundController;
+use App\Http\Controllers\PettyCashTransactionController;
+use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ProjectQuotationController;
 use App\Http\Controllers\PublicStatusController;
 use App\Http\Controllers\User\AdsController as UserAdsController;
 use App\Http\Controllers\User\Auth\LoginUserController;
@@ -112,6 +121,11 @@ Route::prefix('user')->name('user.')->group(function () {
         Route::post('/petitions', [PetitionController::class, 'store'])->name('petitions.store');
         Route::get('/petitions/{petition}', [PetitionController::class, 'show'])->name('petitions.show');
         Route::post('/petitions/{petition}/replies', [PetitionController::class, 'addReply'])->name('petitions.replies.store');
+
+        /*ANNUAL BUDGET VS EXPENSES*/
+        Route::get('/budgets-vs-expenses/search', [BudgetReportController::class, 'showPage'])->name('budgets-vs-expenses.show-page');
+        Route::get('/reports/budget-summary-data', [BudgetReportController::class, 'generateReportData'])->name('reports.budget.data');
+        Route::get('/reports/budget-summary/download', [BudgetReportController::class, 'downloadPdfReport'])->name('reports.budget.pdf');
     });
 
 });
@@ -189,6 +203,65 @@ Route::prefix('admin')->name('admin.')->group(function () {
         /*PORTERO*/
         Route::get('/doorman/scanner', [DoormanController::class, 'index'])->name('doorman-scanner');
         Route::get('/doorman/check-access/{userId}', [DoormanController::class, 'checkAccess'])->name('doorman-check-access');
+
+        /*PRESUPUESTO ANUAL*/
+        Route::get('/annual-budget/list', [AnnualBudgetController::class, 'showPage'])->name('annual-budget.show-page');
+        Route::get('/annual-budget', [AnnualBudgetController::class, 'index'])->name('annual-budget.index');
+        Route::post('/annual-budget', [AnnualBudgetController::class, 'store'])->name('annual-budget.store');
+        Route::put('/annual-budget/{annual_budget}', [AnnualBudgetController::class, 'update'])->name('annual-budget.update');
+        Route::delete('/annual-budget/{annual_budget}', [AnnualBudgetController::class, 'destroy'])->name('annual-budget.destroy');
+
+        /*TIPOS DE PRESUPUESTO*/
+        Route::get('/budget-types', [BudgetTypeController::class, 'index'])->name('budget-types.index');
+
+        /*EXPENSES*/
+        Route::get('/expenses/list', [ExpenseController::class, 'showPage'])->name('expenses.show-page');
+        Route::get('/expenses', [ExpenseController::class, 'index'])->name('expenses.index');
+        Route::post('/expenses', [ExpenseController::class, 'store'])->name('expenses.store');
+        Route::put('/expenses/{expense}', [ExpenseController::class, 'update'])->name('expenses.update');
+        Route::delete('/expenses/{expense}', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
+
+
+        /*PROJECTS*/
+        Route::get('/projects/list', [ProjectController::class, 'showListPage'])->name('projects.list');
+        Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
+        Route::post('/projects', [ProjectController::class, 'store'])->name('projects.store');
+        Route::put('/projects/{project}', [ProjectController::class, 'update'])->name('projects.update');
+        Route::patch('/projects/{project}/choose-quotation', [ProjectController::class, 'setChosenQuotation'])->name('projects.choose-quotation');
+
+        Route::delete('/projects/{project}', [ProjectController::class, 'destroy'])->name('projects.destroy');
+
+
+        /*QUOTATIONS*/
+        Route::get('/projects/{project}/quotations', [ProjectQuotationController::class, 'index'])->name('projects.quotations.index');
+        Route::post('/projects/{project}/quotations', [ProjectQuotationController::class, 'store'])->name('projects.quotations.store');
+        Route::put('/projects/{project}/quotations/{quotation}', [ProjectQuotationController::class, 'update'])
+            ->name('projects.quotations.update');
+        Route::delete('/projects/{project}/quotations/{quotation}', [ProjectQuotationController::class, 'destroy'])
+            ->name('projects.quotations.destroy');
+
+
+        /*PETTY CASH*/
+        Route::get('/petty-cash/list', [PettyCashFundController::class, 'showListPage'])->name('petty-cash.list');
+        Route::get('/petty-cash', [PettyCashFundController::class, 'index'])->name('petty-cash.index');
+        Route::post('/petty-cash/funds/{fund_id}/transactions', [PettyCashFundController::class, 'show'])->name('petty-cash.details');
+
+        /* PETTY CASH FUNDS DETAILS */
+        Route::get('/petty-cash/funds/{fund_id}/list', [PettyCashTransactionController::class, 'showListPage'])->name('petty-cash-funds-transactions.list');
+        Route::get('/petty-cash/funds/{petty_cash_fund_id}', [PettyCashFundController::class, 'index'])->name('petty-cash.funds.transactions.index');
+
+        /* HouseMonthlyCharge */
+        Route::get('/house-monthly-charges/list', [HouseMonthlyChargeController::class, 'showPage'])->name('house-monthly-charges.show-page');
+        Route::get('/house-monthly-charges', [HouseMonthlyChargeController::class, 'index'])->name('house-monthly-charges.index');
+        Route::delete('/house-monthly-charges/{houseMonthlyCharge}', [HouseMonthlyChargeController::class, 'destroy'])
+            ->name('house-monthly-charges.destroy');
+        Route::get('/house-monthly-charges/{houseMonthlyCharge}/download', [HouseMonthlyChargeController::class, 'download'])
+            ->name('house-monthly-charges.download')
+            ->where('document_pdf', '[0-9]+');
+
+        Route::get('/generate-receipt', [HouseMonthlyChargeController::class, 'previewPdfReceipt']);
+        Route::get('/receipt/preview', [HouseMonthlyChargeController::class, 'previewPdfReceipt']);
+        Route::post('/receipt/generate', [HouseMonthlyChargeController::class, 'generateAndStore']);
 
     });
 

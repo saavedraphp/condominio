@@ -16,7 +16,7 @@ return [
     |
     */
 
-    'title' => 'AdminLTE 3',
+    'title' => 'SIS-ISLAS',
     'title_prefix' => '',
     'title_postfix' => '',
 
@@ -65,7 +65,7 @@ return [
     |
     */
 
-    'logo' => '<b>SIS-</b>SERGIO',
+    'logo' => '<b>SIS-</b>ISLAS',
     'logo_img' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
     'logo_img_class' => 'brand-image img-circle elevation-3',
     'logo_img_xl' => null,
@@ -369,12 +369,6 @@ return [
             'can' => 'view_ads',
         ],
         [
-            'text' => 'Scannear QR',
-            'route' => 'admin.doorman-scanner',
-            'icon' => 'fas fa-fw fa-envelope',
-            'can' => 'view_ads',
-        ],
-        [
             'text' => 'Perfil',
             'url' => 'admin/profile',
             'icon' => 'fas fa-fw fa-user',
@@ -391,54 +385,96 @@ return [
             'icon' => 'fas fa-fw fa-plus-square',
             'can' => 'view_ads',
             'submenu' => [
-                    [
-                        'text' => 'Consumo de Luz',
-                        'url' => 'admin/electricity-records/list-all',
-                    ],
-                    [
-                        'text' => 'Consumo de Agua',
-                        'url' => 'admin/water-records/list-all',
-                    ],
-                ]
-        ]
-/*        [
-            'text' => 'multilevel',
-            'icon' => 'fas fa-fw fa-share',
-            'submenu' => [
                 [
-                    'text' => 'level_one',
-                    'url' => '#',
+                    'text' => 'Consumo de Luz',
+                    'url' => 'admin/electricity-records/list-all',
                 ],
                 [
-                    'text' => 'level_one',
-                    'url' => '#',
+                    'text' => 'Consumo de Agua',
+                    'url' => 'admin/water-records/list-all',
+                ],
+            ]
+        ],
+        [
+            'text' => 'Gastos & Presupuestos',
+            'icon' => 'fas fa-fw fa-plus-square',
+            'can' => 'view_ads',
+            'submenu' => [
+                [
+                    'text' => 'Gestion de Presupuestos',
+                    'url' => 'admin/annual-budget/list',
+                ],
+                [
+                    'text' => 'Gestión de Gastos',
+                    'url' => 'admin/expenses/list',
+                ]
+            ]
+        ],
+        [
+            'text' => 'Proyectos & Cotizaciones',
+            'route' => 'admin.projects.list',
+            'icon' => 'fas fa-fw fa-project-diagram',
+            'can' => 'view_ads',
+        ],
+        [
+            'text' => 'Gestion de Cobranzas',
+            'route' => 'admin.house-monthly-charges.show-page',
+            'icon' => 'fas fa-fw fa-project-diagram',
+            'can' => 'view_ads',
+        ],
+
+/*        [
+            'text' => 'Caja Chica',
+            'route' => 'admin.petty-cash.list',
+            'icon' => 'fas fa-fw fa-project-diagram',
+            'can' => 'view_ads',
+        ],*/
+        /*
+
+                [
+                    'text' => 'Scannear QR',
+                    'route' => 'admin.doorman-scanner',
+                    'icon' => 'fas fa-fw fa-envelope',
+                    'can' => 'view_ads',
+                ],
+                 [
+                    'text' => 'multilevel',
+                    'icon' => 'fas fa-fw fa-share',
                     'submenu' => [
                         [
-                            'text' => 'level_two',
+                            'text' => 'level_one',
                             'url' => '#',
                         ],
                         [
-                            'text' => 'level_two',
+                            'text' => 'level_one',
                             'url' => '#',
                             'submenu' => [
                                 [
-                                    'text' => 'level_three',
+                                    'text' => 'level_two',
                                     'url' => '#',
                                 ],
                                 [
-                                    'text' => 'level_three',
+                                    'text' => 'level_two',
                                     'url' => '#',
+                                    'submenu' => [
+                                        [
+                                            'text' => 'level_three',
+                                            'url' => '#',
+                                        ],
+                                        [
+                                            'text' => 'level_three',
+                                            'url' => '#',
+                                        ],
+                                    ],
                                 ],
                             ],
                         ],
+                        [
+                            'text' => 'level_one',
+                            'url' => '#',
+                        ],
                     ],
-                ],
-                [
-                    'text' => 'level_one',
-                    'url' => '#',
-                ],
-            ],
-        ],*/
+                ],*/
         /*['header' => 'labels'],
         [
             'text' => 'important',

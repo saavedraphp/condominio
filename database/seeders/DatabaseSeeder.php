@@ -19,9 +19,14 @@ class DatabaseSeeder extends Seeder
             WebUserSeeder::class,
             AdSeeder::class,
             HouseSeeder::class,
-            HousePaymentSeeder::class,
+            /*HousePaymentSeeder::class,
             PaymentServiceSeeder::class,
             DocumentSeeder::class,
+            BudgetTypeSeeder::class,
+            ProjectSeeder::class,
+            PettyCashFundSeeder::class,
+            PettyCashTransactionSeeder::class,
+            */
         ]);
     }
 }

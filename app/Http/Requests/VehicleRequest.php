@@ -23,39 +23,30 @@ class VehicleRequest extends FormRequest
      */
     public function rules(): array
     {
-        $vehicle = $this->route('vehicle');
-        $rules =  [
-            // --- Agrega aquí las reglas para tus otros campos ---
+        $vehicle = optional($this->route('vehicle'));
+        $rules = [
+            'web_user_id' => 'required|exists:web_users,id',
             'brand' => 'required|string|min:3|max:50',
             'model' => 'required|string|max:50',
-            /*'year' => 'required|integer|digits:4|min:1900|max:' . (date('Y') + 1), // Ejemplo para año
-            'color' => 'nullable|string|max:30',*/
-            // Si los vehículos pertenecen a un usuario:
-            // 'user_id' => 'required|exists:users,id', // Asegura que el user_id exista en la tabla users
         ];
 
-        // --- Regla Condicional para 'plate_number' ---
         $plateRules = [
             'required',
             'string',
-            'max:10', // Ajusta si es necesario
+            'max:10',
         ];
 
-        // Construir la regla unique
         $uniqueRule = Rule::unique('vehicles', 'plate_number');
 
-        // Si $vehicle existe (estamos en modo UPDATE), ignorar su propio ID
-        if ($vehicle) {
-            $uniqueRule->ignore($vehicle->id);
-            // Opcional: Si algún campo solo es requerido al crear y no al editar,
-            // puedes modificar $rules aquí. Ejemplo:
-            // $rules['campo_solo_requerido_al_crear'] = 'sometimes|required|...';
+        if ($this->isMethod('put')) {
+            $vehicle = $this->route('vehicle');
+            if ($vehicle) {
+                $uniqueRule->ignore($vehicle->id);
+            }
         }
 
-        // Añadir la regla unique (configurada para store o update) a las reglas de plate_number
         $plateRules[] = $uniqueRule;
 
-        // Añadir el conjunto completo de reglas para plate_number al array principal
         $rules['plate_number'] = $plateRules;
 
         return $rules;
@@ -65,9 +56,9 @@ class VehicleRequest extends FormRequest
     {
         return [
             'plate_number.required' => 'El número de placa es obligatorio.',
-            'plate_number.string'   => 'La placa debe ser texto.',
-            'plate_number.max'      => 'La placa no puede exceder los :max caracteres.',
-            'plate_number.unique'   => 'Esta placa ya se encuentra registrada.',
+            'plate_number.string' => 'La placa debe ser texto.',
+            'plate_number.max' => 'La placa no puede exceder los :max caracteres.',
+            'plate_number.unique' => 'Esta placa ya se encuentra registrada.',
 
             'brand.required' => 'La marca es obligatoria.',
             'model.required' => 'El modelo es obligatorio.',

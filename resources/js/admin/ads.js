@@ -1,6 +1,6 @@
 import { createApp } from 'vue';
 import vuetify from '../app';
-import AdsList from '../components/admin/AdsList.vue';
+import AdsList from '@/components/admin/AdsList.vue';
 
 import './../../sass/main.scss';
 

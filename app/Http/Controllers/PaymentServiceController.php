@@ -8,6 +8,7 @@ use App\Models\PaymentService;
 use App\Models\WebUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -119,6 +120,7 @@ class PaymentServiceController extends Controller
                 'house_id' => $house->id,
                 'service_id' => $request->get('service_id'),
                 'quantity' => $request->get('quantity'),
+                'consumption' => $request->get('consumption'),
                 'observations' => $request->get('observations'),
                 'replace' => $request->get('replace'),
                 'payment_date' => $request->get('payment_date'),
@@ -148,6 +150,7 @@ class PaymentServiceController extends Controller
                 'house_id' => $validatedData['house_id'],
                 'service_id' => $validatedData['service_id'],
                 'quantity' => $request->get('quantity'),
+                'consumption' => $request->get('consumption'),
                 'observations' => $validatedData['observations'],
                 'replace' => $request->get('replace'),
                 'payment_date' => $validatedData['payment_date'],
@@ -214,6 +217,42 @@ class PaymentServiceController extends Controller
                 'message' => 'Ocurrió un error al intentar eliminar el documento.'
             ], JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public function getPreviousMonthConsumption(Request $request, House $house): JsonResponse
+    {
+        try {
+            $currentDate = Carbon::parse($request->input('payment_date'));
+            $previousMonthDate = $currentDate->copy()->subMonth();
+
+            $previousReading = PaymentService::query()
+                ->where('house_id', $house->id)
+                ->where('service_id', $request->get('type_service'))
+                ->whereYear('payment_date', $previousMonthDate->year)
+                ->whereMonth('payment_date', $previousMonthDate->month)
+                ->orderBy('payment_date', 'desc')
+                ->first();
+
+            if (!$previousReading) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se encontró consumo previo.'
+                ], JsonResponse::HTTP_NOT_FOUND);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $previousReading
+            ], JsonResponse::HTTP_OK);
+
+        } catch (\Exception $e) {
+            Log::error('Error al obtener el consumo previo: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Ocurrió un error al intentar obtener el consumo previo.'
+            ], JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
     }
 
 }

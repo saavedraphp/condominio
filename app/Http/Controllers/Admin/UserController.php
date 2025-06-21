@@ -59,6 +59,7 @@ class UserController extends Controller
 
             $webUser = WebUser::create($dataToCreate);
 
+            $webUser->assignRole('user');
             $token = Str::random(64);
 
             $webUser->activationToken()->create(['token' => $token]);

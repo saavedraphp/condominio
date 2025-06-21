@@ -33,9 +33,7 @@ class AdRequest extends FormRequest
             // --- CREACIÓN ---
             // El archivo es estrictamente requerido
             $rules['file_path'] = 'required|file|mimes:jpg,jpeg,png,pdf|max:2048';
-        }
-
-        elseif ($this->isMethod('put') || $this->isMethod('patch')) {
+        } elseif ($this->isMethod('put') || $this->isMethod('patch')) {
             // 'sometimes' significa: valida esto sólo si el campo está presente en la data de la solicitud.
             $rules['file_path'] = 'sometimes|required|file|mimes:jpg,jpeg,png|max:2048'; // Ajusta mimes y max
         }
@@ -54,6 +52,7 @@ class AdRequest extends FormRequest
             'end_day.after_or_equal' => 'La fecha de fin debe ser igual o posterior a la fecha de inicio.',
             'file_path.required' => 'La imagen es obligatorio.',
             'file_path.mimes' => 'El formato del archivo es incorrecto.',
+            'file_path.max' => 'El tamaño del archivo no puede ser mayor a :max kilobytes.',
         ];
     }
 }

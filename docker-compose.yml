@@ -12,7 +12,7 @@ services:
     nginx:
         build:
             context: .
-            dockerfile: nginx/Dockerfile
+            dockerfile: deployment/nginx/Dockerfile
         container_name: laravel-nginx
         ports:
             - "8080:80"
