@@ -15,8 +15,6 @@ const props = defineProps({
     }
 });
 
-const API_BASE_URL = `${window.location.origin}/api/projects`; // Ajusta si es necesario
-
 const mySnackbar = ref(null);
 const projects = ref([]);
 const loadingProjects = ref(true);

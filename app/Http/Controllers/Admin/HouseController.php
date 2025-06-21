@@ -38,7 +38,7 @@ class HouseController extends Controller
     {
 
         try {
-            $houses = House::all();
+            $houses = House::query()->orderBy('property_unit')->get();
             return response()->json($houses);
         } catch (\Exception $e) {
             Log::error('Error al intentar obtener las casas: ' . $e->getMessage());

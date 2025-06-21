@@ -16,16 +16,16 @@
         <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn
-                color="blue darken-1"
-                text
+                color="grey"
+                variant="flat"
                 @click="emitCancel"
                 :disabled="loading"
             >
                 Cancelar
             </v-btn>
             <v-btn
-                color="red darken-1"
-                text
+                color="primary"
+                variant="flat"
                 @click="emitConfirm"
                 :loading="loading"
                 :disabled="loading"

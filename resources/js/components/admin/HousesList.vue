@@ -4,15 +4,16 @@ import axios from "axios";
 import Snackbar from "@/components/Snackbar.vue";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal.vue";
 import House from "@/components/admin/House.vue";
+import {getStructureTypes} from "@/utils/functions.js";
 
 
 const mySnackbar = ref(null);
 
 const headers = ref([
-    {title: 'Unid', key: 'property_unit', align: 'start', sortable: true},
-    {title: 'Cod Pago', key: 'payment_code', sortable: true},
     {title: 'Dirección', key: 'address', sortable: true},
-    {title: 'Area Cons', key: 'construction_area', sortable: true},
+    {title: 'Unid', key: 'property_unit', align: 'start', sortable: true},
+    {title: 'Tipo', key: 'type_structure', sortable: true},
+    {title: 'Saldo inicial', key: 'opening_balance', sortable: true},
     {title: '% Part', key: 'participation_percentage', sortable: true},
     {title: 'Acciones', key: 'actions', sortable: false, align: 'end'},
 ]);
@@ -25,7 +26,7 @@ const dialogDelete = ref(false);
 const isDeleting = ref(false);
 const itemToDelete = ref(null);
 const selectedElement = ref(null)
-
+const typeMap = getStructureTypes();
 // --- METHODS ---
 onMounted(() => {
     getHouses();
@@ -42,7 +43,11 @@ async function getHouses() {
 
     try {
         const response = await axios.get(`/admin/houses/`);
-        houses.value = response.data;
+        houses.value = response.data.map(item => ({
+            ...item,
+            type_structure: typeMap[item.ownership_structure] ?? 'N/A',
+            status: item.status || 'inactive' // Aseguramos que siempre haya un estado
+        }));
 
     } catch (error) {
         mySnackbar.value.show('Lo sentimos, hubo un problema obtener la información. Intenta de nuevo, por favor.', 'error');
@@ -56,7 +61,7 @@ const addHouse = async (item) => {
         const response = await axios.post('/admin/houses/', item);
         if (response.data.success) {
             mySnackbar.value.show(response.data.message, 'success');
-            houses.value.push(response.data.data);
+            await getHouses();
         } else {
             mySnackbar.value.show(response.data.message, 'error');
         }
@@ -71,12 +76,7 @@ const editHouse = async (item) => {
     try {
         const response = await axios.put(`/admin/houses/${item.id}`, item);
         if (response.data.success) {
-            houses.value = houses.value.map(element => {
-                if (element.id === item.id) {
-                    return response.data.data;
-                }
-                return element;
-            });
+            await getHouses();
             mySnackbar.value.show(response.data.message, 'success');
         } else {
             mySnackbar.value.show(response.data.message, 'error');

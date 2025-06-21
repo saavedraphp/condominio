@@ -9,9 +9,9 @@ import House from "@/components/admin/House.vue";
 const mySnackbar = ref(null);
 
 const headers = ref([
+    {title: 'Dirección', key: 'address', sortable: true},
     {title: 'Unid', key: 'property_unit', align: 'start', sortable: true},
     {title: 'Cod Pago', key: 'payment_code', sortable: true},
-    {title: 'Direccion', key: 'address', sortable: true},
     {title: 'Area Cons', key: 'construction_area', sortable: true},
     {title: '% Part', key: 'participation_percentage', sortable: true},
     {title: 'Acciones', key: 'actions', sortable: false, align: 'end'},

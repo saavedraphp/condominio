@@ -6,6 +6,7 @@ use App\Models\House;
 use App\Models\WebUser;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
+
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\PaymentService>
  */
