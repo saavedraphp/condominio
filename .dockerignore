@@ -1,14 +1,38 @@
-public/storage
-public/hot
+# Node
 node_modules
-vite.config.js
-package.json
-package-lock.json
+npm-debug.log
+.yarn
+.yarnrc
 pnpm-lock.yaml
+
+# Laravel cache/logs
+storage/*
+!storage/app/public
+!storage/framework
+!storage/logs
+
+# Build stuff
+/public/hot
+/public/storage
+/public/build
 tsconfig.json
-.babelrc
-.browserslistrc
-.eslintrc.js
-postcss.config.js
+.eslintrc.*
+.prettierrc.*
+
+# Git & env
+.git
+.env
+.env.*
+!.env.production
+
+# Docker
 Dockerfile
-docker-compose.yml
+docker-compose.*
+
+# IDE
+.idea/
+.vscode/
+
+# Misc
+*.log
+*.md

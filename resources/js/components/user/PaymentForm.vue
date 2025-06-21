@@ -186,9 +186,10 @@ watch(() => props.payment, (newValue) => {
                 </div>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="blue-darken-1" variant="text" @click="close">Cancelar</v-btn>
+                    <v-btn color="grey" variant="flat" @click="close">Cancelar</v-btn>
                     <v-btn
-                        color="red"
+                        color="primary"
+                        variant="flat"
                         type="submit"
                         :loading="isRecording"
                         :disabled="isRecording || isEditing">

@@ -18,6 +18,7 @@ use App\Http\Controllers\BudgetTypeController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\HouseMonthlyChargeController;
 use App\Http\Controllers\PaymentServiceController;
 use App\Http\Controllers\PetitionController;
 use App\Http\Controllers\PettyCashFundController;
@@ -249,6 +250,18 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/petty-cash/funds/{fund_id}/list', [PettyCashTransactionController::class, 'showListPage'])->name('petty-cash-funds-transactions.list');
         Route::get('/petty-cash/funds/{petty_cash_fund_id}', [PettyCashFundController::class, 'index'])->name('petty-cash.funds.transactions.index');
 
+        /* HouseMonthlyCharge */
+        Route::get('/house-monthly-charges/list', [HouseMonthlyChargeController::class, 'showPage'])->name('house-monthly-charges.show-page');
+        Route::get('/house-monthly-charges', [HouseMonthlyChargeController::class, 'index'])->name('house-monthly-charges.index');
+        Route::delete('/house-monthly-charges/{houseMonthlyCharge}', [HouseMonthlyChargeController::class, 'destroy'])
+            ->name('house-monthly-charges.destroy');
+        Route::get('/house-monthly-charges/{houseMonthlyCharge}/download', [HouseMonthlyChargeController::class, 'download'])
+            ->name('house-monthly-charges.download')
+            ->where('document_pdf', '[0-9]+');
+
+        Route::get('/generate-receipt', [HouseMonthlyChargeController::class, 'previewPdfReceipt']);
+        Route::get('/receipt/preview', [HouseMonthlyChargeController::class, 'previewPdfReceipt']);
+        Route::post('/receipt/generate', [HouseMonthlyChargeController::class, 'generateAndStore']);
 
     });
 

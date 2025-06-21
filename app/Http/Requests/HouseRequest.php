@@ -27,6 +27,9 @@ class HouseRequest extends FormRequest
             'address' => 'required|string|min:5|max:50',
             'construction_area' => 'required',
             'participation_percentage' => 'required',
+            'ownership_structure' => 'required',
+            'opening_balance' => 'required|numeric',
+            'is_department' => 'nullable|boolean',
         ];
     }
 
@@ -41,6 +44,8 @@ class HouseRequest extends FormRequest
             'address.min' => 'La dirección tiene que tener como minimo :min caracteres.',
             'address.max' => 'La dirección no puede exceder los :max caracteres.',
             'construction_area.required' => 'El area de construccion es obligatorio',
+            'opening_balance.required' => 'El saldo de apertura es obligatorio',
+            'opening_balance.numeric' => 'El saldo de apertura debe ser un número',
             'participation_percentage.required' => 'El porcentaje de parcipación es obligatorio',
         ];
     }

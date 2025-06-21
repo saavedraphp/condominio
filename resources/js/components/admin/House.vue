@@ -26,18 +26,22 @@ const schema = yup.object({
         .typeError('El porcentaje debe ser un número.')
         .required('El porcentaje de participación es requerido.')
         .min(0, 'El porcentaje no puede ser negativo.')
-        .max(100, 'El porcentaje no puede ser mayor a 100.')
+        .max(100, 'El porcentaje no puede ser mayor a 100.'),
+    opening_balance: yup.string().required('El saldo inicial es requerido.'),
+    ownershipStructure: yup.string().required('El tipo de asociación/junta es requerido.'),
 });
 
 
-const {handleSubmit, resetForm, setValues } = useForm({
+const {handleSubmit, resetForm, setValues} = useForm({
     validationSchema: schema,
     initialValues: {
-        paymentCode: '230808',
-        propertyUnit: 'POPEYA201',
-        address: 'TORRE POPEYA 201',
-        constructionArea: '250',
-        participationPercentage: '70'
+        paymentCode: '',
+        propertyUnit: '',
+        address: '',
+        constructionArea: '',
+        participationPercentage: '',
+        ownershipStructure: '',
+        is_department: false
     }
 });
 
@@ -46,6 +50,15 @@ const propertyUnit = useField('propertyUnit')
 const address = useField('address')
 const constructionArea = useField('constructionArea')
 const participationPercentage = useField('participationPercentage')
+const ownershipStructure = useField('ownershipStructure');
+const is_department = useField('is_department');
+const opening_balance = useField('opening_balance');
+
+const structureTypes = ref([
+    {value: 'owners_board', text: 'JP Isla cerdeña'},
+    {value: 'association_only', text: 'Asociación I.S.P'},
+    {value: 'owners_board_with_association', text: 'Junta y Asociación'}
+]);
 
 // --- Computed Properties ---
 const isEditing = computed(() => !!props.house?.id);
@@ -60,6 +73,9 @@ const submitForm = handleSubmit((values) => {
             address: values.address,
             construction_area: values.constructionArea,
             participation_percentage: values.participationPercentage,
+            ownership_structure: values.ownershipStructure,
+            opening_balance: values.opening_balance || 0,
+            is_department: values.is_department ? 1 : 0
         };
 
         if (isEditing.value) {
@@ -69,7 +85,7 @@ const submitForm = handleSubmit((values) => {
         }
         close();
     } catch (e) {
-         error.value = 'Ocurrió un error al guardar.';
+        error.value = 'Ocurrió un error al guardar.';
     }
 });
 
@@ -86,6 +102,9 @@ watch(() => props.house, (newValue) => {
             address: newValue.address || '',
             constructionArea: newValue.construction_area ?? null,
             participationPercentage: newValue.participation_percentage ?? null,
+            ownershipStructure: newValue.ownership_structure || '',
+            opening_balance: newValue.opening_balance ?? null,
+            is_department: newValue.is_department === 1
         });
     } else {
         resetForm();
@@ -100,46 +119,84 @@ watch(() => props.house, (newValue) => {
         </v-card-title>
         <v-card-text>
             <v-form @submit.prevent="submitForm" class="mt-2">
-                <v-text-field
-                    v-model="paymentCode.value.value"
-                    :error-messages="paymentCode.errorMessage.value"
-                    variant="outlined"
-                    label="Código de pago"
-                ></v-text-field>
-                <v-text-field
-                    v-model="propertyUnit.value.value"
-                    :error-messages="propertyUnit.errorMessage.value"
-                    variant="outlined"
-                    label="Código de propiedad"
-                ></v-text-field>
-                <v-text-field
-                    v-model="address.value.value"
-                    :error-messages="address.errorMessage.value"
-                    variant="outlined"
-                    label="Address"
-                ></v-text-field>
-                <v-text-field
-                    v-model="constructionArea.value.value"
-                    :error-messages="constructionArea.errorMessage.value"
-                    variant="outlined"
-                    label="Area de construcción"
-                ></v-text-field>
-                <v-text-field
-                    v-model="participationPercentage.value.value"
-                    :error-messages="participationPercentage.errorMessage.value"
-                    variant="outlined"
-                    label="Porcentaje de participación"
-                ></v-text-field>
+                <v-row dense>
+                    <v-col cols="12" md="6">
+                        <v-text-field
+                            v-model="paymentCode.value.value"
+                            :error-messages="paymentCode.errorMessage.value"
+                            variant="outlined"
+                            label="Código de pago"
+                        ></v-text-field>
+                    </v-col>
+                    <v-col cols="12" md="6">
+                        <v-text-field
+                            v-model="propertyUnit.value.value"
+                            :error-messages="propertyUnit.errorMessage.value"
+                            variant="outlined"
+                            label="Código de propiedad"
+                        ></v-text-field>
+                    </v-col>
+                    <v-col cols="12">
+                        <v-text-field
+                            v-model="address.value.value"
+                            :error-messages="address.errorMessage.value"
+                            variant="outlined"
+                            label="Address"
+                        ></v-text-field>
+                    </v-col>
+                    <v-col cols="12" md="6">
+                        <v-text-field
+                            v-model="constructionArea.value.value"
+                            :error-messages="constructionArea.errorMessage.value"
+                            variant="outlined"
+                            label="Area de construcción"
+                        ></v-text-field>
+                    </v-col>
+                    <v-col cols="12" md="6">
+                        <v-text-field
+                            v-model="participationPercentage.value.value"
+                            :error-messages="participationPercentage.errorMessage.value"
+                            variant="outlined"
+                            label="Porcentaje de participación"
+                        ></v-text-field>
+                    </v-col>
+                    <v-col cols="12" md="6">
+                        <v-select
+                            v-model="ownershipStructure.value.value"
+                            :error-messages="ownershipStructure.errorMessage.value"
+                            :items="structureTypes"
+                            item-title="text"
+                            item-value="value"
+                            label="Tipo Asociacion / Junta"
+                            required
+                            variant="outlined"
+                            class="mb-3"
+                        ></v-select>
+                    </v-col>
+                    <v-col cols="12" md="6">
+                        <v-text-field
+                            v-model="opening_balance.value.value"
+                            :error-messages="opening_balance.errorMessage.value"
+                            variant="outlined"
+                            type="number"
+                            label="Saldo Inicial"
+                        ></v-text-field>
+                    </v-col>
+                    <v-col cols="12">
+                        <v-checkbox
+                            v-model="is_department.value.value"
+                            label="EDIFICIO POMPEYA"
+                            class="pa-0 ma-0"
+                            density="compact"
+                        />
+                    </v-col>
+                </v-row>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="blue-darken-1" variant="text" @click="close">Cancelar</v-btn>
-                    <v-btn color="red" type="submit">Guardar</v-btn>
+                    <v-btn color="grey" variant="flat" @click="close">Cancelar</v-btn>
+                    <v-btn color="primary" variant="flat" type="submit">Guardar</v-btn>
                 </v-card-actions>
             </v-form>
         </v-card-text>
     </v-card>
 </template>
-
-<style scoped>
-
-</style>

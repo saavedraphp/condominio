@@ -15,6 +15,7 @@ class PaymentService extends Model
         'house_id',
         'service_id',
         'quantity',
+        'consumption',
         'file_path',
         'observations',
         'replace',

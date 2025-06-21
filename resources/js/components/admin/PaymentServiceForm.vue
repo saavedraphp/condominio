@@ -1,5 +1,5 @@
 <script setup>
-import {formatDate, getUnitConsumption} from "../../utils/functions.js";
+import {getUnitConsumption} from "../../utils/functions.js";
 import {computed, onMounted, ref, watch} from "vue";
 import {useField, useForm} from "vee-validate";
 import * as yup from "yup";
@@ -43,7 +43,8 @@ const dialog = computed(({
 
 const isEditing = computed(() => !!props.element?.id);
 const formTitle = computed(() => isEditing.value ? 'Editar comsumo' : 'Adicionar comsumo');
-const labelUnit = computed(() => `Consumo ${getUnitConsumption(props.typeServiceUnit)}`);
+const labelUnit = computed(() => `Lectura Actual ${getUnitConsumption(props.typeServiceUnit)}`);
+const labelConsumption = computed(() => `Comsumo ${getUnitConsumption(props.typeServiceUnit)}`);
 
 const schema = yup.object({
     house_id: yup.object().required('La casa es requerida.'),
@@ -55,6 +56,7 @@ const {handleSubmit, resetForm, setValues} = useForm({
     initialValues: {
         payment_date: dayjs().format('YYYY-MM-DD'),
         quantity: '',
+        consumption: '',
         replace: false,
         observations: '',
         documentFile: null,
@@ -62,6 +64,7 @@ const {handleSubmit, resetForm, setValues} = useForm({
 });
 
 const quantity = useField('quantity');
+const consumption = useField('consumption');
 const payment_date = useField('payment_date');
 const replace = useField('replace');
 const observations = useField('observations');
@@ -84,6 +87,7 @@ const submitForm = handleSubmit(async (values) => {
     const formData = new FormData();
     formData.append('payment_date', values.payment_date);
     formData.append('quantity', values.quantity);
+    formData.append('consumption', values.consumption);
     formData.append('replace', values.replace ? 1 : 0);
     formData.append('observations', values.observations);
     formData.append('service_id', props.typeServiceId);
@@ -173,7 +177,8 @@ watch(() => props.element, (newValue) => {
             id: newValue.id || null,
             payment_date: newValue.payment_date.substring(0, 10),
             quantity: newValue.quantity || 0,
-            replace: newValue.replace === 1 ,
+            replace: newValue.replace === 1,
+            consumption: newValue.consumption || 0,
             observations: newValue.observations || '',
             house_id: newValue.house || null,
             filepath: [],
@@ -199,93 +204,115 @@ onMounted(() => {
                 {{ formTitle }}
             </v-card-title>
             <v-card-text>
-                <v-container>
-                    <v-form @submit.prevent="submitForm">
-                        <v-autocomplete
-                            v-model="house_id.value.value"
-                            :items="houses"
-                            :loading="isLoadingHouses"
-                            :disabled="isLoadingHouses"
-                            item-title="address"
-                            item-value="id"
-                            label="Buscar y seleccionar casa..."
-                            placeholder="Escribe el nombre..."
-                            variant="outlined"
-                            return-object
-                            clearable
-                            no-data-text="No se encontraron casas"
-                            @update:search="onSearchInput"
-                            :error-messages="house_id?.errorMessage.value"
-                        >
-                            <!-- Opcional: Personalizar cómo se muestra cada item en la lista -->
-                            <template v-slot:item="{ props, item }">
-                                <v-list-item
-                                    v-bind="props"
-                                    :title="item.raw.name"
-                                    :subtitle="item.raw.address"
-                                ></v-list-item>
-                            </template>
+                <v-form @submit.prevent="submitForm">
+                        <v-row dense>
+                            <v-col cols="12">
+                                <v-autocomplete
+                                    v-model="house_id.value.value"
+                                    :items="houses"
+                                    :loading="isLoadingHouses"
+                                    :disabled="isLoadingHouses"
+                                    item-title="address"
+                                    item-value="id"
+                                    label="Buscar y seleccionar casa..."
+                                    placeholder="Escribe el nombre..."
+                                    variant="outlined"
+                                    return-object
+                                    clearable
+                                    no-data-text="No se encontraron casas"
+                                    @update:search="onSearchInput"
+                                    :error-messages="house_id?.errorMessage.value"
+                                >
+                                    <!-- Opcional: Personalizar cómo se muestra cada item en la lista -->
+                                    <template v-slot:item="{ props, item }">
+                                        <v-list-item
+                                            v-bind="props"
+                                            :title="item.raw.name"
+                                            :subtitle="item.raw.address"
+                                        ></v-list-item>
+                                    </template>
 
-                            <!-- Opcional: Mostrar algo más que el item-title cuando está seleccionado -->
-                            <template v-slot:selection="{ item }">
-                                <span>{{ item.raw.name }} - {{ item.raw.address }}</span>
-                            </template>
+                                    <!-- Opcional: Mostrar algo más que el item-title cuando está seleccionado -->
+                                    <template v-slot:selection="{ item }">
+                                        <span>{{ item.raw.name }} - {{ item.raw.address }}</span>
+                                    </template>
 
-                        </v-autocomplete>
-
-                        <v-text-field
-                            type="date"
-                            variant="outlined"
-                            label="Fecha"
-                            v-model="payment_date.value.value"
-                            :error-messages="payment_date.errorMessage.value"
-                        />
-                        <v-text-field
-                            variant="outlined"
-                            :label="labelUnit"
-                            v-model="quantity.value.value"
-                            placeholder="0"
-                            type="number"
-                        />
-                        <v-textarea
-                            v-model="observations.value.value"
-                            label="Observaciones"
-                            rows="3"
-                            variant="outlined"
-                            required
-                        ></v-textarea>
-                        <v-file-input
-                            v-model="documentFile.value.value"
-                            :error-messages="documentFile.errorMessage.value"
-                            label="Selecciono una (Imagen)"
-                            variant="outlined"
-                            :accept="ACCEPTED_IMAGE_TYPES.join(',')"
-                            prepend-icon=""
-                            show-size
-                            clearable
-                        ></v-file-input>
-                        <v-switch
-                            v-model="replace.value.value"
-                            :label="replace.value.value ? 'Remplazo' : 'No Remplazo'"
-                            color="success"
-                            inset
-                        ></v-switch>
-                        <div v-if="isEditing && existingImageUrl" class="mb-3">
-                            <v-img
-                                :src="existingImageUrl"
-                                max-height="150"
-                                contain
-                                alt="Imagen actual"
-                                class="mb-2"
-                            ></v-img>
-                        </div>
-                        <v-card-actions>
-                            <v-spacer></v-spacer>
-                            <v-btn color="grey" @click="close" :disabled="isLoading">Cancelar</v-btn>
-                            <v-btn color="red" type="submit" :loading="isLoading">Guardar</v-btn>
-                        </v-card-actions>
-                    </v-form>
-                </v-container>
+                                </v-autocomplete>
+                            </v-col>
+                            <v-col cols="12">
+                                <v-text-field
+                                    v-model="payment_date.value.value"
+                                    :error-messages="payment_date.errorMessage.value"
+                                    type="date"
+                                    variant="outlined"
+                                    label="Fecha"
+                                    required
+                                ></v-text-field>
+                            </v-col>
+                            <v-col cols="12" sm="6">
+                                <v-text-field
+                                    variant="outlined"
+                                    :label="labelUnit"
+                                    v-model="quantity.value.value"
+                                    placeholder="0"
+                                    type="number"
+                                ></v-text-field>
+                            </v-col>
+                            <v-col cols="12" sm="6">
+                                <v-text-field
+                                    variant="outlined"
+                                    :label="`Consumo (${props.typeServiceUnit})`"
+                                    v-model="consumption.value.value"
+                                    placeholder="0"
+                                    type="number"
+                                    :error-messages="consumption.errorMessage.value"
+                                />
+                            </v-col>
+                            <v-col cols="12">
+                                <v-textarea
+                                    v-model="observations.value.value"
+                                    label="Observaciones"
+                                    rows="3"
+                                    variant="outlined"
+                                    required
+                                ></v-textarea>
+                            </v-col>
+                            <v-col cols="12">
+                                <v-file-input
+                                    v-model="documentFile.value.value"
+                                    :error-messages="documentFile.errorMessage.value"
+                                    label="Selecciono una (Imagen)"
+                                    variant="outlined"
+                                    :accept="ACCEPTED_IMAGE_TYPES.join(',')"
+                                    prepend-icon=""
+                                    show-size
+                                    clearable
+                                ></v-file-input>
+                            </v-col>
+                            <v-col cols="12">
+                                <v-switch
+                                    v-model="replace.value.value"
+                                    :label="replace.value.value ? 'Remplazo' : 'No Remplazo'"
+                                    color="success"
+                                    inset
+                                ></v-switch>
+                            </v-col>
+                            <v-col cols="12" v-if="isEditing && existingImageUrl" class="mb-3">
+                                <v-img
+                                    :src="existingImageUrl"
+                                    max-height="150"
+                                    contain
+                                    alt="Imagen actual"
+                                    class="mb-2"
+                                ></v-img>
+                            </v-col>
+                        </v-row>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn color="grey" variant="flat" @click="close" :disabled="isLoading">Cancelar</v-btn>
+                        <v-btn color="primary" variant="flat" type="submit" :loading="isLoading">Guardar</v-btn>
+                    </v-card-actions>
+                </v-form>
             </v-card-text>
         </v-card>
         <Snackbar ref="mySnackbar"/>

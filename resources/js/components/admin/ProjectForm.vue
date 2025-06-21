@@ -54,14 +54,14 @@ const projectSchema = yup.object({
     details: yup.string().nullable(),
 });
 
-const { handleSubmit: handleProjectSubmit, resetForm: resetProjectForm, setValues: setProjectValues } = useForm({
+const {handleSubmit: handleProjectSubmit, resetForm: resetProjectForm, setValues: setProjectValues} = useForm({
     validationSchema: projectSchema,
     initialValues: {
-        name: 'Nuevo Proyecto',
+        name: '',
         start_date: dayjs().format('YYYY-MM-DD'),
         end_date: dayjs().add(1, 'month').format('YYYY-MM-DD'),
-        additional_expenses: 100,
-        details: 'Detalle del proyecto',
+        additional_expenses: 0,
+        details: '',
         chosen_quotation_id: null,
         quotations: [] // Para almacenar cotizaciones temporalmente si el proyecto es nuevo
     }
@@ -114,11 +114,11 @@ watch(() => props.projectDataProp, (newVal) => {
         }
         activeTab.value = 'details'; // Siempre empieza en la pestaña de detalles
     }
-}, { deep: true, immediate: true });
+}, {deep: true, immediate: true});
 
 
 watch(dialog, (newVal) => {
-    if(newVal) { // Cuando el diálogo se abre
+    if (newVal) { // Cuando el diálogo se abre
         if (props.projectDataProp && props.projectDataProp.id) {
             // Logic for editing existing (already handled by projectDataProp watch)
         } else {
@@ -139,7 +139,7 @@ watch(dialog, (newVal) => {
 
 const submitProject = handleProjectSubmit(async (values) => {
     isLoading.value = true;
-    const projectPayload = { ...values }; // Datos del formulario del proyecto
+    const projectPayload = {...values}; // Datos del formulario del proyecto
 
     // Añadir las cotizaciones del array local si es un proyecto nuevo
     if (!isEditingProject.value) {
@@ -184,11 +184,11 @@ const submitProject = handleProjectSubmit(async (values) => {
             // Y _method: 'PUT' para Laravel si no usas axios.put directamente con FormData
             formData.append('_method', 'PUT');
             response = await axios.post(`${props.urlBase}/${localProjectData.value.id}`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
+                headers: {'Content-Type': 'multipart/form-data'}
             });
         } else {
             response = await axios.post(props.urlBase, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
+                headers: {'Content-Type': 'multipart/form-data'}
             });
         }
 
@@ -272,7 +272,7 @@ async function handleQuotationSaved(quotationData) {
 
         try {
             const response = await axios.post(url, quotationFormData, { // Siempre POST con _method si es PUT/PATCH con FormData
-                headers: { 'Content-Type': 'multipart/form-data' }
+                headers: {'Content-Type': 'multipart/form-data'}
             });
             if (response.data.success) {
                 const savedOrUpdatedQuotation = response.data.quotation; // Asumiendo que el backend devuelve la cotización
@@ -373,6 +373,7 @@ async function setChosenQuotation(quotationId) {
         localProjectData.value.chosen_quotation_id = quotationId;
     }
 }
+
 function unsetChosenQuotation() {
     if (localProjectData.value.id) {
         setChosenQuotation(null); // Llama a la API con null
@@ -394,7 +395,7 @@ function getQuotationFileName(quotation) {
 function downloadQuotationFile(quotation) {
     // Implementar descarga. Si es un archivo recién subido (file_object), no se puede "descargar" aún.
     // Si es file_path, construir la URL de descarga.
-    if(quotation.file_path) {
+    if (quotation.file_path) {
         window.open(`${window.location.origin}/storage/${quotation.file_path}`, '_blank');
 
     } else {
@@ -488,16 +489,20 @@ const closeDeleteQuotationModal = () => {
                     <!-- Quotations Tab -->
                     <v-window-item value="quotations" class="pa-1">
                         <div class="d-flex justify-end pa-2">
-                            <v-btn color="secondary" @click="openAddQuotationModal" prepend-icon="mdi-plus" :disabled="isLoading">
+                            <v-btn color="secondary" @click="openAddQuotationModal" prepend-icon="mdi-plus"
+                                   :disabled="isLoading || localProjectData.quotations?.length > 2">
                                 Agregar Cotización
                             </v-btn>
                         </div>
-                        <v-alert v-if="!isEditingProject && !localProjectData.id" type="info" density="compact" class="ma-2" outlined>
+                        <v-alert v-if="!isEditingProject && !localProjectData.id" type="info" density="compact"
+                                 class="ma-2" outlined>
                             Las cotizaciones añadidas aquí se guardarán al guardar el nuevo proyecto.
-                            Puedes gestionar (editar, eliminar o seleccionar) las cotizaciones una vez creado el proyecto.
+                            Puedes gestionar (editar, eliminar o seleccionar) las cotizaciones una vez creado el
+                            proyecto.
                         </v-alert>
 
-                        <v-list v-if="localProjectData.quotations && localProjectData.quotations.length > 0" lines="two" density="compact">
+                        <v-list v-if="localProjectData.quotations && localProjectData.quotations.length > 0" lines="two"
+                                density="compact">
                             <v-list-item
                                 v-for="(quotation, index) in localProjectData.quotations"
                                 :key="quotation.id || `new-${index}`"
@@ -509,20 +514,28 @@ const closeDeleteQuotationModal = () => {
                                         @click="localProjectData.chosen_quotation_id === quotation.id ? unsetChosenQuotation() : setChosenQuotation(quotation.id)"
                                         style="cursor: pointer;"
                                     >
-                                        {{ localProjectData.chosen_quotation_id === quotation.id ? 'mdi-check-circle' : 'mdi-circle-outline' }}
+                                        {{
+                                            localProjectData.chosen_quotation_id === quotation.id ? 'mdi-check-circle' : 'mdi-circle-outline'
+                                        }}
                                     </v-icon>
                                 </template>
 
-                                <v-list-item-title class="font-weight-medium">{{ quotation.company_name }}</v-list-item-title>
+                                <v-list-item-title class="font-weight-medium">{{
+                                        quotation.company_name
+                                    }}
+                                </v-list-item-title>
                                 <v-list-item-subtitle>
                                     Amount: S/{{ parseFloat(quotation.amount || 0).toFixed(2) }} <br/>
                                     File: {{ getQuotationFileName(quotation) }}
                                 </v-list-item-subtitle>
 
                                 <template v-slot:append>
-                                    <v-tooltip text="Download File" v-if="quotation.file_path || (quotation.file_object && quotation.file_object[0])">
+                                    <v-tooltip text="Download File"
+                                               v-if="quotation.file_path || (quotation.file_object && quotation.file_object[0])">
                                         <template v-slot:activator="{ props: tooltipProps }">
-                                            <v-btn v-bind="tooltipProps" icon="mdi-download" variant="text" color="info" size="small" @click="downloadQuotationFile(quotation)" :disabled="isLoading"></v-btn>
+                                            <v-btn v-bind="tooltipProps" icon="mdi-download" variant="text" color="info"
+                                                   size="small" @click="downloadQuotationFile(quotation)"
+                                                   :disabled="isLoading"></v-btn>
                                         </template>
                                     </v-tooltip>
                                     <v-tooltip text="Edit Quotation">
@@ -532,15 +545,18 @@ const closeDeleteQuotationModal = () => {
                                                    variant="text"
                                                    color="primary"
                                                    size="small"
-                                                   @click="openEditQuotationModal(quotation, index)" :disabled="isLoading"
+                                                   @click="openEditQuotationModal(quotation, index)"
+                                                   :disabled="isLoading"
                                             >
                                             </v-btn>
                                         </template>
                                     </v-tooltip>
                                     <v-tooltip text="Delete Quotation">
                                         <template v-slot:activator="{ props: tooltipProps }">
-                                            <v-btn v-bind="tooltipProps" icon="mdi-delete" variant="text" color="error" size="small"
-                                                   @click="confirmDeleteQuotation(quotation, index)" :disabled="isLoading"></v-btn>
+                                            <v-btn v-bind="tooltipProps" icon="mdi-delete" variant="text" color="error"
+                                                   size="small"
+                                                   @click="confirmDeleteQuotation(quotation, index)"
+                                                   :disabled="isLoading"></v-btn>
                                         </template>
                                     </v-tooltip>
                                 </template>

@@ -16,7 +16,7 @@ return [
     |
     */
 
-    'title' => 'AdminLTE 3',
+    'title' => 'SIS-ISLAS',
     'title_prefix' => '',
     'title_postfix' => '',
 
@@ -65,7 +65,7 @@ return [
     |
     */
 
-    'logo' => '<b>SIS-</b>SERGIO',
+    'logo' => '<b>SIS-</b>ISLAS',
     'logo_img' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
     'logo_img_class' => 'brand-image img-circle elevation-3',
     'logo_img_xl' => null,
@@ -417,11 +417,18 @@ return [
             'can' => 'view_ads',
         ],
         [
+            'text' => 'Gestion de Cobranzas',
+            'route' => 'admin.house-monthly-charges.show-page',
+            'icon' => 'fas fa-fw fa-project-diagram',
+            'can' => 'view_ads',
+        ],
+
+/*        [
             'text' => 'Caja Chica',
             'route' => 'admin.petty-cash.list',
             'icon' => 'fas fa-fw fa-project-diagram',
             'can' => 'view_ads',
-        ],
+        ],*/
         /*
 
                 [

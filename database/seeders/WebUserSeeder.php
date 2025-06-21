@@ -18,7 +18,7 @@ class WebUserSeeder extends Seeder
         $user = WebUser::query()->create([
             'name' => 'Luis Saavedra',
             'email' => 'saavedraphp@gmail.com',
-            'password' => Hash::make('123456'),
+            'password' => Hash::make('LsL40221837@'),
             'phone' => '960203783',
             'status' => 'active'
         ]);
