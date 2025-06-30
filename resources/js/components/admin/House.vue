@@ -15,18 +15,21 @@ const props = defineProps({
 });
 
 const schema = yup.object({
-    paymentCode: yup.string().required('El código de pago es requerido.').min(4, 'El código de pago debe tener al menos 4 caracteres.'),
-    propertyUnit: yup.string().required('La unidad de propiedad es requerida.').min(2, 'La unidad de propiedad debe tener al menos 2 caracteres.'),
+   // paymentCode: yup.string().required('El código de pago es requerido.').min(4, 'El código de pago debe tener al menos 4 caracteres.'),
+    //propertyUnit: yup.string().required('La unidad de propiedad es requerida.').min(2, 'La unidad de propiedad debe tener al menos 2 caracteres.'),
     address: yup.string().required('La dirección es requerida.').min(5, 'La dirección debe tener al menos 5 caracteres.'),
-    constructionArea: yup.number() // Usar number si es numérico
+    /*constructionArea: yup.number() // Usar number si es numérico
         .typeError('El área de construcción debe ser un número.')
         .required('El área de construcción es requerida.')
         .positive('El área de construcción debe ser positiva.'),
+
+
     participationPercentage: yup.number()
         .typeError('El porcentaje debe ser un número.')
         .required('El porcentaje de participación es requerido.')
         .min(0, 'El porcentaje no puede ser negativo.')
         .max(100, 'El porcentaje no puede ser mayor a 100.'),
+     */
     opening_balance: yup.string().required('El saldo inicial es requerido.'),
     ownershipStructure: yup.string().required('El tipo de asociación/junta es requerido.'),
 });

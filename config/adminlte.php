@@ -422,6 +422,17 @@ return [
             'icon' => 'fas fa-fw fa-project-diagram',
             'can' => 'view_ads',
         ],
+        [
+            'text' => 'Reportes',
+            'icon' => 'fas fa-fw fa-plus-square',
+            'can' => 'view_ads',
+            'submenu' => [
+                [
+                    'text' => 'Casas con Deuda',
+                    'url' => 'admin/reports/balance-due/list',
+                ],
+            ]
+        ],
 
 /*        [
             'text' => 'Caja Chica',
