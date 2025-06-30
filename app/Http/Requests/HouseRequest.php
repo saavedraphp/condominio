@@ -22,14 +22,15 @@ class HouseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //'payment_code' => 'required|string|min:4|max:10',
-            //'property_unit' => 'required',
+            'payment_code' => 'nullable|string',
+            'property_unit' => 'nullable',
             'address' => 'required|string|min:5|max:50',
-            /*'construction_area' => 'required',
-            'participation_percentage' => 'required',*/
+            'construction_area' => 'nullable|numeric',
+            'participation_percentage' => 'nullable',
             'ownership_structure' => 'required',
             'opening_balance' => 'required|numeric',
             'is_department' => 'nullable|boolean',
+            'is_lot' => 'nullable|boolean',
         ];
     }
 

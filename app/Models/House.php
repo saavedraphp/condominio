@@ -19,6 +19,7 @@ class House extends Model
         'construction_area',
         'participation_percentage',
         'ownership_structure',
+        'is_lot',
         'opening_balance',
         'is_department',
     ];

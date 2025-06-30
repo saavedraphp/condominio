@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\User\ProfileController;
 use App\Models\WebUser;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class PublicStatusController extends Controller
@@ -28,10 +30,15 @@ class PublicStatusController extends Controller
         ]);
     }
 
-    private function checkUserDebtStatus(int $userId): array
+    public function checkUserDebtStatus(int $userId): array
     {
+        $user = WebUser::query()->find($userId);
+        $totalBalance = $user->houses()
+            ->wherePivot('is_owner', true)
+            ->sum('opening_balance');
+
         $result = [
-            'debtAmount' => 100,
+            'debtAmount' => $totalBalance ?? 0,
         ];
         return $result;
     }
