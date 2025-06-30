@@ -56,4 +56,22 @@ class House extends Model
         return $this->hasMany(HousePayment::class);
     }
 
+    public function calculateBalance(): array
+    {
+        $this->loadMissing([
+            'payments:id,house_id,amount,payment_date',
+            'monthlyCharges:id,house_id,period_year,period_month,total_amount,status',
+        ]);
+
+        $payments = $this->payments->sum('amount');
+        $charges = $this->monthlyCharges->sum('total_amount');
+
+        return [
+            'house_id' => $this->id,
+            'amount_paid' => $payments,
+            'opening_balance' => $this->opening_balance,
+            'amount_due' => ($this->opening_balance + $charges) - $payments,
+        ];
+    }
+
 }

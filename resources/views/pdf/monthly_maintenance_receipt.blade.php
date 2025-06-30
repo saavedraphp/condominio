@@ -188,6 +188,9 @@
         <img src="{{ $logoPath }}" alt="Logo" class="logo">
         <h1>{{$title_details_line_1}}</h1>
         <h2>{!!$title_details_line_2!!}</h2>
+        @if(!$is_type_house_board)
+            <h2>{{$ruc_assoc_prop_isp}}</h2>
+        @endif
         <h3>Pagar antes de {{$period_month}} 15, {{$period_year}}</h3>
     </header>
 

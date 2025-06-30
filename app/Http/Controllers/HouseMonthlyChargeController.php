@@ -162,6 +162,7 @@ class HouseMonthlyChargeController extends Controller
             'bank_account' => '194-72597403-0-08',
             'bank_account_cci' => '00219417259740300893',
             'bank_account_name' => 'Rudy Huaranga - Francis Iturbe',
+            'ruc_assoc_prop_isp' => 'RUC: 20525153861',
 
         ];
         $data['details'] = [];
