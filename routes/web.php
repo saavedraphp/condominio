@@ -26,6 +26,7 @@ use App\Http\Controllers\PettyCashTransactionController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectQuotationController;
 use App\Http\Controllers\PublicStatusController;
+use App\Http\Controllers\ReportBalanceDueController;
 use App\Http\Controllers\User\AdsController as UserAdsController;
 use App\Http\Controllers\User\Auth\LoginUserController;
 use App\Http\Controllers\User\DashboardController as UserDashboard;
@@ -262,6 +263,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/generate-receipt', [HouseMonthlyChargeController::class, 'previewPdfReceipt']);
         Route::get('/receipt/preview', [HouseMonthlyChargeController::class, 'previewPdfReceipt']);
         Route::post('/receipt/generate', [HouseMonthlyChargeController::class, 'generateAndStore']);
+
+        /* REPORTS */
+        Route::get('/reports/balance-due/list', [ReportBalanceDueController::class, 'showListPage'])->name('reports.balance-due.list');
+        Route::get('/reports/balance-due/index', [ReportBalanceDueController::class, 'index'])->name('reports.balance-due.index');
 
     });
 

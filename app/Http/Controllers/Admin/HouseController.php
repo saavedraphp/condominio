@@ -36,9 +36,12 @@ class HouseController extends Controller
 
     public function index(): JsonResponse
     {
-
         try {
-            $houses = House::query()->orderBy('property_unit')->get();
+            $houses = House::query()
+                ->with([
+                    'owner:id,name',
+                ])
+                ->orderBy('property_unit')->get();
             return response()->json($houses);
         } catch (\Exception $e) {
             Log::error('Error al intentar obtener las casas: ' . $e->getMessage());

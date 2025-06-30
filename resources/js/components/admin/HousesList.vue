@@ -11,6 +11,7 @@ const mySnackbar = ref(null);
 
 const headers = ref([
     {title: 'Dirección', key: 'address', sortable: true},
+    {title: 'Propietario', key: 'owner_name', sortable: true},
     {title: 'Unid', key: 'property_unit', align: 'start', sortable: true},
     {title: 'Tipo', key: 'type_structure', sortable: true},
     {title: 'Saldo inicial', key: 'opening_balance', sortable: true},
@@ -46,7 +47,8 @@ async function getHouses() {
         houses.value = response.data.map(item => ({
             ...item,
             type_structure: typeMap[item.ownership_structure] ?? 'N/A',
-            status: item.status || 'inactive' // Aseguramos que siempre haya un estado
+            status: item.status || 'inactive', // Aseguramos que siempre haya un estado
+            owner_name: item.owner[0]?.name || 'Sin propietario'
         }));
 
     } catch (error) {
