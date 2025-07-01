@@ -25,6 +25,8 @@ class HouseMonthlyChargeController extends Controller
     const NRO_ASSOCIATED = 93;
     const FEE_JP_SARDINIA_ISLANDS = 334.66; // Cuota de la Asociación
     const BUILDING_FUNDS = 125.66;
+
+    const FEET_IS_LOT = 150.00; // Cuota de la Asociación para lotes, si aplica
     const PRICE_BY_KWH = 0.625;
 
     public function showPage(): View
@@ -120,6 +122,7 @@ class HouseMonthlyChargeController extends Controller
             ->where('id', $house_id)
             ->with('owner')
             ->firstOrFail();
+        $houseArray = $house->toArray();
         $typeHouse = $house->ownership_structure;
         $balanceHouse = $this->getBalanceHouse($house->id);
 
@@ -143,7 +146,7 @@ class HouseMonthlyChargeController extends Controller
         $data = [
             'house_id' => $house_id,
             'is_type_house_board' => $typeHouse === self::TYPE_HOUSE_BOARD,
-            'is_type_house_associated' => $typeHouse === self::TYPE_HOUSE_ASSOCIATED,
+            'show_table_energy' => ($typeHouse === self::TYPE_HOUSE_ASSOCIATED && (bool)$house['is_lot'] === false),
             'house_type' => $typeHouse,
             'period_year' => $year,
             'period_month' => strtolower($months[$monthInput]),
@@ -168,7 +171,7 @@ class HouseMonthlyChargeController extends Controller
         $data['details'] = [];
 
         if ($typeHouse === self::TYPE_HOUSE_ASSOCIATED || $typeHouse === $this::TYPE_HOUSE_BOARD_ASSOCIATED) {
-            $data['details'] = $this->getDetails($typeHouse, $house_id);
+            $data['details'] = $this->getDetails($typeHouse, $houseArray);
         }
 
         $amount_of_month = array_sum(array_column($data['details'], 'amount'));
@@ -293,54 +296,80 @@ LOTE ACUMULADO C-39A',
 
     }
 
-    public function getDetails($type, $houseId): array
+    public function getDetails(string $type, array $house): array
     {
         if ($this::TYPE_HOUSE_BOARD === $type) {
             return [];
         }
-
-        $details = [];
-        $details_array = $this->getQuoteAssociated();
+        $fee_association_ISP = $this->getFeeAssociationISP();
 
         if ($type === self::TYPE_HOUSE_ASSOCIATED) {
-            $consumptionEnergy = PaymentService::query()
-                ->where('service_id', 1)
-                ->where('house_id', $houseId)
-                ->whereYear('payment_date', Carbon::now()->year)
-                ->whereMonth('payment_date', Carbon::now()->subMonth()->month)
-                ->orderBy('payment_date', 'desc')
-                ->first();
+            if ($house['is_lot']) {
+                return $this->getLotDetails($fee_association_ISP);
+            }
 
-            $amountElectric = $consumptionEnergy
-                ? ($consumptionEnergy->consumption * self::PRICE_BY_KWH)
-                : 0;
-
-            $fee_association_ISP = array_sum(array_column($details_array, 'amount'));
-
-            $details = [
-                [
-                    'title' => 'Fondos del Edificio Pompeya',
-                    'amount' => self::BUILDING_FUNDS
-                ],
-                [
-                    'title' => 'Consumo de Luz personal',
-                    'amount' => $amountElectric
-                ],
-                [
-                    'title' => 'Cuota a la Asociación I.S.P',
-                    'amount' => $fee_association_ISP
-                ],
-                [
-                    'title' => 'Cuota a la J.P. Isla Cerdeña',
-                    'amount' => self::FEE_JP_SARDINIA_ISLANDS - self::BUILDING_FUNDS - $fee_association_ISP
-                ]
-            ];
-        } else if ($type === self::TYPE_HOUSE_BOARD_ASSOCIATED) {
-            $details = $details_array;
+            $details = $this->getDepartmentEnergyDetails($house, $fee_association_ISP);
+            return $this->addPompeyaFundIfApplies($details, $house);
         }
 
-        return $details;
+        if ($type === self::TYPE_HOUSE_BOARD_ASSOCIATED) {
+            return $this->getQuoteAssociated();
+        }
 
+        return [];
+
+    }
+
+    private function getDepartmentEnergyDetails(array $house, float $fee_association_ISP): array
+    {
+        $consumptionEnergy = PaymentService::query()
+            ->where([
+                ['service_id', 1],
+                ['house_id', $house['id']],
+            ])
+            ->whereYear('payment_date', Carbon::now()->year)
+            ->whereMonth('payment_date', Carbon::now()->subMonth()->month)
+            ->latest('payment_date')
+            ->first();
+
+        $amountElectric = $consumptionEnergy
+            ? $consumptionEnergy->consumption * self::PRICE_BY_KWH
+            : 0;
+
+        return [
+            [
+                'title' => 'Consumo de Luz personal',
+                'amount' => $amountElectric
+            ],
+            [
+                'title' => 'Cuota a la Asociación I.S.P',
+                'amount' => $fee_association_ISP
+            ],
+            [
+                'title' => 'Cuota a la J.P. Isla Cerdeña',
+                'amount' => self::FEE_JP_SARDINIA_ISLANDS - self::BUILDING_FUNDS - $fee_association_ISP
+            ]
+        ];
+    }
+
+    private function getFeeAssociationISP(): float
+    {
+        $details = $this->getQuoteAssociated();
+        return array_sum(array_column($details, 'amount'));
+    }
+
+    private function getLotDetails(float $fee_association_ISP): array
+    {
+        return [
+            [
+                'title' => 'Cuota a la Asociación I.S.P',
+                'amount' => $fee_association_ISP
+            ],
+            [
+                'title' => 'Cuota a la J.P. Isla Cerdeña',
+                'amount' => self::FEET_IS_LOT - $fee_association_ISP
+            ]
+        ];
     }
 
     public function getQuoteAssociated(): array
@@ -356,6 +385,18 @@ LOTE ACUMULADO C-39A',
             ];
         })->toArray();
 
+    }
+
+    private function addPompeyaFundIfApplies(array $details, array $house): array
+    {
+        if (!empty($house['is_department'])) {
+            array_unshift($details, [
+                'title' => 'Fondos del Edificio Pompeya',
+                'amount' => self::BUILDING_FUNDS
+            ]);
+        }
+
+        return $details;
     }
 
     public function getConsumptions(int $house_id): array

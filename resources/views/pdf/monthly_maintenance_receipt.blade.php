@@ -232,7 +232,7 @@
                 </td>
             </tr>
         </table>
-        @if($is_type_house_associated)
+        @if($show_table_energy)
             <div class="historial-container">
                 <div class="section-title">Historial: Lecturas en KWh de su medidor de Luz</div>
                 <table class="historial-table">
