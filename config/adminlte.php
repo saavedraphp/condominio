@@ -401,12 +401,32 @@ return [
             'can' => 'view_ads',
             'submenu' => [
                 [
-                    'text' => 'Gestion de Presupuestos',
-                    'url' => 'admin/annual-budget/list',
+                    'text' => 'Para Asociados',
+                    'icon' => 'fas fa-fw fa-users',
+                    'submenu' => [
+                        [
+                            'text' => 'Gestion de Presupuestos',
+                            'url' => 'admin/annual-budget/list',
+                        ],
+                        [
+                            'text' => 'Gestión Gastos',
+                            'url' => 'admin/expenses/list',
+                        ],
+                    ]
                 ],
                 [
-                    'text' => 'Gestión de Gastos',
-                    'url' => 'admin/expenses/list',
+                    'text' => 'Para Edificio',
+                    'icon' => 'fas fa-fw fa-building',
+                    'submenu' => [
+                        [
+                            'text' => 'Gestion de Presupuestos',
+                            'url' => 'admin/building-budget/list',
+                        ],
+                        [
+                            'text' => 'Gestión Gastos',
+                            'url' => 'admin/building-expenses/list',
+                        ],
+                    ]
                 ]
             ]
         ],

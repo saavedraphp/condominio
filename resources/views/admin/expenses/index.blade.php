@@ -3,8 +3,9 @@
 @section('content')
     <div id="expenses-container">
         <expenses-list
-            :url-base="'{{ route('admin.expenses.index') }}'"
-            :url-annual-budget="'{{ route('admin.annual-budget.index') }}'"
+            :url-base='@json($routes)'
+            :budget-scope="'{{$budget_scope}}'"
+            :meta='@json($meta)'
         >
         </expenses-list>
     </div>
