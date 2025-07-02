@@ -205,12 +205,19 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/doorman/scanner', [DoormanController::class, 'index'])->name('doorman-scanner');
         Route::get('/doorman/check-access/{userId}', [DoormanController::class, 'checkAccess'])->name('doorman-check-access');
 
-        /*PRESUPUESTO ANUAL*/
+        /*PRESUPUESTO PARA ASOCIADOS*/
         Route::get('/annual-budget/list', [AnnualBudgetController::class, 'showPage'])->name('annual-budget.show-page');
         Route::get('/annual-budget', [AnnualBudgetController::class, 'index'])->name('annual-budget.index');
         Route::post('/annual-budget', [AnnualBudgetController::class, 'store'])->name('annual-budget.store');
         Route::put('/annual-budget/{annual_budget}', [AnnualBudgetController::class, 'update'])->name('annual-budget.update');
         Route::delete('/annual-budget/{annual_budget}', [AnnualBudgetController::class, 'destroy'])->name('annual-budget.destroy');
+
+        /*PRESUPUESTO PARA EDIFICIOS*/
+        Route::get('/building-budget/list', [AnnualBudgetController::class, 'showPageBuilding'])->name('building-budget.show-page');
+        Route::get('/building-budget', [AnnualBudgetController::class, 'index'])->name('building-budget.index');
+        Route::post('/building-budget', [AnnualBudgetController::class, 'store'])->name('building-budget.store');
+        Route::put('/building-budget/{annual_budget}', [AnnualBudgetController::class, 'update'])->name('building-budget.update');
+        Route::delete('/building-budget/{annual_budget}', [AnnualBudgetController::class, 'destroy'])->name('building-budget.destroy');
 
         /*TIPOS DE PRESUPUESTO*/
         Route::get('/budget-types', [BudgetTypeController::class, 'index'])->name('budget-types.index');
@@ -222,6 +229,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::put('/expenses/{expense}', [ExpenseController::class, 'update'])->name('expenses.update');
         Route::delete('/expenses/{expense}', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
 
+        /*EXPENSES PARA EDIFICIOS*/
+        Route::get('/building-expenses/list', [ExpenseController::class, 'showPageBuilding'])->name('building-expenses.show-page');
+        Route::get('/building-expenses', [ExpenseController::class, 'index'])->name('building-expenses.index');
+        Route::post('/building-expenses', [ExpenseController::class, 'store'])->name('building-expenses.store');
+        Route::put('/building-expenses/{expense}', [ExpenseController::class, 'update'])->name('building-expenses.update');
+        Route::delete('/building-expenses/{expense}', [ExpenseController::class, 'destroy'])->name('building-expenses.destroy');
 
         /*PROJECTS*/
         Route::get('/projects/list', [ProjectController::class, 'showListPage'])->name('projects.list');

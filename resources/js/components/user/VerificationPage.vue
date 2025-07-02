@@ -11,7 +11,7 @@ const props = defineProps({
         required: true
     },
     debt: {
-        type: Number,
+        type: String,
         default: 0.00
     }
 });
@@ -40,7 +40,7 @@ const debtColor = computed(() => {
 onMounted(() => {
     userData.value = {
         name: props.user.name || 'Desconocido',
-        debt: props.debt || 0.00,
+        debt: parseFloat(props.debt) || 0.00,
     };
     userVerified.value = props.status;
     statusMessage.value = props.debt > 0

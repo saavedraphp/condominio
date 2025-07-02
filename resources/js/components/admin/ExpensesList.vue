@@ -9,12 +9,16 @@ import ExpensesForm from "@/components/admin/ExpensesForm.vue";
 
 const pros = defineProps({
     urlBase: {
+        type: Object,
+        required: true
+    },
+    budgetScope: {
         type: String,
         required: true
     },
-    urlAnnualBudget: {
-        type: String,
-        required: true
+    meta: {
+        type: Object,
+        required: true,
     }
 });
 
@@ -44,9 +48,12 @@ const deleteDialogItemName = computed(() => {
 
 async function getExpenses() {
     loading.value = true;
-
     try {
-        const response = await axios.get(`${pros.urlBase}/`);
+        const response = await axios.get(`${pros.urlBase['base']}`, {
+            params: {
+                budget_scope: pros.budgetScope,
+            }
+        });
         expenses.value = response.data.map(item => ({
             ...item,
             expense_date_format: formatDate(item.expense_date),
@@ -73,7 +80,7 @@ const deleteExpense = async () => {
         if (!itemToDelete.value) return;
         const id = itemToDelete.value.id;
 
-        const response = await axios.delete(`${pros.urlBase}/${id}`)
+        const response = await axios.delete(`${pros.urlBase['base']}/${id}`)
 
         if (response.data && response.data.success) {
             expenses.value = expenses.value.filter(element => element.id !== id);
@@ -115,9 +122,9 @@ onMounted(() => {
     <v-container fluid>
         <v-card>
             <v-card-title class="d-flex align-center pe-2">
-                <v-icon icon="mdi mdi-cash-fast"></v-icon>
+                <v-icon  :icon="pros.meta.icon"></v-icon>
                  
-                Gestión de gastos
+                {{pros.meta['subtitle']}}
                 <v-spacer></v-spacer>
 
                 <v-btn
@@ -168,7 +175,7 @@ onMounted(() => {
                           v-model="showModal"
                           :element="selectedElement"
                           :url-base="urlBase"
-                          :url-annual-budget="urlAnnualBudget"
+                          :budget-scope="budgetScope"
                           @expense-created="reloadWithMessage"
                           @expense-edited="reloadWithMessage"
             />

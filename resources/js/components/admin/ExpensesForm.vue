@@ -10,10 +10,10 @@ const props = defineProps({
     modelValue: Boolean,
     element: Object,
     urlBase: {
-        type: String,
+        type: Object,
         required: true
     },
-    urlAnnualBudget: {
+    budgetScope: {
         type: String,
         required: true
     }
@@ -62,8 +62,9 @@ const getAnnualBudget = async () => {
     annualBudget.value = [];
     selectedAnnualBudget.value = null;
     try {
-        const response = await axios.get(`${props.urlAnnualBudget}/`, {
+        const response = await axios.get(`${props.urlBase['budget_scope']}/`, {
             params: {
+                budget_scope: props.budgetScope,
                 search: currentSearch.value,
             }
         });
@@ -105,8 +106,8 @@ const submitForm = handleSubmit(async (values) => {
 
     isRecording.value = true;
     const url = isEditing.value
-        ? `${props.urlBase}/${props.element?.id}`
-        : `${props.urlBase}/`;
+        ? `${props.urlBase['base']}/${props.element?.id}`
+        : `${props.urlBase['base']}/`;
     const method = isEditing.value ? 'put' : 'post';
     const typeEmit = isEditing.value ? 'expense-edited' : 'expense-created';
 
@@ -208,12 +209,14 @@ onMounted(() => {
                     <v-card-actions>
                         <v-spacer></v-spacer>
                         <v-btn color="grey"
+                               variant="flat"
                                @click="close"
                                :disabled="isRecording"
                         >
                             Cancelar
                         </v-btn>
-                        <v-btn color="red"
+                        <v-btn color="primary"
+                               variant="flat"
                                type="submit"
                                :loading="isRecording"
                                :disabled="isRecording"

@@ -15,7 +15,7 @@ const props = defineProps({
 });
 
 const schema = yup.object({
-   // paymentCode: yup.string().required('El código de pago es requerido.').min(4, 'El código de pago debe tener al menos 4 caracteres.'),
+    // paymentCode: yup.string().required('El código de pago es requerido.').min(4, 'El código de pago debe tener al menos 4 caracteres.'),
     //propertyUnit: yup.string().required('La unidad de propiedad es requerida.').min(2, 'La unidad de propiedad debe tener al menos 2 caracteres.'),
     address: yup.string().required('La dirección es requerida.').min(5, 'La dirección debe tener al menos 5 caracteres.'),
     /*constructionArea: yup.number() // Usar number si es numérico
@@ -44,7 +44,8 @@ const {handleSubmit, resetForm, setValues} = useForm({
         constructionArea: '',
         participationPercentage: '',
         ownershipStructure: '',
-        is_department: false
+        is_department: false,
+        is_lot: false,
     }
 });
 
@@ -54,6 +55,7 @@ const address = useField('address')
 const constructionArea = useField('constructionArea')
 const participationPercentage = useField('participationPercentage')
 const ownershipStructure = useField('ownershipStructure');
+const is_lot = useField('is_lot');
 const is_department = useField('is_department');
 const opening_balance = useField('opening_balance');
 
@@ -78,7 +80,8 @@ const submitForm = handleSubmit((values) => {
             participation_percentage: values.participationPercentage,
             ownership_structure: values.ownershipStructure,
             opening_balance: values.opening_balance || 0,
-            is_department: values.is_department ? 1 : 0
+            is_department: values.is_department ? 1 : 0,
+            is_lot: values.is_lot ? 1 : 0,
         };
 
         if (isEditing.value) {
@@ -107,7 +110,8 @@ watch(() => props.house, (newValue) => {
             participationPercentage: newValue.participation_percentage ?? null,
             ownershipStructure: newValue.ownership_structure || '',
             opening_balance: newValue.opening_balance ?? null,
-            is_department: newValue.is_department === 1
+            is_department: newValue.is_department === 1,
+            is_lot: newValue.is_lot === 1
         });
     } else {
         resetForm();
@@ -185,10 +189,18 @@ watch(() => props.house, (newValue) => {
                             label="Saldo Inicial"
                         ></v-text-field>
                     </v-col>
-                    <v-col cols="12">
+                    <v-col cols="6">
                         <v-checkbox
                             v-model="is_department.value.value"
                             label="EDIFICIO POMPEYA"
+                            class="pa-0 ma-0"
+                            density="compact"
+                        />
+                    </v-col>
+                    <v-col cols="6">
+                        <v-checkbox
+                            v-model="is_lot.value.value"
+                            label="ES LOTE"
                             class="pa-0 ma-0"
                             density="compact"
                         />

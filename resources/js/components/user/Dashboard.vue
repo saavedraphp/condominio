@@ -16,7 +16,7 @@ const error = ref(null)
 const user = ref(null)
 const mySnackbar = ref(null);
 
-const deuda = ref(985.00);
+const totalDebt = ref(null);
 const ads = ref([]);
 const showModalAd = ref(false);
 const selectedElement = ref(null);
@@ -126,6 +126,7 @@ async function getUserData() {
     try {
         const response = await axios.get('/user/get-user-data');
         user.value = response.data;
+        totalDebt.value = response.data.opening_balance || 0;
 
     } catch (error) {
         error.value = 'Error al obtener los datos del usuario';
@@ -195,7 +196,7 @@ export default {
                     <v-col cols="12">
                         <!-- Opción 1: Usando v-alert mejorado -->
                         <v-alert
-                            v-if="deuda > 0"
+                            v-if="totalDebt > 0"
                             type="warning"
                             variant="tonal"
                             border="start"
@@ -205,7 +206,7 @@ export default {
                         >
                             <div class="text-subtitle-1 font-weight-medium">Deuda Acumulada</div>
                             <div class="text-h5 font-weight-bold text-warning">
-                                S/ {{ formatCurrency(deuda) }}
+                                S/ {{ formatCurrency(totalDebt) }}
                             </div>
                             <template v-slot:append>
                                 <v-btn color="warning" variant="elevated" size="small" v-if="false">

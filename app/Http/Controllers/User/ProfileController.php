@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Models\House;
 use App\Models\User;
 use App\Models\WebUser;
 use App\Traits\ManagesHouseSession;
@@ -46,6 +47,11 @@ class ProfileController extends Controller
     public function getUserData(): JsonResponse
     {
         $user = Auth::guard('web_user')->user();
+        $totalBalance = $user->houses()
+            ->wherePivot('is_owner', true)
+            ->sum('opening_balance');
+
+        $user->opening_balance =  $totalBalance;
 
         if (!$user) {
             return response()->json(['message' => 'Usuario no encontrado'], 404);
