@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\BudgetScope;
 use App\Http\Requests\AnnualBudgetRequest;
 use App\Models\AnnualBudget;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -13,25 +15,50 @@ class AnnualBudgetController extends Controller
 {
     public function showPage(): View
     {
-        return view('admin.annual_budget.index');
+        $routes = [
+            'base' => route('admin.annual-budget.index'),
+        ];
+        $meta = [
+            'title' => 'Presupuestos anuales',
+            'subtitle' => 'Gestión de presupuestos anuales de la asociación',
+            'icon' => 'mdi mdi-account-group',
+        ];
+
+        return view('admin.annual_budget.index', [
+            'routes' => $routes,
+            'budget_scope' => BudgetScope::ASSOCIATION->value,
+            'meta' => $meta,
+        ]);
+    }
+
+    public function showPageBuilding(): View
+    {
+        $routes = [
+            'base' => route('admin.building-budget.index'),
+        ];
+        $meta = [
+            'title' => 'Presupuestos anuales',
+            'subtitle' => 'Gestión de presupuestos anuales del Edificio',
+            'icon' => 'mdi mdi-office-building',
+        ];
+
+        return view('admin.annual_budget.index', [
+            'building' => true,
+            'routes' => $routes,
+            'budget_scope' => BudgetScope::BUILDING->value,
+            'meta' => $meta,
+        ]);
     }
 
     public function index(Request $request): JsonResponse
     {
-
         try {
-            $query = AnnualBudget::with('budgetType');
-
-            if ($request->has('year')) {
-                $query->where('year', $request->year);
-            }
-            if ($request->has('budget_type_id')) {
-                $query->where('budget_type_id', $request->budget_type_id);
-            }
-
+            $type = $request->get('budget_scope', BudgetScope::ASSOCIATION->value);
+            $query = $this->queryBase($request, $type);
             $annualBudgets = $query
                 ->orderBy('year', 'desc')
                 ->orderBy('id')->get();
+
 
             return response()->json($annualBudgets);
 
@@ -117,5 +144,24 @@ class AnnualBudgetController extends Controller
                 'message' => 'Ocurrió un error al intentar eliminar el presupuesto.'
             ], JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    private function queryBase(Request $request, string $type): Builder
+    {
+        $query = AnnualBudget::query()
+            ->whereHas('budgetType', function ($builder) use ($type) {
+                $builder->where('budget_scope', $type);
+            })
+            ->with('budgetType');
+
+        if ($request->has('year')) {
+            $query->where('year', $request->input('year'));
+        }
+
+        if ($request->has('budget_type_id')) {
+            $query->where('budget_type_id', $request->input('budget_type_id'));
+        }
+
+        return $query;
     }
 }

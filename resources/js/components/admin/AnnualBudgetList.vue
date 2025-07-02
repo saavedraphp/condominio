@@ -8,9 +8,17 @@ import DeleteConfirmationModal from "@/components/DeleteConfirmationModal.vue";
 
 const pros = defineProps({
     urlBase: {
+        type: Object,
+        required: true
+    },
+    budgetScope: {
         type: String,
         required: true
     },
+    meta: {
+        type: Object,
+        required: true
+    }
 });
 
 const mySnackbar = ref(null);
@@ -42,7 +50,11 @@ async function getAnnualBudget() {
     loading.value = true;
 
     try {
-        const response = await axios.get(`${pros.urlBase}/`);
+        const response = await axios.get(`${pros.urlBase['base']}`, {
+            params: {
+                budget_scope: pros.budgetScope
+            }
+        });
         annualBudgets.value = response.data;
 
     } catch (error) {
@@ -62,7 +74,7 @@ const deleteAnnualBudget = async () => {
         if (!itemToDelete.value) return;
         const id = itemToDelete.value.id;
 
-        const response = await axios.delete(`${pros.urlBase}/${id}`)
+        const response = await axios.delete(`${pros.urlBase['base']}/${id}`)
 
         if (response.data && response.data.success) {
             annualBudgets.value = annualBudgets.value.filter(element => element.id !== id);
@@ -109,9 +121,9 @@ onMounted(() => {
     <v-container fluid>
         <v-card>
             <v-card-title class="d-flex align-center pe-2">
-                <v-icon icon="mdi mdi-cash-clock"></v-icon>
+                <v-icon :icon="pros.meta.icon"></v-icon>
                  
-                Gestión de presupuestos anuales
+                {{ pros.meta['subtitle'] }}
                 <v-spacer></v-spacer>
 
                 <v-btn
@@ -159,11 +171,12 @@ onMounted(() => {
                 </template>
             </v-data-table>
             <AnnualBudgetForm v-if="showModal"
-                v-model="showModal"
-                :element="selectedElement"
-                :url-base="urlBase"
-                @annual-budget-created="reloadWithMessage"
-                @annual-budget-edited="reloadWithMessage"
+                              v-model="showModal"
+                              :element="selectedElement"
+                              :url-base="pros.urlBase['base']"
+                              :budget-scope="pros.budgetScope"
+                              @annual-budget-created="reloadWithMessage"
+                              @annual-budget-edited="reloadWithMessage"
             />
             <DeleteConfirmationModal
                 v-model:show="dialogDelete"

@@ -13,9 +13,15 @@ class BudgetTypeController extends Controller
     public function index(Request $request): JsonResponse
     {
         try {
-            $budgetTypes = BudgetType::all();
+            $query = BudgetType::query();
 
-            return response()->json($budgetTypes);
+            if ($request->filled('budget_scope')) {
+                $query->where('budget_scope', $request->get('budget_scope'));
+            }
+
+            $query = $query->orderBy('name')->get();
+
+            return response()->json($query);
         } catch (\Exception $e) {
             $message = 'Error al intentar obtener los tipos de presupuesto: ';
             Log::error($message . $e->getMessage());

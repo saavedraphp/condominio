@@ -13,6 +13,10 @@ const props = defineProps({
         type: String,
         required: true
     },
+    budgetScope: {
+        type: String,
+        required: true
+    }
 });
 
 const dialog = computed({
@@ -59,7 +63,11 @@ const getBudgetType = async () => {
     budgetTypes.value = [];
     selectedBudgetType.value = null;
     try {
-        const response = await axios.get(`/admin/budget-types`);
+        const response = await axios.get(`/admin/budget-types`, {
+            params: {
+                budget_scope: props.budgetScope,
+            }
+        });
         budgetTypes.value = response.data.data || response.data || [];
     } catch (error) {
         console.error("Error obteniendo  las casas:", error);
@@ -132,7 +140,6 @@ const submitForm = handleSubmit(async (values) => {
 });
 
 const onSearchInput = (value) => {
-    console.log('Buscando:', value);
     currentSearch.value = value;
 };
 
