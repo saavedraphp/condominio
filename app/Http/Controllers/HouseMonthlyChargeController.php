@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\BudgetScope;
 use App\Models\AnnualBudget;
 use App\Models\House;
 use App\Models\HouseMonthlyCharge;
@@ -23,9 +24,8 @@ class HouseMonthlyChargeController extends Controller
     const TYPE_HOUSE_BOARD_ASSOCIATED = 'owners_board_with_association';
     const TYPE_HOUSE_BOARD = 'owners_board';
     const NRO_ASSOCIATED = 93;
+    const NRO_DEPARTMENT = 17;
     const FEE_JP_SARDINIA_ISLANDS = 334.66; // Cuota de la Asociación
-    const BUILDING_FUNDS = 125.66;
-
     const FEET_IS_LOT = 150.00; // Cuota de la Asociación para lotes, si aplica
     const PRICE_BY_KWH = 0.625;
 
@@ -131,10 +131,10 @@ class HouseMonthlyChargeController extends Controller
         $matrix = $this->makeMatrixConsumption($historyElectric['consumptionDetails']);
         if ($preview === "true") {
             $logoPath = asset('assets/images/logo.jpg');
-            $tablaImagePath = asset('assets/images/statistical-table.jpg');
+            $tablaImagePath = asset('assets/images/statistical-table-v2.jpg'); // public/assets/images
         } else {
             $logoPath = storage_path('app/public/file_paths/profile/nVcxTYTvFIndE6SVndfDMUTG6uFp5CPcCSFKhmFc.jpg');
-            $tablaImagePath = storage_path('app/public/file_paths/profile/VYdqO7AcgJJ0j26HUKaNyfW278Hi2ex2oEuNgwNZ.jpg');
+            $tablaImagePath = storage_path('app/public/file_paths/profile/Qy2zeu5E4aeE8ks2tv7uiU0KzWcWfCAV52qxMb8u.jpg');
         }
 
         Carbon::setLocale('es');
@@ -175,9 +175,10 @@ class HouseMonthlyChargeController extends Controller
         }
 
         $amount_of_month = array_sum(array_column($data['details'], 'amount'));
+        $total_due = $balanceHouse['amount_due'] + $amount_of_month;
         $data = $data + [
                 'amount_month' => $amount_of_month,
-                'total_debt' => $balanceHouse['amount_due'] + $amount_of_month,
+                'total_debt' => ($total_due > 0 ? $total_due : 0),
                 'issued_date' => now()->format('d/m/Y'),
                 'due_date' => now()->addDays(30)->format('d/m/Y'),
             ];
@@ -335,7 +336,7 @@ LOTE ACUMULADO C-39A',
         $amountElectric = $consumptionEnergy
             ? $consumptionEnergy->consumption * self::PRICE_BY_KWH
             : 0;
-
+        $totalBuildingBudget = $this->getTotalBuildingBudget();
         return [
             [
                 'title' => 'Consumo de Luz personal',
@@ -347,7 +348,7 @@ LOTE ACUMULADO C-39A',
             ],
             [
                 'title' => 'Cuota a la J.P. Isla Cerdeña',
-                'amount' => self::FEE_JP_SARDINIA_ISLANDS - self::BUILDING_FUNDS - $fee_association_ISP
+                'amount' => self::FEE_JP_SARDINIA_ISLANDS - $totalBuildingBudget - $fee_association_ISP
             ]
         ];
     }
@@ -374,7 +375,11 @@ LOTE ACUMULADO C-39A',
 
     public function getQuoteAssociated(): array
     {
-        $annualBudgets = AnnualBudget::with('budgetType')
+        $annualBudgets = AnnualBudget::query()
+            ->whereHas('budgetType', function ($query) {
+                $query->where('budget_scope', BudgetScope::ASSOCIATION->value);
+            })
+            ->with('budgetType')
             ->where('year', Carbon::now()->year)
             ->get();
 
@@ -387,12 +392,38 @@ LOTE ACUMULADO C-39A',
 
     }
 
+    public function getBuildingBudgetList(): array
+    {
+        $annualBudgets = AnnualBudget::query()
+            ->whereHas('budgetType', function ($query) {
+                $query->where('budget_scope', BudgetScope::BUILDING->value);
+            })
+            ->with('budgetType')
+            ->where('year', Carbon::now()->year)
+            ->get();
+
+        return $annualBudgets->map(function ($budget) {
+            return [
+                'title' => $budget->budgetType->name,
+                'amount' => ($budget->amount / 12) / self::NRO_DEPARTMENT,
+            ];
+        })->toArray();
+
+    }
+
+    public function getTotalBuildingBudget(): float
+    {
+        $result = $this->getBuildingBudgetList();
+        return array_sum(array_column($result, 'amount'));
+    }
+
     private function addPompeyaFundIfApplies(array $details, array $house): array
     {
-        if (!empty($house['is_department'])) {
+        if ($house['is_department']) {
+            $totalBuildingBudget = $this->getTotalBuildingBudget();
             array_unshift($details, [
                 'title' => 'Fondos del Edificio Pompeya',
-                'amount' => self::BUILDING_FUNDS
+                'amount' => $totalBuildingBudget
             ]);
         }
 

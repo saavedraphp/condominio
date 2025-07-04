@@ -56,6 +56,10 @@ class UserController extends Controller
                     'password' => bcrypt('123456'), //bcrypt(Str::random(10)),
                     'status' => 'active'
                 ]);
+            $check = $this->handleExistingUserByEmail($dataToCreate['email']);
+            if ($check) {
+                return $check; // Ya existe o fue restaurado
+            }
 
             $webUser = WebUser::create($dataToCreate);
 
@@ -63,29 +67,55 @@ class UserController extends Controller
             $token = Str::random(64);
 
             $webUser->activationToken()->create(['token' => $token]);
-
-
-
             $activationUrl = url('/activar-cuenta/' . $token);
-
             //Mail::to($webUser->email)->send(new AccountActivationMail($activationUrl));
-
 
             return response()->json([
                 'success' => true,
                 'message' => '¡Excelente! Usuario registrado.',
                 'data' => $webUser,
             ], 201);
+
         } catch (\exception $e) {
             Log::error('Error al adicionar un usuario' . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'Ócurrio un error al intentar insertar un usuario : ' . $e->getMessage()], 500);
         }
     }
 
+    private function handleExistingUserByEmail(string $email): JsonResponse|null
+    {
+        $user = WebUser::query()->withTrashed()->where('email', $email)->first();
+
+        if ($user) {
+            if ($user->trashed()) {
+                $user->restore();
+                return response()->json([
+                    'success' => true,
+                    'message' => '¡Excelente! Usuario Restaurado.',
+                    'data' => $user,
+                ], JsonResponse::HTTP_OK);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Ya existe un usuario con este email'
+            ], JsonResponse::HTTP_OK);
+        }
+
+        return null; // El email no existe, puedes continuar con la creación o actualización
+    }
+
     public function update(UserRequest $request, WebUser $user): JsonResponse
     {
         try {
-            $updateSuccessful = $user->update($request->only(['name', 'phone', 'status']));
+            $validatedData = $request->validated();
+            if ($validatedData['email'] !== $user->email) {
+                $check = $this->handleExistingUserByEmail($validatedData['email']);
+                if ($check) {
+                    return $check; // Ya existe otro usuario con ese email
+                }
+            }
+            $updateSuccessful = $user->update($request->only(['name', 'phone', 'status', 'email']));
 
             if ($updateSuccessful) {
                 return response()->json([

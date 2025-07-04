@@ -219,6 +219,7 @@ class PaymentServiceController extends Controller
         }
     }
 
+
     public function getPreviousMonthConsumption(Request $request, House $house): JsonResponse
     {
         try {

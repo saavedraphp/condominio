@@ -73,17 +73,13 @@ const editUser = async (item) => {
         const response = await axios.put(`/admin/users/${item.id}`, {
             name: item.name,
             phone: item.phone,
+            email: item.email,
             status: item.status ? 'active' : 'inactive'
         });
 
         if (response.data.success) {
-            users.value = users.value.map(element => {
-                if (element.id === item.id) {
-                    return response.data.data;
-                }
-                return element;
-            });
             mySnackbar.value.show(response.data.message, 'success');
+            await getData();
         } else {
             mySnackbar.value.show(response.data.message, 'error');
         }

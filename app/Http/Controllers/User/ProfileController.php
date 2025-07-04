@@ -63,6 +63,14 @@ class ProfileController extends Controller
     {
         try {
             $dataBase = $request->only(['name', 'email', 'phone']);
+
+            if ($request['email'] !== $profile->email) {
+                $check = $this->handleExistingUserByEmail($request['email']);
+                if ($check) {
+                    return $check; // Ya existe otro usuario con ese email
+                }
+            }
+
             if ($request->hasFile('file_path') && $request->file('file_path')->isValid()) {
 
                 if ($profile->file_path && Storage::disk('public')->exists($profile->file_path)) {
@@ -84,6 +92,28 @@ class ProfileController extends Controller
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'Error al actualizar perfil'], 500);
         }
+    }
+
+    private function handleExistingUserByEmail(string $email): JsonResponse|null
+    {
+        $user = WebUser::query()->withTrashed()->where('email', $email)->first();
+
+        if ($user) {
+            if ($user->trashed()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => '¡Ya Existe un usuario eliminado con este email, por favor contactese con el administrador.',
+                    'data' => $user,
+                ], JsonResponse::HTTP_OK);
+            }
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Ya existe un usuario con este email'
+            ], JsonResponse::HTTP_OK);
+        }
+
+        return null; // El email no existe, puedes continuar con la creación o actualización
     }
 
     /**

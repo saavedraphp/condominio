@@ -177,6 +177,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         /*LIST HOUSES*/
         Route::get('/houses/list', [AdminHouseController::class, 'showListPage'])->name('houses.list');
         Route::resource('/houses', AdminHouseController::class);
+        Route::get('/houses/{house_id}/last-consumption', [AdminHouseController::class, 'getLastConsumption'])->name('houses.last-consumption');
 
         /* DOCUMENTS*/
         Route::get('/documents/list', [DocumentController::class, 'showListPageAdmin'])->name('documents.show-page');

@@ -27,7 +27,8 @@ const rules = {
     required: value => !!value || 'Campo requerido',
     minLength: value => (value.length >= 2) || 'Mínimo 2 caracteres',
     phone: value => (/^[0-9-]{7,}$/.test(value)) || 'Teléfono inválido',
-    email: value => (/^[a-z.-]+@[a-z.-]+\.[a-z]+$/i.test(value)) || 'Correo inválido'
+    email: value => (/^[a-z0-9.-]+@[a-z.-]+\.[a-z]+$/i.test(value)) || 'Correo inválido'
+
 };
 
 
@@ -45,7 +46,7 @@ const {handleSubmit, handleReset} = useForm({
             return 'El número de teléfono debe tener al menos 7 dígitos.'
         },
         email(value) {
-            if (/^[a-z.-]+@[a-z.-]+\.[a-z]+$/i.test(value)) return true
+            if (/^[a-z0-9.-]+@[a-z.-]+\.[a-z]+$/i.test(value)) return true
 
             return 'Debe ser un correo electrónico válido.'
         },
@@ -159,7 +160,7 @@ const submit = handleSubmit(async values => {
             message.value = response.data.message;
             snackbar.value = true;
         } else {
-            alert('Hubo un problema al actualizar el perfil');
+            mySnackbar.value.show(response.data.message, 'error');
         }
     } catch (error) {
         console.error('Error al guardar el perfil:', error);
