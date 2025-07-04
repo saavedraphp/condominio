@@ -275,7 +275,7 @@
     </table>
 
     <div class="payment-info">
-        <p><strong>Pagar el monto de S/{{number_format($total, 2)}} antes de {{$period_month}} 15, {{$period_year}} en
+        <p><strong>Pagar el monto de S/{{number_format($total_debt, 2)}} antes de {{$period_month}} 15, {{$period_year}} en
                 la cuenta
                 aprobada:</strong></p>
         <p>A Nombre de {{$bank_account_name}}</p>
