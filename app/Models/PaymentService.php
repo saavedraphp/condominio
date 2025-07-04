@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Storage;
 
 class PaymentService extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'web_user_id',
         'house_id',
@@ -22,9 +24,38 @@ class PaymentService extends Model
         'payment_date',
     ];
 
-    use HasFactory;
+    protected $casts = [
+        'payment_date' => 'datetime',
+        'replace' => 'boolean',
+    ];
 
-    protected $appends = ['file_path_url'];
+
+    protected $appends = [
+        'file_path_url',
+        'consumption_calculated',
+    ];
+
+    protected function consumptionCalculated(): Attribute
+    {
+        return new Attribute(
+            get: function ($value, $attributes) {
+                // Busca el registro de pago anterior para la misma casa y servicio.
+                $previousPayment = self::where('house_id', $attributes['house_id'])
+                    ->where('service_id', $attributes['service_id'])
+                    ->where('payment_date', '<', $attributes['payment_date'])
+                    ->orderBy('payment_date', 'desc')
+                    ->first();
+
+                // Si no hay un pago anterior, el consumo es 0 (o la propia lectura si es el primer registro).
+                if (!$previousPayment) {
+                    return 0; // O podrías devolver null para indicar que no es calculable.
+                }
+
+                // Calcula el consumo: lectura actual - lectura anterior.
+                return $attributes['quantity'] - $previousPayment->quantity;
+            }
+        );
+    }
 
     protected function filePathUrl(): Attribute
     {

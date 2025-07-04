@@ -131,10 +131,10 @@ class HouseMonthlyChargeController extends Controller
         $matrix = $this->makeMatrixConsumption($historyElectric['consumptionDetails']);
         if ($preview === "true") {
             $logoPath = asset('assets/images/logo.jpg');
-            $tablaImagePath = asset('assets/images/statistical-table.jpg');
+            $tablaImagePath = asset('assets/images/statistical-table-v2.jpg'); // public/assets/images
         } else {
             $logoPath = storage_path('app/public/file_paths/profile/nVcxTYTvFIndE6SVndfDMUTG6uFp5CPcCSFKhmFc.jpg');
-            $tablaImagePath = storage_path('app/public/file_paths/profile/VYdqO7AcgJJ0j26HUKaNyfW278Hi2ex2oEuNgwNZ.jpg');
+            $tablaImagePath = storage_path('app/public/file_paths/profile/Qy2zeu5E4aeE8ks2tv7uiU0KzWcWfCAV52qxMb8u.jpg');
         }
 
         Carbon::setLocale('es');
@@ -175,9 +175,10 @@ class HouseMonthlyChargeController extends Controller
         }
 
         $amount_of_month = array_sum(array_column($data['details'], 'amount'));
+        $total_due = $balanceHouse['amount_due'] + $amount_of_month;
         $data = $data + [
                 'amount_month' => $amount_of_month,
-                'total_debt' => $balanceHouse['amount_due'] + $amount_of_month,
+                'total_debt' => ($total_due > 0 ? $total_due : 0),
                 'issued_date' => now()->format('d/m/Y'),
                 'due_date' => now()->addDays(30)->format('d/m/Y'),
             ];

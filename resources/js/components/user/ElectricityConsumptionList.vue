@@ -34,10 +34,10 @@ const typeServiceUnit = computed(() => props.typeServiceId === TYPE_SERVICE.ELEC
 const mySnackbar = ref(null);
 
 const headers = ref([
+    {title: 'Propiedad', key: 'house.address', sortable: true},
     {title: 'Fecha', key: 'payment_date', align: 'start', sortable: true},
-    {title: 'Consumo', key: 'consumption', sortable: true},
-    {title: 'Propiedad', key: 'house.property_unit', sortable: true},
-    {title: 'Observaciones', key: 'observations', sortable: true},
+    {title: 'Medición', key: 'quantity', sortable: true},
+    {title: 'Consumo', key: 'consumption_calculated', sortable: true},
     {title: 'Remplazo', key: 'replace', sortable: true},
     {title: 'Acciones', key: 'actions', sortable: false, align: 'end'},
 ]);
@@ -183,8 +183,8 @@ const deleteDocument = async () => {
                           class="elevation-1"
                           dense
             >
-                <template v-slot:item.consumption="{ item }">
-                    <span>{{ item.consumption }}({{ typeServiceUnit }})</span>
+                <template v-slot:item.consumption_calculated="{ item }">
+                    <span>{{ item.consumption_calculated }}({{ typeServiceUnit }})</span>
                 </template>
                 <template v-slot:item.payment_date="{ item }">
                     <span>{{ item.payment_date_format }}</span>

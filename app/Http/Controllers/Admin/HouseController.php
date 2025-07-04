@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\HouseRequest;
 use App\Models\House;
+use App\Models\PaymentService;
 use App\Models\WebUser;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
@@ -110,5 +112,45 @@ class HouseController extends Controller
             Log::error('Error eliminando el registro ID ' . $house->id . ': ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'Error al intentar eliminar el registro.'], 500);
         }
+    }
+
+    public function getLastConsumption(Request $request, int $houseId): JsonResponse
+    {
+        try {
+            $serviceId = $request->input('type_service');
+
+            $query = PaymentService::query()
+                ->where('house_id', $houseId)
+                ->where('service_id', $serviceId);
+
+            $date = $request->input('payment_date');
+
+            if ($date) {
+                $date = Carbon::parse($date);
+                $query = $query->whereDate('payment_date', '<', $date);
+            }
+
+            $query = $query->orderBy('payment_date', 'desc')->first();
+
+            if (!$query) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No se encontró consumo registrado.'
+                ], JsonResponse::HTTP_OK);
+            }
+
+            return response()->json([
+                'success' => true,
+                'data' => $query
+            ], JsonResponse::HTTP_OK);
+
+        } catch (\Exception $e) {
+            Log::error('Error al obtener el último consumo: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Ocurrió un error al intentar obtener el último consumo.'
+            ], JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
+        }
+
     }
 }
