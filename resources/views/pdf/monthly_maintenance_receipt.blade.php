@@ -19,7 +19,7 @@
             width: 100%;
             max-width: 800px;
             margin: 20px auto;
-            padding: 20px;
+            padding: 10px 20px;
         }
 
         /* Cabecera */
@@ -72,7 +72,7 @@
         /* Contenido principal en dos columnas */
         .main-content {
             width: 100%;
-            margin-top: 25px;
+            margin-top: 15px;
             border-spacing: 20px 0;
             border-collapse: separate;
         }
@@ -120,6 +120,18 @@
             max-width: 100%;
             height: auto;
             border: 0 solid #eee;
+        }
+
+        .img-consumption {
+            max-width: 100%;
+            max-height: 200px;
+            border: 0 solid #eee;
+        }
+
+        .img-consumption p {
+            font-weight: bold;
+            text-align: center;
+            font-size: 12px;
         }
 
         /* Historial de lecturas */
@@ -275,15 +287,34 @@
     </table>
 
     <div class="payment-info">
-        <p><strong>Pagar el monto de S/{{number_format($total_debt, 2)}} antes de {{$period_month}} 15, {{$period_year}} en
-                la cuenta
-                aprobada:</strong></p>
-        <p>A Nombre de {{$bank_account_name}}</p>
-        <p><strong>{{$bank_name}}</strong></p>
-        <p><strong>Ahorros</strong> {{$bank_account}}</p>
-        <p><strong>CCI</strong> {{$bank_account_cci}}</p>
-    </div>
+        <table width="100%">
+            <tr>
+                <td>
+                    <p><strong>Pagar el monto de S/{{number_format($total_debt, 2)}} antes de {{$period_month}}
+                            15, {{$period_year}} en
+                            la cuenta
+                            aprobada:</strong></p>
+                    <p>A Nombre de {{$bank_account_name}}</p>
+                    <p><strong>{{$bank_name}}</strong></p>
+                    <p><strong>Ahorros</strong> {{$bank_account}}</p>
+                    <p><strong>CCI</strong> {{$bank_account_cci}}</p>
+                </td>
 
+                @if($show_table_energy)
+                    @if(!empty($image_consumption))
+                        <td class="img-consumption">
+                            <p>Imagen de lectura</p>
+                            <img src="{{ $image_consumption }}" alt="Gráfico de Consumo" style="max-height: 120px">
+                        </td>
+                    @else
+                        <td class="img-consumption">
+                            <p style="color: red">No se ha ingresado el gráfico del consumo.</p>
+                        </td>
+                    @endif
+                @endif
+            </tr>
+        </table>
+    </div>
 </div>
 
 </body>

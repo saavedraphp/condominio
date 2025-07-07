@@ -47,7 +47,7 @@ async function getMonthlyCharge() {
     loadingProjects.value = true;
     try {
         const response = await axios.get(`${props.urlBase}`);
-        projects.value = response.data.data.map(project => ({
+        projects.value = response.data.map(project => ({
             ...project,
             issued_date_format: formatDate(project.issued_date),
             due_format: formatDate(project.due_date),
@@ -59,8 +59,6 @@ async function getMonthlyCharge() {
         loadingProjects.value = false;
     }
 }
-
-
 
 function formatCurrency(value) {
     return `S/${parseFloat(value).toFixed(2)}`;

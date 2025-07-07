@@ -11,6 +11,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -91,12 +92,11 @@ class HouseMonthlyChargeController extends Controller
         }
 
         // --- Paginación ---
-        $perPage = $request->input('per_page', 15); // Número de ítems por página
-        $monthlyCharges = $query->paginate($perPage);
+        $monthlyCharges = $query->get();
 
         // Transformar los datos para la respuesta si es necesario
         // (ej. para formatear el nombre del mes)
-        $monthlyCharges->getCollection()->transform(function ($charge) {
+        $monthlyCharges->transform(function ($charge) {
             // Crear un nombre de período legible
             // Carbon::createFromDate($charge->period_year, $charge->period_month, 1)->isoFormat('MMMM YYYY'); // Requiere locale configurado
             $charge->period_name = Carbon::create()->month($charge->period_month)->format('F') . ' ' . $charge->period_year; // "October 2023"
@@ -129,6 +129,7 @@ class HouseMonthlyChargeController extends Controller
         $monthInput = (int)$month;
         $historyElectric = $this->getConsumptions($house_id);
         $matrix = $this->makeMatrixConsumption($historyElectric['consumptionDetails']);
+
         if ($preview === "true") {
             $logoPath = asset('assets/images/logo.jpg');
             $tablaImagePath = asset('assets/images/statistical-table-v2.jpg'); // public/assets/images
@@ -158,13 +159,13 @@ class HouseMonthlyChargeController extends Controller
             ],
             'electrical_history_table' => $matrix,
             'logoPath' => $logoPath,
-            'title' => 'ASOCIACION DE PROPIETARIOS ISLAS DE SAN PEDRO',
+            'title' => 'Asociación de Propietarios Islas de San Pedro',
             'tablaImagePath' => $tablaImagePath,
             'debt' => empty($balanceHouse['opening_balance']) ? 'Pendiente a Revisión' : number_format($balanceHouse['amount_due'], 2),
             'bank_name' => 'BANCO CREDITO DEL PERU (BCP)',
             'bank_account' => '194-72597403-0-08',
             'bank_account_cci' => '00219417259740300893',
-            'bank_account_name' => 'Rudy Huaranga - Francis Iturbe',
+            'bank_account_name' => 'Rudy David Huaranga Bolaños',
             'ruc_assoc_prop_isp' => 'RUC: 20525153861',
 
         ];
@@ -185,21 +186,20 @@ class HouseMonthlyChargeController extends Controller
         $amount_of_month = number_format($amount_of_month, 2);
 
         if ($typeHouse === self::TYPE_HOUSE_ASSOCIATED) {
+            if (!$houseArray['is_lot']) {
+                $imageConsumption = $this->getImageConsumption($houseArray, $preview);
+                $data = $data + [
+                        'image_consumption' => $imageConsumption,
+                    ];
+            }
 
             $data = $data + [
-                    'paragraph_amount' => "El monto de mantenimiento por el mes de {$data['period_month']} es de <strong>S/{$amount_of_month}.</strong> Adjunto encontrara los detalles de su recibo. Le solicitamos que realice el pago correspondiente a la cuenta bancaria aprobada por la Asociación en asamblea a nombre del presidente de la asociación el Señor Rudy David Huaranga Bolaños:",
-                    'paragraph_thank_you' => "Agradecemos su colaboración y puntualidad, le recordamos que una ves la asociación recupere sus poderes todas las deudas pendientes serán reportadas a los sistemas
-                                              financieros peruanas.  Si tienen alguna pregunta o necesitan asistencia adicional, no duden en ponerse en contacto con nosotros.",
                     'title_details_line_1' => 'RECIBO POR MANTENIMIENTO – ' . strtoupper($data['period_month']) . ' ' . $data['period_year'],
                     'title_details_line_2' => 'ASOCIACION DE PROPIETARIOS ISLAS DE SAN PEDRO',
                     'contact_email' => 'isp.asociacion@gmail.com',
                 ];
         } else if ($typeHouse === self::TYPE_HOUSE_BOARD_ASSOCIATED) {
             $data = $data + [
-                    'paragraph_amount' => "El monto de asociado solamente del mes de {$data['period_month']} es de <strong>S/{$amount_of_month}.</strong> Les solicitamos que
-                                            realicen el pago correspondiente a la cuenta bancaria aprobada a nombre del presidente de
-                                            la asociación el Señor Rudy David Huaranga Bolaños: ",
-                    'paragraph_thank_you' => "Agradecemos su colaboración y puntualidad. Si tienen alguna pregunta o necesitan asistencia adicional, no duden en ponerse en contacto con nosotros.",
                     'title_details_line_1' => 'RECIBO DE ASOCIADO',
                     'title_details_line_2' => 'ASOCIACION DE PROPIETARIOS ISLAS DE SAN PEDRO',
                     'contact_email' => 'isp.asociacion@gmail.com',
@@ -207,9 +207,6 @@ class HouseMonthlyChargeController extends Controller
         } else if ($typeHouse === self::TYPE_HOUSE_BOARD) {
 
             $data = $data + [
-                    'paragraph_amount' => "El monto de asociado solamente del mes de {$data['period_month']} es de <strong>S/{$amount_of_month}.</strong> Les solicitamos que
-                                            realicen el pago correspondiente a la cuenta bancaria aprobada  por la Junta de Propietarios:",
-                    'paragraph_thank_you' => "Agradecemos su colaboración y puntualidad. Si tienen alguna pregunta o necesitan asistencia adicional, no duden en ponerse en contacto con nosotros.",
                     'title_details_line_1' => 'RECIBO DE MANTENIMIENTO COMUN',
                     'title_details_line_2' => 'JUNTA DE PROPIETARIOS ISLAS CERDENA </br>
 LOTE ACUMULADO C-39A',
@@ -321,20 +318,25 @@ LOTE ACUMULADO C-39A',
 
     }
 
+    private function getImageConsumption(array $house, string $is_preview): string|null
+    {
+        $consumptionEnergy = $this->getLastMonthEnergyConsumptionPayment($house);
+        $imageConsumptionBD = $consumptionEnergy['file_path_url'] ?? null;
+        $imagePathConsumptionBD = $consumptionEnergy['file_path'] ?? null;
+        if ($is_preview === "true") {
+            $imageConsumption = $imageConsumptionBD;
+        } else {
+            $imageConsumption = $imagePathConsumptionBD ? storage_path('app/public/' . $imagePathConsumptionBD) : null;
+        }
+
+        return $imageConsumption;
+    }
+
     private function getDepartmentEnergyDetails(array $house, float $fee_association_ISP): array
     {
-        $consumptionEnergy = PaymentService::query()
-            ->where([
-                ['service_id', 1],
-                ['house_id', $house['id']],
-            ])
-            ->whereYear('payment_date', Carbon::now()->year)
-            ->whereMonth('payment_date', Carbon::now()->subMonth()->month)
-            ->latest('payment_date')
-            ->first();
-
+        $consumptionEnergy = $this->getLastMonthEnergyConsumptionPayment($house);
         $amountElectric = $consumptionEnergy
-            ? $consumptionEnergy->consumption * self::PRICE_BY_KWH
+            ? $consumptionEnergy['consumption_calculated'] * self::PRICE_BY_KWH
             : 0;
         $totalBuildingBudget = $this->getTotalBuildingBudget();
         return [
@@ -351,6 +353,26 @@ LOTE ACUMULADO C-39A',
                 'amount' => self::FEE_JP_SARDINIA_ISLANDS - $totalBuildingBudget - $fee_association_ISP
             ]
         ];
+    }
+
+    private function getLastMonthEnergyConsumptionPayment(array $house): array
+    {
+        $payment = PaymentService::query()
+            ->where([
+                ['service_id', 1],
+                ['house_id', $house['id']],
+            ])
+            ->whereYear('payment_date', Carbon::now()->year)
+            ->whereMonth('payment_date', Carbon::now()->subMonth()->month)
+            ->latest('payment_date')
+            ->first();
+
+        if (!$payment) {
+            Log::warning("No se encontró un pago de energía para la casa ID {$house['id']} en el mes anterior.");
+            return [];
+        }
+
+        return $payment->toArray();
     }
 
     private function getFeeAssociationISP(): float
@@ -432,80 +454,79 @@ LOTE ACUMULADO C-39A',
 
     public function getConsumptions(int $house_id): array
     {
-        // --- 1. Definir el Rango de Fechas ---
-        /*// Carbon es una librería para manejar fechas que viene con Laravel. Es muy potente.
-        $endDate = Carbon::now()->startOfMonth(); // Inicio del mes actual (ej. 1 de Noviembre 2023)
-        $startDate = $endDate->copy()->subMonths(11); // Retrocedemos 11 meses para tener un periodo de 12 meses. (ej. 1 de Diciembre 2022)*/
+        // --- 1. Definir el Rango de Fechas (Esta parte se mantiene igual) ---
+        $startDate = Carbon::createFromDate(now()->year - 1, 12, 1)->startOfDay();
+        $endDate = Carbon::createFromDate(now()->year, 11, 1)->endOfMonth()->endOfDay();
 
-        // Fecha inicio: 1 de diciembre del año pasado
-        $startDate = Carbon::createFromDate(now()->year - 1, 12, 15)->startOfDay();
-        // Fecha fin: último día de noviembre del año actual
-        $endDate = Carbon::createFromDate(now()->year, 11, 15)->endOfMonth()->endOfDay();
-
-        // Esto nos da un rango exacto de 12 meses.
-        // Por ejemplo, de Dic-2022 a Nov-2023.
-
-        // --- 2. Crear el Array "Plantilla" con los 12 Meses ---
-        // Este array contendrá los 12 meses que queremos mostrar, con consumo 0 por defecto.
+        // --- 2. Crear el Array "Plantilla" (Esta parte se mantiene igual) ---
         $monthlyTemplate = [];
-        $dateIterator = $startDate->copy(); // Creamos una copia para no modificar la fecha de inicio
-
-        // Nombres de los meses en español para la vista
-        /*        $spanishMonths = [
-                    1 => 'Enero', 2 => 'Febrero', 3 => 'Marzo', 4 => 'Abril', 5 => 'Mayo', 6 => 'Junio',
-                    7 => 'Julio', 8 => 'Agosto', 9 => 'Septiembre', 10 => 'Octubre', 11 => 'Noviembre', 12 => 'Diciembre'
-                ];*/
-        $spanishMonths = $this->getMonthSpanish();
+        $dateIterator = $startDate->copy();
+        $spanishMonths = $this->getMonthSpanish(); // Asumo que este método existe
 
         while ($dateIterator->lessThanOrEqualTo($endDate)) {
             $year = $dateIterator->year;
             $month = $dateIterator->month;
-
-            // Usamos una clave 'Año-Mes' para facilitar la búsqueda después
             $key = "$year-$month";
 
             $monthlyTemplate[$key] = [
                 'year' => $year,
                 'month_name' => $spanishMonths[$month],
-                'title' => $spanishMonths[$month] . ' ' . $year, // Título listo para la vista
-                'consumption' => 'N/A' // Valor por defecto
+                'title' => $spanishMonths[$month] . ' ' . $year,
+                'consumption' => 'N/A'
             ];
 
-            $dateIterator->addMonth(); // Pasamos al siguiente mes
+            $dateIterator->addMonth();
         }
 
-        // --- 3. Consultar la Base de Datos ---
-        // Traemos solo los meses que SÍ tienen un registro en la BD dentro de nuestro rango.
-        // Asumiendo que la tabla se llama 'consumos' y el campo de fecha 'fecha_lectura'
-        $dbConsumptions = PaymentService::query()
-            ->select(
-                DB::raw('YEAR(payment_date) as year'),
-                DB::raw('MONTH(payment_date) as month'),
-                DB::raw('SUM(consumption) as total_consumption') // Usamos SUM por si hay varios registros en un mes
-            )
-            ->where('house_id', $house_id)
+        // --- 3. Consultar y Procesar con Eloquent y Colecciones (AQUÍ ESTÁ EL CAMBIO) ---
+
+        // PASO 3.1: Obtener el último pago ANTES del período.
+        // Esto es CRUCIAL para que el accesor pueda calcular el consumo del primer mes (Diciembre).
+        $paymentBeforePeriod = PaymentService::where('house_id', $house_id)
             ->where('service_id', 1)
-            ->whereBetween('payment_date', [$startDate, $endDate->copy()->endOfMonth()])
-            ->groupBy('year', 'month')
-            ->orderBy('year', 'asc')
-            ->orderBy('month', 'asc')
+            ->where('payment_date', '<', $startDate)
+            ->orderBy('payment_date', 'desc')
+            ->first();
+
+        // PASO 3.2: Obtener los pagos DENTRO del período solicitado.
+        $paymentsInPeriod = PaymentService::where('house_id', $house_id)
+            ->where('service_id', 1)
+            ->whereBetween('payment_date', [$startDate, $endDate])
+            ->orderBy('payment_date', 'asc')
             ->get();
 
-        // --- 4. Combinar los Datos ---
-        // Recorremos los resultados de la BD y actualizamos nuestra plantilla.
+        // PASO 3.3: Combinar ambos resultados en una única colección ordenada.
+        $allRelevantPayments = new Collection();
+        if ($paymentBeforePeriod) {
+            $allRelevantPayments->push($paymentBeforePeriod);
+        }
+        $allRelevantPayments = $allRelevantPayments->concat($paymentsInPeriod);
+
+        // PASO 3.4: Mapear la colección para invocar el accesor y obtener los datos.
+        // Aquí es donde la magia ocurre. Al acceder a ->consumption_calculated, Eloquent lo calcula por nosotros.
+        $dbConsumptions = $allRelevantPayments->map(function (PaymentService $payment) {
+            return (object) [ // Creamos un objeto para imitar la salida original de la BD
+                'year' => $payment->payment_date->year,
+                'month' => $payment->payment_date->month,
+                // ¡AQUÍ SE USA TU ACCESOR!
+                'consumption' => $payment->quantity,
+            ];
+        });
+
+        // --- 4. Combinar los Datos (Adaptamos ligeramente esta parte) ---
+        // Recorremos los resultados calculados y actualizamos nuestra plantilla.
         foreach ($dbConsumptions as $consumption) {
             $key = "{$consumption->year}-{$consumption->month}";
+            // Verificamos si la clave existe en nuestra plantilla para ignorar el registro "anterior"
             if (isset($monthlyTemplate[$key])) {
-                $monthlyTemplate[$key]['consumption'] = $consumption->total_consumption;
+                // Tu accesor se llama 'consumption_calculated', pero lo hemos renombrado a 'consumption' en el paso 3.4
+                $monthlyTemplate[$key]['consumption'] = $consumption->consumption;
             }
         }
 
-        // --- 5. Preparar Datos para la Vista ---
-        // Convertimos el array asociativo en un array indexado simple para el @foreach de Blade
+        // --- 5. Preparar Datos para la Vista (Esta parte se mantiene igual) ---
         $dataForView = [
-            // Pasamos el array final. array_values() ignora las claves "Año-Mes".
             'consumptionDetails' => array_values($monthlyTemplate)
-            // ... puedes pasar otros datos aquí
         ];
 
         return $dataForView;
