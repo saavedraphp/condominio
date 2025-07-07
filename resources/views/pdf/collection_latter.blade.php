@@ -98,22 +98,20 @@
     <div class="letter-body">
         <p>Estimado(a) {{$associated['name']}},</p>
         <p>
-            Espero que este mensaje les encuentre bien. El propósito de esta carta es recordarle el pago correspondiente
-            al mes de
-            {{$period_month}}, el cual es necesario para el mantenimiento continuo y eficiente de nuestras instalaciones
-            y servicios de planilla que todavía dependen de la Asociación.
+            Gracias por la puntualidad en sus pagos, el cual es fundamental para asegurar el mantenimiento continuo y eficiente de nuestras instalaciones y servicios.
         </p>
         <p>
-            {!!$paragraph_amount!!}
+            Nuestros registros indican que el monto de pagar a la fecha de esta carta es de  <strong>S/{{number_format($total_debt, 2)}}</strong>.  Le informamos que todos los pagos son hechos a la cuenta bancaria aprobada a nombre del presidente de la asociación, el Sr. {{$bank_account_name}}:
+
         </p>
 
         <div class="payment-details">
-            <p class="text_center"><strong>{{$bank_name}}: {{$bank_account}}.</strong></p>
-            <p class="text_center"><strong>También pueden utilizar el CCI {{$bank_account_cci}}</strong></p>
+            <p class="text_center"><strong>{{$bank_name}}: {{$bank_account}}</strong></p>
+            <p class="text_center"><strong>CCI {{$bank_account_cci}}</strong></p>
         </div>
 
         <p>
-            {!!$paragraph_thank_you!!}
+            Agradecemos de antemano su colaboración y compromiso. Si tiene alguna otra pregunta o requiere asistencia adicional, no dude en ponerse en contacto con nosotros.
         </p>
 
         <p class="closing">Atentamente,</p>
@@ -121,7 +119,7 @@
 
     <div class="signature-block">
         <div class="line"></div>
-        <p><strong>Rudy David Huaranga Bolaños, presidente</strong></p>
+        <p><strong>{{$bank_account_name}}, presidente</strong></p>
         <p>{{$title}}</p>
     </div>
 </div>

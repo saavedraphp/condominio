@@ -86,6 +86,7 @@ class PaymentServiceController extends Controller
         try {
             $servicePayments = PaymentService::query()
                 ->where('service_id', $typeService)
+                ->whereHas('house')
                 ->with('house')
                 ->orderBy('payment_date', 'desc')
                 ->get();
