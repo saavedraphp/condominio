@@ -92,12 +92,11 @@ class HouseMonthlyChargeController extends Controller
         }
 
         // --- Paginación ---
-        $perPage = $request->input('per_page', 15); // Número de ítems por página
-        $monthlyCharges = $query->paginate($perPage);
+        $monthlyCharges = $query->get();
 
         // Transformar los datos para la respuesta si es necesario
         // (ej. para formatear el nombre del mes)
-        $monthlyCharges->getCollection()->transform(function ($charge) {
+        $monthlyCharges->transform(function ($charge) {
             // Crear un nombre de período legible
             // Carbon::createFromDate($charge->period_year, $charge->period_month, 1)->isoFormat('MMMM YYYY'); // Requiere locale configurado
             $charge->period_name = Carbon::create()->month($charge->period_month)->format('F') . ' ' . $charge->period_year; // "October 2023"
@@ -130,6 +129,7 @@ class HouseMonthlyChargeController extends Controller
         $monthInput = (int)$month;
         $historyElectric = $this->getConsumptions($house_id);
         $matrix = $this->makeMatrixConsumption($historyElectric['consumptionDetails']);
+
         if ($preview === "true") {
             $logoPath = asset('assets/images/logo.jpg');
             $tablaImagePath = asset('assets/images/statistical-table-v2.jpg'); // public/assets/images
@@ -159,13 +159,13 @@ class HouseMonthlyChargeController extends Controller
             ],
             'electrical_history_table' => $matrix,
             'logoPath' => $logoPath,
-            'title' => 'ASOCIACION DE PROPIETARIOS ISLAS DE SAN PEDRO',
+            'title' => 'Asociación de Propietarios Islas de San Pedro',
             'tablaImagePath' => $tablaImagePath,
             'debt' => empty($balanceHouse['opening_balance']) ? 'Pendiente a Revisión' : number_format($balanceHouse['amount_due'], 2),
             'bank_name' => 'BANCO CREDITO DEL PERU (BCP)',
             'bank_account' => '194-72597403-0-08',
             'bank_account_cci' => '00219417259740300893',
-            'bank_account_name' => 'Rudy Huaranga - Francis Iturbe',
+            'bank_account_name' => 'Rudy David Huaranga Bolaños',
             'ruc_assoc_prop_isp' => 'RUC: 20525153861',
 
         ];
@@ -186,21 +186,20 @@ class HouseMonthlyChargeController extends Controller
         $amount_of_month = number_format($amount_of_month, 2);
 
         if ($typeHouse === self::TYPE_HOUSE_ASSOCIATED) {
+            if (!$houseArray['is_lot']) {
+                $imageConsumption = $this->getImageConsumption($houseArray, $preview);
+                $data = $data + [
+                        'image_consumption' => $imageConsumption,
+                    ];
+            }
 
             $data = $data + [
-                    'paragraph_amount' => "El monto de mantenimiento por el mes de {$data['period_month']} es de <strong>S/{$amount_of_month}.</strong> Adjunto encontrara los detalles de su recibo. Le solicitamos que realice el pago correspondiente a la cuenta bancaria aprobada por la Asociación en asamblea a nombre del presidente de la asociación el Señor Rudy David Huaranga Bolaños:",
-                    'paragraph_thank_you' => "Agradecemos su colaboración y puntualidad, le recordamos que una ves la asociación recupere sus poderes todas las deudas pendientes serán reportadas a los sistemas
-                                              financieros peruanas.  Si tienen alguna pregunta o necesitan asistencia adicional, no duden en ponerse en contacto con nosotros.",
                     'title_details_line_1' => 'RECIBO POR MANTENIMIENTO – ' . strtoupper($data['period_month']) . ' ' . $data['period_year'],
                     'title_details_line_2' => 'ASOCIACION DE PROPIETARIOS ISLAS DE SAN PEDRO',
                     'contact_email' => 'isp.asociacion@gmail.com',
                 ];
         } else if ($typeHouse === self::TYPE_HOUSE_BOARD_ASSOCIATED) {
             $data = $data + [
-                    'paragraph_amount' => "El monto de asociado solamente del mes de {$data['period_month']} es de <strong>S/{$amount_of_month}.</strong> Les solicitamos que
-                                            realicen el pago correspondiente a la cuenta bancaria aprobada a nombre del presidente de
-                                            la asociación el Señor Rudy David Huaranga Bolaños: ",
-                    'paragraph_thank_you' => "Agradecemos su colaboración y puntualidad. Si tienen alguna pregunta o necesitan asistencia adicional, no duden en ponerse en contacto con nosotros.",
                     'title_details_line_1' => 'RECIBO DE ASOCIADO',
                     'title_details_line_2' => 'ASOCIACION DE PROPIETARIOS ISLAS DE SAN PEDRO',
                     'contact_email' => 'isp.asociacion@gmail.com',
@@ -208,9 +207,6 @@ class HouseMonthlyChargeController extends Controller
         } else if ($typeHouse === self::TYPE_HOUSE_BOARD) {
 
             $data = $data + [
-                    'paragraph_amount' => "El monto de asociado solamente del mes de {$data['period_month']} es de <strong>S/{$amount_of_month}.</strong> Les solicitamos que
-                                            realicen el pago correspondiente a la cuenta bancaria aprobada  por la Junta de Propietarios:",
-                    'paragraph_thank_you' => "Agradecemos su colaboración y puntualidad. Si tienen alguna pregunta o necesitan asistencia adicional, no duden en ponerse en contacto con nosotros.",
                     'title_details_line_1' => 'RECIBO DE MANTENIMIENTO COMUN',
                     'title_details_line_2' => 'JUNTA DE PROPIETARIOS ISLAS CERDENA </br>
 LOTE ACUMULADO C-39A',
@@ -322,20 +318,25 @@ LOTE ACUMULADO C-39A',
 
     }
 
+    private function getImageConsumption(array $house, string $is_preview): string|null
+    {
+        $consumptionEnergy = $this->getLastMonthEnergyConsumptionPayment($house);
+        $imageConsumptionBD = $consumptionEnergy['file_path_url'] ?? null;
+        $imagePathConsumptionBD = $consumptionEnergy['file_path'] ?? null;
+        if ($is_preview === "true") {
+            $imageConsumption = $imageConsumptionBD;
+        } else {
+            $imageConsumption = $imagePathConsumptionBD ? storage_path('app/public/' . $imagePathConsumptionBD) : null;
+        }
+
+        return $imageConsumption;
+    }
+
     private function getDepartmentEnergyDetails(array $house, float $fee_association_ISP): array
     {
-        $consumptionEnergy = PaymentService::query()
-            ->where([
-                ['service_id', 1],
-                ['house_id', $house['id']],
-            ])
-            ->whereYear('payment_date', Carbon::now()->year)
-            ->whereMonth('payment_date', Carbon::now()->subMonth()->month)
-            ->latest('payment_date')
-            ->first();
-
+        $consumptionEnergy = $this->getLastMonthEnergyConsumptionPayment($house);
         $amountElectric = $consumptionEnergy
-            ? $consumptionEnergy->consumption_calculated * self::PRICE_BY_KWH
+            ? $consumptionEnergy['consumption_calculated'] * self::PRICE_BY_KWH
             : 0;
         $totalBuildingBudget = $this->getTotalBuildingBudget();
         return [
@@ -352,6 +353,26 @@ LOTE ACUMULADO C-39A',
                 'amount' => self::FEE_JP_SARDINIA_ISLANDS - $totalBuildingBudget - $fee_association_ISP
             ]
         ];
+    }
+
+    private function getLastMonthEnergyConsumptionPayment(array $house): array
+    {
+        $payment = PaymentService::query()
+            ->where([
+                ['service_id', 1],
+                ['house_id', $house['id']],
+            ])
+            ->whereYear('payment_date', Carbon::now()->year)
+            ->whereMonth('payment_date', Carbon::now()->subMonth()->month)
+            ->latest('payment_date')
+            ->first();
+
+        if (!$payment) {
+            Log::warning("No se encontró un pago de energía para la casa ID {$house['id']} en el mes anterior.");
+            return [];
+        }
+
+        return $payment->toArray();
     }
 
     private function getFeeAssociationISP(): float
@@ -488,7 +509,7 @@ LOTE ACUMULADO C-39A',
                 'year' => $payment->payment_date->year,
                 'month' => $payment->payment_date->month,
                 // ¡AQUÍ SE USA TU ACCESOR!
-                'consumption' => $payment->consumption_calculated,
+                'consumption' => $payment->quantity,
             ];
         });
 
