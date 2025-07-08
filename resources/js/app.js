@@ -32,7 +32,14 @@ const vuetify = createVuetify({
         defaultTheme: 'light',
     },
     components,
-    directives
+    directives,
+    defaults: {
+        VDataTable: {
+            itemsPerPage: 1000,
+            itemsPerPageOptions: [10, 50, 100, 500, 1000],
+            // hideDefaultFooter: true // (descomenta si quieres quitar la paginación visual)
+        },
+    },
 });
 
 export default vuetify;

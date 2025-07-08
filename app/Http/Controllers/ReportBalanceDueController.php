@@ -20,7 +20,7 @@ class ReportBalanceDueController extends Controller
 
         try {
             $houses = House::with([
-                'owner:id,name',
+                'owner:id,name,has_payment_arrangement',
                 'payments:id,house_id,amount,payment_date',
                 'monthlyCharges:id,house_id,period_year,period_month,total_amount,status',
             ])->get();
@@ -41,6 +41,7 @@ class ReportBalanceDueController extends Controller
                     'amount_paid' => $balance['amount_paid'],
                     'owner' => $house->owner[0]->name ?? 'Sin propietario',
                     'opening_balance' => number_format($house->opening_balance, 2),
+                    'has_payment_arrangement' => $house->owner[0]->has_payment_arrangement ?? false,
                 ];
             });
             return response()->json($response);
