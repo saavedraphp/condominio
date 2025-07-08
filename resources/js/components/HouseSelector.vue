@@ -96,9 +96,9 @@ watch(selectedHouse, (newSelection) => {
     }
     // Cuando se selecciona una casa, actualizamos el `searchQuery` para que el texto del input coincida.
     // Esto es útil si el usuario borra y vuelve a seleccionar.
-    if(newSelection) {
+/*    if(newSelection) {
         searchQuery.value = newSelection.property_unit;
-    }
+    }*/
 });
 
 // 2. Observa el `initialHouseId` y la lista de casas para pre-seleccionar el valor inicial.

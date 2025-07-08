@@ -30,7 +30,7 @@ class UserController extends Controller
     {
         try {
             $users = WebUser::query()
-                ->select(['id', 'name', 'email', 'phone', 'email_verified_at', 'status'])
+                ->select(['id', 'name', 'email', 'phone', 'email_verified_at', 'has_payment_arrangement', 'status'])
                 ->orderBy('created_at', 'desc')
                 ->get();
 
@@ -109,13 +109,14 @@ class UserController extends Controller
     {
         try {
             $validatedData = $request->validated();
+
             if ($validatedData['email'] !== $user->email) {
                 $check = $this->handleExistingUserByEmail($validatedData['email']);
                 if ($check) {
                     return $check; // Ya existe otro usuario con ese email
                 }
             }
-            $updateSuccessful = $user->update($request->only(['name', 'phone', 'status', 'email']));
+            $updateSuccessful = $user->update($request->only(['name', 'phone', 'status', 'email','has_payment_arrangement']));
 
             if ($updateSuccessful) {
                 return response()->json([

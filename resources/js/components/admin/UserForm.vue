@@ -32,6 +32,7 @@ const name = useField('name');
 const email = useField('email');
 const phone = useField('phone')
 const status = useField('status')
+const has_payment_arrangement = useField('has_payment_arrangement', 'boolean');
 
 let formTitle = 'Adicionar Usuario';
 
@@ -41,6 +42,7 @@ watch(() => props.user, (newValue) => {
         email.value.value = newValue.email || "";
         phone.value.value = newValue.phone || "";
         status.value.value = newValue.status === 'active';
+        has_payment_arrangement.value.value = newValue.has_payment_arrangement || false;
     }
     if(props.user?.id) {
         formTitle = 'Editar Usuario';
@@ -54,6 +56,7 @@ const submitForm = handleSubmit((values) => {
             name: values.name,
             email: values.email,
             phone: values.phone,
+            has_payment_arrangement: values.has_payment_arrangement,
             status: values.status,
         });
     } else {
@@ -61,11 +64,12 @@ const submitForm = handleSubmit((values) => {
             name: values.name,
             email: values.email,
             phone: values.phone,
+            has_payment_arrangement: values.has_payment_arrangement,
             status: values.status,
         });
     }
 
-    resetForm({values: {name: '', email: '', phone: '', status: true}});
+    resetForm({values: {name: '', email: '', phone: '', status: true, has_payment_arrangement: false}});
     close();
 });
 
@@ -111,6 +115,14 @@ const close = () => {
                                 variant="outlined"
                                 required
                             ></v-text-field>
+                        </v-col>
+                        <v-col cols="12">
+                            <v-checkbox
+                                v-model="has_payment_arrangement.value.value"
+                                label="TIENE ARREGLAR DE PAGO"
+                                class="pa-0 ma-0"
+                                density="compact"
+                            />
                         </v-col>
                         <v-col cols="12" sm="6">
                             <v-switch
