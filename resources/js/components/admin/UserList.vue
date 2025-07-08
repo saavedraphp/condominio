@@ -13,6 +13,7 @@ const headers = ref([        // Definición de las columnas de la tabla
     {title: 'Nombre', key: 'name', align: 'start', sortable: true},
     {title: 'Email', key: 'email', sortable: true},
     {title: 'Teléfono', key: 'phone', sortable: true},
+    {title: 'Arreglo de Pago', key: 'has_payment_arrangement', align:'center' , sortable: true},
     {title: 'Estado', key: 'status', sortable: true},
     {title: 'Acciones', key: 'actions', sortable: false, align: 'end'},
 ]);
@@ -74,6 +75,7 @@ const editUser = async (item) => {
             name: item.name,
             phone: item.phone,
             email: item.email,
+            has_payment_arrangement: item.has_payment_arrangement,
             status: item.status ? 'active' : 'inactive'
         });
 
@@ -220,6 +222,11 @@ const closeDeleteModal = () => {
                 <template v-slot:item.email_verified_at="{ value }">
                     <v-chip :color="value ? 'success' : 'grey'" size="small">
                         {{ value ? 'Verificado' : 'Pendiente' }}
+                    </v-chip>
+                </template>
+                <template v-slot:item.has_payment_arrangement="{ value }">
+                    <v-chip :color="value  === true ? 'success' : 'grey'" size="small">
+                        {{ value === true ? 'Si' : 'No' }}
                     </v-chip>
                 </template>
                 <template v-slot:item.status="{ value }">

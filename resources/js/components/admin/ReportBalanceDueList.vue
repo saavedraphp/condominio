@@ -10,10 +10,15 @@ const mySnackbar = ref(null);
 const headers = ref([
     {title: 'Dirección', key: 'address', sortable: true},
     {title: 'Propietario', key: 'owner', align: 'start', sortable: true},
-    {title: 'Saldo inicial', key: 'opening_balance', sortable: true},
+    {title: 'Arreglo de Pago', key: 'has_payment_arrangement', sortable: true},
     {title: 'Total Adeudado', key: 'amount_due', sortable: true},
 ]);
 
+const dateMow = new Date().toLocaleDateString('es-ES', {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+});
 const houses = ref([]);
 const loading = ref(true);
 const search = ref('Buscando resultados');
@@ -49,7 +54,7 @@ async function getHouses() {
             <v-card-title class="d-flex align-center pe-2">
                 <v-icon icon="mdi mdi-home"></v-icon>
                  
-                Reporte de Casas con Deuda
+                Reporte de Casas con Deuda  a la fecha:  {{dateMow}}
                 <v-spacer></v-spacer>
 
             </v-card-title>
@@ -64,7 +69,11 @@ async function getHouses() {
             >
                 <template v-slot:item.amount_due="{ value }">
                     <span style="color: darkred">{{ value}}</span>
-
+                </template>
+                <template v-slot:item.has_payment_arrangement="{ value }">
+                    <v-chip :color="value  === true ? 'success' : 'grey'" size="small">
+                        {{ value === true ? 'Si' : 'No' }}
+                    </v-chip>
                 </template>
             </v-data-table>
         </v-card>
