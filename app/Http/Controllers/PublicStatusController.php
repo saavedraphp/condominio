@@ -4,13 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\User\ProfileController;
 use App\Models\WebUser;
+use App\Services\UserDebtService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
 class PublicStatusController extends Controller
 {
-    public function showStatusByToken(Request $request, string $token): View
+    public function showStatusByToken(Request $request, string $token, UserDebtService $debtService): View
     {
         // Busca al usuario por su token de acceso público
         $user = WebUser::where('public_access_token', $token)->first();
@@ -20,7 +21,7 @@ class PublicStatusController extends Controller
         }
 
         // --- Lógica para verificar la deuda (SIMPLIFICADA) ---
-        $resultDebt = $this->checkUserDebtStatus($user->id); // Reutiliza tu lógica de deuda
+        $resultDebt = $this->checkUserDebtStatus($user->id, $debtService); // Reutiliza tu lógica de deuda
 
         return view('user.qr_verification.result', [
             'user'      => $user,
@@ -30,7 +31,21 @@ class PublicStatusController extends Controller
         ]);
     }
 
-    public function checkUserDebtStatus(int $userId): array
+    public function checkUserDebtStatus(int $userId, UserDebtService $debtService): array // <-- Inyecta el servicio
+    {
+        $user = WebUser::findOrFail($userId);
+
+        // Delega todo el cálculo al servicio
+        $totalDebt = $debtService->calculateTotalDebt($user);
+
+        $result = [
+            'debtAmount' => $totalDebt,
+        ];
+
+        return $result;
+    }
+
+/*    public function checkUserDebtStatus(int $userId): array
     {
         $user = WebUser::query()->find($userId);
         $totalBalance = $user->houses()
@@ -41,5 +56,5 @@ class PublicStatusController extends Controller
             'debtAmount' => $totalBalance ?? 0,
         ];
         return $result;
-    }
+    }*/
 }

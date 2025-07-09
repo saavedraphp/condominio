@@ -43,6 +43,11 @@ class House extends Model
         return $this->webUsers()->wherePivot('is_owner', true);
     }
 
+    public function owners(): BelongsToMany
+    {
+        return $this->webUsers()->wherePivot('is_owner', true);
+    }
+
     public function resident()
     {
         return $this->webUsers()->wherePivot('is_resident', true);
