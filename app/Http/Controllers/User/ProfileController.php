@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\House;
 use App\Models\User;
 use App\Models\WebUser;
+use App\Services\UserDebtService;
 use App\Traits\ManagesHouseSession;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -44,14 +45,12 @@ class ProfileController extends Controller
      * Display the specified resource.
      */
 
-    public function getUserData(): JsonResponse
+    public function getUserData(UserDebtService $debtService): JsonResponse
     {
         $user = Auth::guard('web_user')->user();
-        $totalBalance = $user->houses()
-            ->wherePivot('is_owner', true)
-            ->sum('opening_balance');
+        $totalDebt = $debtService->calculateTotalDebt($user);
 
-        $user->opening_balance =  $totalBalance;
+        $user->opening_balance =  $totalDebt;
 
         if (!$user) {
             return response()->json(['message' => 'Usuario no encontrado'], 404);

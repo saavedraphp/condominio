@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\HouseMonthlyCharge;
+use App\Models\HousePayment;
+use App\Observers\HouseMonthlyChargeObserver;
+use App\Observers\HousePaymentObserver;
 use App\Repositories\House\EloquentHouseRepository;
 use App\Repositories\House\HouseRepositoryInterface;
 use Illuminate\Support\ServiceProvider;
@@ -22,6 +26,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        HousePayment::observe(HousePaymentObserver::class);
+        HouseMonthlyCharge::observe(HouseMonthlyChargeObserver::class);
     }
 }
