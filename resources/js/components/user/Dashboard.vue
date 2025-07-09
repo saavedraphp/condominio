@@ -208,6 +208,9 @@ export default {
                             <div class="text-h5 font-weight-bold text-warning">
                                 S/ {{ formatCurrency(totalDebt) }}
                             </div>
+                            <template v-slot:title v-if="user.has_payment_arrangement">
+                                    Con arreglo de Pago
+                            </template>
                             <template v-slot:append>
                                 <v-btn color="warning" variant="elevated" size="small" v-if="false">
                                     Pagar Ahora

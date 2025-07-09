@@ -102,6 +102,15 @@ onMounted(() => {
                             {{ statusMessage }}
                         </p>
                     </div>
+                    <v-alert
+                        v-if="user.has_payment_arrangement"
+                        type="info"
+                        class="mt-4"
+                        border="left"
+                        prominent>
+                        <v-icon left>mdi-information</v-icon>
+                        TIENE ARREGLO DE PAGO
+                    </v-alert>
 
                 </v-card>
             </v-container>
