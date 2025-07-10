@@ -119,7 +119,7 @@ const close = () => {
                         <v-col cols="12">
                             <v-checkbox
                                 v-model="has_payment_arrangement.value.value"
-                                label="TIENE ARREGLAR DE PAGO"
+                                label="Tiene Arreglo de pagos"
                                 class="pa-0 ma-0"
                                 density="compact"
                             />

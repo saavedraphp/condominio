@@ -2,52 +2,41 @@
 import {ref, computed, onMounted} from 'vue';
 
 const props = defineProps({
-    status: {
-        type: Boolean,
-        default: false
-    },
     user: {
         type: Object,
         required: true
     },
     debt: {
-        type: String,
+        type: Number,
         default: 0.00
+    },
+    status: {
+        type: Boolean,
+        default: false
     }
 });
 
 // Nombre de la empresa, podría venir de una config o ser estático
 const companyName = ref('LA ESQUINA DEL VOCAL'); // O el nombre que corresponda
 
-// Datos del usuario (esto vendría de tu API)
-const userData = ref({
-    name: 'Cargando...',
-    debt: 0.00,
-});
-const statusMessage = ref('Cargando...');
-const hasDebt = ref(false);
+const hasDebt = computed(() => props.debt > 0);
+const isEnabled = computed(() => !hasDebt.value || props.user.has_payment_arrangement);
+const debtColor = computed(() => isEnabled.value ? 'blue-darken-1' : 'orange-darken-2');
+
+// 4. Mensaje dinámico para el usuario
+const statusMessage = computed(() =>
+    isEnabled.value
+        ? 'Se encuentra al día con sus pagos.'
+        : 'Presenta pagos pendientes.'
+);
+const userData = computed(() => ({
+    name: props.user.name || 'Desconocido',
+    debtFormatted: props.debt.toFixed(2),
+}));
 
 // Estado de verificación del usuario (esto también vendría de tu API)
 const userVerified = ref(false); // Por defecto no verificado hasta que la API responda
 
-// Lógica para el color de la deuda
-const debtColor = computed(() => {
-    return userData.value.debt > 0 ? 'orange-darken-2' : 'blue-darken-1';
-});
-
-// Simulación de carga de datos desde la API después de escanear el QR
-// En una aplicación real, aquí llamarías a tu API
-onMounted(() => {
-    userData.value = {
-        name: props.user.name || 'Desconocido',
-        debt: parseFloat(props.debt) || 0.00,
-    };
-    userVerified.value = props.status;
-    statusMessage.value = props.debt > 0
-        ? 'Presenta pagos pendientes.'
-        : 'Se encuentra al día con sus pagos.';
-    hasDebt.value = props.debt > 0;
-});
 
 </script>
 <template>
@@ -69,7 +58,7 @@ onMounted(() => {
                             </p>
                         </div>
 
-                        <div class="mb-4 d-flex align-center">
+                        <div class="mb-4 d-flex align-center" v-if="false">
                             <p class="text-subtitle-1 mb-0 mr-2">
                                 <strong>Adeuda:</strong>
                             </p>
@@ -90,20 +79,20 @@ onMounted(() => {
                     <div class="text-center my-4">
                         <v-icon
                             size="80"
-                            :color="hasDebt  ? 'red' : 'success'"
+                            :color="isEnabled  ?  'success': 'red'"
                             class="mb-2"
                         >
-                            {{ hasDebt  ? 'mdi-shield-alert-outline' : 'mdi-check-decagram' }}
+                            {{ isEnabled  ? 'mdi mdi-check-circle-outline' : 'mdi mdi-close-circle' }}
                         </v-icon>
                         <p
                             class="text-h6 font-weight-medium"
-                            :class="hasDebt ? 'text-grey-darken-1' : 'text-success'"
+                            :class="isEnabled ? 'text-success' : 'text-grey-darken-1'"
                         >
                             {{ statusMessage }}
                         </p>
                     </div>
                     <v-alert
-                        v-if="user.has_payment_arrangement"
+                        v-if="false"
                         type="info"
                         class="mt-4"
                         border="left"
@@ -111,7 +100,6 @@ onMounted(() => {
                         <v-icon left>mdi-information</v-icon>
                         TIENE ARREGLO DE PAGO
                     </v-alert>
-
                 </v-card>
             </v-container>
         </v-main>
