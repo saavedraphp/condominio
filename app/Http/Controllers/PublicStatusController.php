@@ -45,16 +45,4 @@ class PublicStatusController extends Controller
         return $result;
     }
 
-/*    public function checkUserDebtStatus(int $userId): array
-    {
-        $user = WebUser::query()->find($userId);
-        $totalBalance = $user->houses()
-            ->wherePivot('is_owner', true)
-            ->sum('opening_balance');
-
-        $result = [
-            'debtAmount' => $totalBalance ?? 0,
-        ];
-        return $result;
-    }*/
 }

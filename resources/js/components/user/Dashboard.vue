@@ -6,6 +6,7 @@ import axios from "axios";
 import Snackbar from "@/components/Snackbar.vue";
 import {formatDate, formatDateTime} from "../../utils/functions.js";
 import AdForm from "@/components/admin/AdForm.vue";
+import DebtStatusAlert from "@/components/user/DebtStatusAlert.vue";
 
 const props = defineProps({
     userId: String
@@ -126,7 +127,7 @@ async function getUserData() {
     try {
         const response = await axios.get('/user/get-user-data');
         user.value = response.data;
-        totalDebt.value = response.data.opening_balance || 0;
+        totalDebt.value = response.data.debt || 0;
 
     } catch (error) {
         error.value = 'Error al obtener los datos del usuario';
@@ -194,41 +195,11 @@ export default {
 
                     <!-- Card/Alert Deuda -->
                     <v-col cols="12">
-                        <!-- Opción 1: Usando v-alert mejorado -->
-                        <v-alert
-                            v-if="totalDebt > 0"
-                            type="warning"
-                            variant="tonal"
-                            border="start"
-                            prominent
-                            icon="mdi-alert-circle-outline"
-                            class="mb-4"
-                        >
-                            <div class="text-subtitle-1 font-weight-medium">Deuda Acumulada</div>
-                            <div class="text-h5 font-weight-bold text-warning">
-                                S/ {{ formatCurrency(totalDebt) }}
-                            </div>
-                            <template v-slot:title v-if="user.has_payment_arrangement">
-                                    Con arreglo de Pago
-                            </template>
-                            <template v-slot:append>
-                                <v-btn color="warning" variant="elevated" size="small" v-if="false">
-                                    Pagar Ahora
-                                </v-btn>
-                            </template>
-                        </v-alert>
-                        <!-- Opción 2: Mensaje si no hay deuda -->
-                        <v-alert
-                            v-else
-                            type="success"
-                            variant="tonal"
-                            border="start"
-                            icon="mdi-check-circle-outline"
-                            density="compact"
-                            class="mb-4"
-                        >
-                            Estás al día con tus pagos.
-                        </v-alert>
+                        <DebtStatusAlert
+                            :total-debt="totalDebt"
+                            :has-payment-arrangement="user.has_payment_arrangement"
+                            :show-pay-button="false"
+                        />
                     </v-col>
 
                     <!-- Card Anuncios -->

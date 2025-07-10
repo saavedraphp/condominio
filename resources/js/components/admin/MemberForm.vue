@@ -26,8 +26,6 @@ const dialog = computed({
 // Schema de validación con Yup
 const schema = yup.object({
     memberName: yup.string().required().min(2, 'El nombre debe tener al menos 2 caracteres.'),
-    memberPhone: yup.string().required().matches(/^\d+$/, 'El número de teléfono debe tener al menos 7 dígitos.').min(7),
-    memberEmail: yup.string().required().email('Debe ser un correo electrónico válido.')
 });
 
 // Configuración de vee-validate
@@ -119,13 +117,11 @@ const close = () => {
                         variant="outlined"
                         label="Teléfono"
                         v-model="memberPhone.value.value"
-                        :error-messages="memberPhone.errorMessage.value"
                     />
                     <v-text-field
                         variant="outlined"
                         label="Correo Electrónico"
                         v-model="memberEmail.value.value"
-                        :error-messages="memberEmail.errorMessage.value"
                     />
                     <v-card-actions>
                         <v-spacer></v-spacer>
