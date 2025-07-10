@@ -4,16 +4,16 @@ import axios from "axios";
 import Snackbar from "@/components/Snackbar.vue";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal.vue";
 import House from "@/components/admin/House.vue";
-
+import {formattedMoney} from "@/utils/functions.js";
 
 const mySnackbar = ref(null);
 
 const headers = ref([
     {title: 'Dirección', key: 'address', sortable: true},
     {title: 'Unid', key: 'property_unit', align: 'start', sortable: true},
-    {title: 'Cod Pago', key: 'payment_code', sortable: true},
-    {title: 'Area Cons', key: 'construction_area', sortable: true},
-    {title: '% Part', key: 'participation_percentage', sortable: true},
+    {title: 'Tipo', key: 'ownership_structure_details.label', sortable: true},
+    {title: 'Primer Integrante', key: 'name_first_member', sortable: true},
+    {title: 'Deuda', key: 'amount_due', sortable: true},
     {title: 'Acciones', key: 'actions', sortable: false, align: 'end'},
 ]);
 
@@ -21,7 +21,6 @@ const houses = ref([]);
 const loading = ref(true);
 const search = ref('Buscando resultados');
 const showModal = ref(false)
-
 
 const selectedElement = ref(null)
 
@@ -34,10 +33,14 @@ async function getHouses() {
     loading.value = true;
 
     try {
-        const response = await axios.get(`/user/houses/`);
-        houses.value = response.data;
+        const response = await axios.get(`/user/houses?with_balance=true`);
+        houses.value = response.data.data.map(item => ({
+            ...item,
+            'amount_due': item.balance ? formattedMoney(item.balance.amount_due) : 0,
+        }));
 
     } catch (error) {
+        console.log(error);
         mySnackbar.value.show('Lo sentimos, hubo un problema obtener la información. Intenta de nuevo, por favor.', 'error');
     } finally {
         loading.value = false;
@@ -63,29 +66,29 @@ const showPageDashboard = (item) => {
             <v-divider></v-divider>
 
             <div v-if="houses.length">
-            <v-data-table v-show="houses.length"
-                          :headers="headers"
-                          :items="houses"
-                          class="elevation-1"
-                          dense
-            >
-                <!-- Columna de Acciones Personalizada -->
-                <template v-slot:item.actions="{ item }">
-                    <v-tooltip text="Administrar">
-                        <template v-slot:activator="{ props }">
-                            <v-btn
-                                v-bind="props"
-                                icon="mdi-cog"
-                                variant="text"
-                                color="primary"
-                                size="small"
-                                class="me-2"
-                                @click="showPageDashboard(item)"
-                            ></v-btn>
-                        </template>
-                    </v-tooltip>
-                </template>
-            </v-data-table>
+                <v-data-table v-show="houses.length"
+                              :headers="headers"
+                              :items="houses"
+                              class="elevation-1"
+                              dense
+                >
+                    <!-- Columna de Acciones Personalizada -->
+                    <template v-slot:item.actions="{ item }">
+                        <v-tooltip text="Administrar">
+                            <template v-slot:activator="{ props }">
+                                <v-btn
+                                    v-bind="props"
+                                    icon="mdi-cog"
+                                    variant="text"
+                                    color="primary"
+                                    size="small"
+                                    class="me-2"
+                                    @click="showPageDashboard(item)"
+                                ></v-btn>
+                            </template>
+                        </v-tooltip>
+                    </template>
+                </v-data-table>
             </div>
             <v-alert
                 v-else

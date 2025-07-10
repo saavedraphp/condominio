@@ -25,6 +25,14 @@ class ProfileController extends Controller
         return view('user.profile',['userId' => Auth::id()]);
     }
 
+    public function show():JsonResponse
+    {
+        $user = Auth::guard('web_user')->user();
+        if (!$user) {
+            return response()->json(['message' => 'Usuario no encontrado'], 404);
+        }
+        return response()->json($user, 200);
+    }
     /**
      * Show the form for creating a new resource.
      */
@@ -50,7 +58,7 @@ class ProfileController extends Controller
         $user = Auth::guard('web_user')->user();
         $totalDebt = $debtService->calculateTotalDebt($user);
 
-        $user->opening_balance =  $totalDebt;
+        $user->debt =  $totalDebt;
 
         if (!$user) {
             return response()->json(['message' => 'Usuario no encontrado'], 404);

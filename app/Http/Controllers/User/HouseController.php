@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\HouseResource;
 use App\Models\House;
 use App\Models\WebUser;
 use App\Traits\ManagesHouseSession;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
@@ -40,8 +42,15 @@ class HouseController extends Controller
         if (!$user || !$isRelated) {
             return response()->json(['message' => 'No autorizado para acceder a este recurso o no encontrado.'], JsonResponse::HTTP_FORBIDDEN);
         }
+        $balance = $house->calculateBalance();
 
-        return response()->json($house, JsonResponse::HTTP_OK);
+
+
+
+        return response()->json([
+            'house' => $house,
+            'balance' => $balance,
+        ], JsonResponse::HTTP_OK);
     }
 
     public function update(Request $request, House $house): JsonResponse
@@ -60,7 +69,7 @@ class HouseController extends Controller
         }
     }
 
-    public function index(): JsonResponse
+    public function index(): AnonymousResourceCollection|JsonResponse
     {
         try {
             $userId = Auth::guard('web_user')->id();
@@ -69,9 +78,15 @@ class HouseController extends Controller
             }
 
             $user = WebUser::findOrFail($userId);
-            $houses = $user->houses;
+            $housesQuery = $user->houses();
+            $housesQuery->with('firstResident');
 
-            return response()->json($houses, 200);
+            if (request()->boolean('with_balance')) {
+                $housesQuery->with(['payments', 'monthlyCharges']);
+            }
+            $houses = $housesQuery->get();
+            return HouseResource::collection($houses);
+            //return HouseResource::collection($houses)->response();
         } catch (\Exception $e) {
             Log::error('Error al intantar obtener las casas asignadas al usuario' . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'Error al intantar obtener las casas asignadas al usuario' . $e->getMessage()], 500);

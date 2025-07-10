@@ -75,6 +75,7 @@ Route::prefix('user')->name('user.')->group(function () {
 
         Route::get('/dashboard', [UserDashboard::class, 'index'])->name('dashboard');
         Route::get('/get-user-data', [ProfileController::class, 'getUserData'])->name('user.profile.show');
+        Route::get('/show/{webUser}', [ProfileController::class, 'show'])->name('user.show');
         Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
         Route::get('/ads', [UserAdsController::class, 'index']);
         Route::resource('/profile', ProfileController::class);

@@ -27,8 +27,6 @@ class HouseResidentController extends Controller
             $validateData = $request->validate([
                 'house_id' => 'required|exists:houses,id',
                 'name' => 'required|string|max:255',
-                'phone' => 'required|string|max:20',
-                'email' => 'required|email'
             ]);
 
             $resident = HouseResident::create($validateData);

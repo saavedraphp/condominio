@@ -86,3 +86,10 @@ export function getStructureTypes(type) {
      };
 
 }
+
+export function formattedMoney(value) {
+    return new Intl.NumberFormat('es-PE', {
+        style: 'currency',
+        currency: 'PEN',
+    }).format(value);
+}

@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Enums\OwnershipStructure;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class House extends Model
@@ -53,9 +55,14 @@ class House extends Model
         return $this->webUsers()->wherePivot('is_resident', true);
     }
 
-    public function residents(): HasMany
+    public function HouseResidents(): HasMany
     {
         return $this->hasMany(HouseResident::class);
+    }
+
+    public function firstResident(): HasOne
+    {
+        return $this->hasOne(HouseResident::class)->oldestOfMany();
     }
 
     public function payments(): HasMany
@@ -78,6 +85,29 @@ class House extends Model
             'amount_paid' => $payments,
             'opening_balance' => $this->opening_balance,
             'amount_due' => ($this->opening_balance + $charges) - $payments,
+        ];
+    }
+
+    public function getOwnershipStructureDetailsAttribute(): ?array
+    {
+        $value = $this->ownership_structure;
+
+        if (is_null($value)) {
+            return null;
+        }
+
+        $enumCase = OwnershipStructure::tryFrom($value);
+
+        if (is_null($enumCase)) {
+            return [
+                'key' => $value,
+                'label' => $value, // O un valor por defecto como 'Desconocido'
+            ];
+        }
+
+        return [
+            'key' => $enumCase->value,
+            'label' => $enumCase->label(),
         ];
     }
 

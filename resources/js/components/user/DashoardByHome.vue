@@ -2,6 +2,7 @@
 import Snackbar from "@/components/Snackbar.vue";
 import axios from "axios";
 import {onMounted, ref} from "vue";
+import DebtStatusAlert from "@/components/user/DebtStatusAlert.vue";
 
 const props = defineProps({
     userId: {
@@ -14,10 +15,29 @@ const props = defineProps({
     }
 });
 
+
 const loading = ref(true);
 const house = ref(null);
 const mySnackbar = ref(null);
+const totalDebt = ref(null);
+const user = ref(null);
 
+async function getUser() {
+    loading.value = true;
+    user.value = null;
+    try {
+        const response = await axios.get(`/user/show/${props.userId}`);
+
+        if (response.status === 200) {
+            user.value = response.data;
+        }
+
+    } catch (error) {
+        mySnackbar.value.show(error.response.data.message, 'error');
+    } finally {
+        loading.value = false;
+    }
+}
 async function getHouse() {
     loading.value = true;
     house.value = null
@@ -26,6 +46,7 @@ async function getHouse() {
 
         if (response.status === 200) {
             house.value = response.data;
+            totalDebt.value = response.data.balance.amount_due || 0;
         }
 
     } catch (error) {
@@ -39,16 +60,35 @@ async function getHouse() {
     }
 }
 
-onMounted(() => {
-    getHouse();
+onMounted(async () => {
+    loading.value = true;
+    try {
+        await Promise.all([
+            getUser(),
+            getHouse()
+        ]);
+    }catch (e) {
+        console.error("Hubo un error al cargar los datos iniciales:", error);
+        mySnackbar.value.show('No se pudieron cargar todos los datos. Intenta de nuevo.', 'error');
+    }finally {
+        loading.value = false;
+    }
+
 });
 </script>
 
 <template>
     <v-container fluid>
         <p v-if="loading">Cargango datos</p>
-        <v-row dense>
+        <v-row dense v-else>
             <!-- Card Bienvenida -->
+            <v-col cols="12">
+                <DebtStatusAlert v-if="totalDebt !== null"
+                    :total-debt="totalDebt"
+                    :has-payment-arrangement="user?.has_payment_arrangement"
+                    :show-pay-button="false"
+                />
+            </v-col>
             <v-col cols="12">
                 <v-card class="pa-3 mb-4" elevation="2">
                     <div class="d-flex align-center">
