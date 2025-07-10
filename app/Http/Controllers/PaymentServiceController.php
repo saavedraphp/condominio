@@ -66,6 +66,9 @@ class PaymentServiceController extends Controller
             $servicePayments = PaymentService::query()
                 ->where('house_id', $house->id)
                 ->where('service_id', $typeService)
+                ->whereHas('house')
+                ->with('house')
+                ->orderBy('payment_date', 'desc')
                 ->get();
             return response()->json($servicePayments);
 
