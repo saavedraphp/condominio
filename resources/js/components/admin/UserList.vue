@@ -76,6 +76,7 @@ const editUser = async (item) => {
             phone: item.phone,
             email: item.email,
             has_payment_arrangement: item.has_payment_arrangement,
+            is_associated: item.is_associated,
             status: item.status ? 'active' : 'inactive'
         });
 

@@ -30,6 +30,7 @@ class WebUser extends Authenticatable
         'phone',
         'file_path',
         'has_payment_arrangement',
+        'is_associated',
         'status'
     ];
 
@@ -42,6 +43,7 @@ class WebUser extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'has_payment_arrangement' => 'boolean',
+        'is_associated' => 'boolean',
     ];
 
     protected $appends = ['file_path_url'];
