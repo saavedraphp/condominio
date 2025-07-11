@@ -9,7 +9,7 @@ const props = defineProps({
     user: Object,
 });
 
- // Schema de validación con Yup
+// Schema de validación con Yup
 const schema = yup.object({
     name: yup.string().required().min(2, 'El nombre debe tener al menos 2 caracteres.'),
     email: yup.string().required().email('Debe ser un correo electrónico válido.'),
@@ -24,6 +24,8 @@ const {handleSubmit, resetForm} = useForm({
         name: '',
         email: '',
         phone: '',
+        has_payment_arrangement: false,
+        is_associated: false,
         status: true
     }
 });
@@ -33,6 +35,7 @@ const email = useField('email');
 const phone = useField('phone')
 const status = useField('status')
 const has_payment_arrangement = useField('has_payment_arrangement', 'boolean');
+const is_associated = useField('is_associated', 'boolean');
 
 let formTitle = 'Adicionar Usuario';
 
@@ -43,8 +46,9 @@ watch(() => props.user, (newValue) => {
         phone.value.value = newValue.phone || "";
         status.value.value = newValue.status === 'active';
         has_payment_arrangement.value.value = newValue.has_payment_arrangement || false;
+        is_associated.value.value = newValue.is_associated || false;
     }
-    if(props.user?.id) {
+    if (props.user?.id) {
         formTitle = 'Editar Usuario';
     }
 }, {immediate: true});
@@ -57,6 +61,7 @@ const submitForm = handleSubmit((values) => {
             email: values.email,
             phone: values.phone,
             has_payment_arrangement: values.has_payment_arrangement,
+            is_associated: values.is_associated,
             status: values.status,
         });
     } else {
@@ -65,11 +70,21 @@ const submitForm = handleSubmit((values) => {
             email: values.email,
             phone: values.phone,
             has_payment_arrangement: values.has_payment_arrangement,
+            is_associated: values.is_associated,
             status: values.status,
         });
     }
 
-    resetForm({values: {name: '', email: '', phone: '', status: true, has_payment_arrangement: false}});
+    resetForm({
+        values: {
+            name: '',
+            email: '',
+            phone: '',
+            status: true,
+            has_payment_arrangement: false,
+            is_associated: false
+        }
+    });
     close();
 });
 
@@ -116,10 +131,18 @@ const close = () => {
                                 required
                             ></v-text-field>
                         </v-col>
-                        <v-col cols="12">
+                        <v-col cols="12" sm="6">
                             <v-checkbox
                                 v-model="has_payment_arrangement.value.value"
                                 label="Tiene Arreglo de pagos"
+                                class="pa-0 ma-0"
+                                density="compact"
+                            />
+                        </v-col>
+                        <v-col cols="12" sm="6">
+                            <v-checkbox
+                                v-model="is_associated.value.value"
+                                label="Es Asociado"
                                 class="pa-0 ma-0"
                                 density="compact"
                             />
@@ -135,8 +158,9 @@ const close = () => {
                     </v-row>
                 </v-container>
                 <blockquote v-if="false">*Se requiere verificación por correo electrónico.
-                    Se enviará un mensaje a {{ email.value}} con los pasos para confirmar
-                    su cuenta. Una vez confirmada, podrá acceder y modificar su contraseña.</blockquote>
+                    Se enviará un mensaje a {{ email.value }} con los pasos para confirmar
+                    su cuenta. Una vez confirmada, podrá acceder y modificar su contraseña.
+                </blockquote>
                 <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn color="grey" variant="flat" @click="close">Cancelar</v-btn>

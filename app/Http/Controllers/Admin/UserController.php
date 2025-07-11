@@ -30,7 +30,7 @@ class UserController extends Controller
     {
         try {
             $users = WebUser::query()
-                ->select(['id', 'name', 'email', 'phone', 'email_verified_at', 'has_payment_arrangement', 'status'])
+                ->select(['id', 'name', 'email', 'phone', 'email_verified_at', 'has_payment_arrangement', 'is_associated', 'status'])
                 ->orderBy('created_at', 'desc')
                 ->get();
 
@@ -116,7 +116,9 @@ class UserController extends Controller
                     return $check; // Ya existe otro usuario con ese email
                 }
             }
-            $updateSuccessful = $user->update($request->only(['name', 'phone', 'status', 'email','has_payment_arrangement']));
+            $updateSuccessful = $user->update($request->only([
+                'name', 'phone', 'status', 'email', 'has_payment_arrangement', 'is_associated'
+            ]));
 
             if ($updateSuccessful) {
                 return response()->json([

@@ -24,112 +24,115 @@ class AdminlteMenuServiceProvider extends ServiceProvider
     {
         // Escucha el evento BuildingMenu que dispara el paquete AdminLTE
         $events->listen(BuildingMenu::class, function (BuildingMenu $event) {
+            if (!Request::is(config('adminlte.dashboard_url', 'admin') . '/*') && !Request::is(config('adminlte.dashboard_url', 'admin'))) {
 
-            // --- Menú Básico (Siempre visible) ---
-            $event->menu->add([
-                'text' => 'Inicio',
-                'url' => 'user/dashboard', // Cambia a tu ruta
-                'icon' => 'fas fa-fw fa-tachometer-alt',
-                'can' => 'view_payment_history',
-            ]);
-            $event->menu->add([
-                'text' => 'Casas',
-                'url' => 'user/houses/list',
-                'icon' => 'fas fa-fw fa-home',
-                'can' => 'view_payment_history',
-            ]);
-
-            // --- Aquí puedes agregar otros items básicos ---
-            // ...
-
-            // --- Menú Condicional (Solo si hay una casa seleccionada) ---
-            $selectedHouseId = session('selected_house_id');
-            $selectedHouseName = session('selected_house_name', 'Casa Seleccionada'); // Nombre por defecto
-
-            if ($selectedHouseId) {
+                // --- Menú Básico (Siempre visible) ---
                 $event->menu->add([
-                    'header' => strtoupper("GESTIÓN: {$selectedHouseName}"), // Encabezado dinámico
-                ]);
-                $event->menu->add([
-                    'text' => 'Historial de Pagos',
-                    'url' => "user/houses/{$selectedHouseId}/payments/list",
+                    'text' => 'Inicio',
+                    'url' => 'user/dashboard', // Cambia a tu ruta
+                    'icon' => 'fas fa-fw fa-tachometer-alt',
                     'can' => 'view_payment_history',
                 ]);
                 $event->menu->add([
-                    'text' => 'Recivos de Mantenimiento',
-                    'url' => "user/houses/{$selectedHouseId}/house-monthly-charges/list",
-                    'can' => 'view_payment_history',
-                ]);
-                $event->menu->add([
-                    'text' => 'Comsumo de luz',
-                    'url' => "user/houses/{$selectedHouseId}/electricity-records/list",
-                    'can' => 'view_payment_history',
-                ]);
-                $event->menu->add([
-                    'text' => 'Comsumo de agua',
-                    'url' => "user/houses/{$selectedHouseId}/water-records/list",
+                    'text' => 'Casas',
+                    'url' => 'user/houses/list',
+                    'icon' => 'fas fa-fw fa-home',
                     'can' => 'view_payment_history',
                 ]);
 
-                // --- Agrega aquí todas las demás opciones específicas de la casa ---
-                $event->menu->add([
-                    'text' => 'Configuración',
-                    'icon' => 'fas fa-fw fa-cogs',
-                    'can' => 'view_payment_history--',
-                    'submenu' => [
-                        [
-                            'text' => 'Tarifas',
-                            'url' => "admin/casas/{$selectedHouseId}/tarifas",
-                            'icon' => 'fas fa-fw fa-dollar-sign',
-                        ],
-                        [
-                            'text' => 'Políticas',
-                            'url' => "admin/casas/{$selectedHouseId}/politicas",
+                // --- Aquí puedes agregar otros items básicos ---
+                // ...
+
+                // --- Menú Condicional (Solo si hay una casa seleccionada) ---
+                $selectedHouseId = session('selected_house_id');
+                $selectedHouseName = session('selected_house_name', 'Casa Seleccionada'); // Nombre por defecto
+
+                if ($selectedHouseId) {
+                    $event->menu->add([
+                        'header' => strtoupper("GESTIÓN: {$selectedHouseName}"), // Encabezado dinámico
+                        'can' => 'view_payment_history',
+                    ]);
+                    $event->menu->add([
+                        'text' => 'Historial de Pagos',
+                        'url' => "user/houses/{$selectedHouseId}/payments/list",
+                        'can' => 'view_payment_history',
+                    ]);
+                    $event->menu->add([
+                        'text' => 'Recivos de Mantenimiento',
+                        'url' => "user/houses/{$selectedHouseId}/house-monthly-charges/list",
+                        'can' => 'view_payment_history',
+                    ]);
+                    $event->menu->add([
+                        'text' => 'Comsumo de luz',
+                        'url' => "user/houses/{$selectedHouseId}/electricity-records/list",
+                        'can' => 'view_payment_history',
+                    ]);
+                    $event->menu->add([
+                        'text' => 'Comsumo de agua',
+                        'url' => "user/houses/{$selectedHouseId}/water-records/list",
+                        'can' => 'view_payment_history',
+                    ]);
+
+                    // --- Agrega aquí todas las demás opciones específicas de la casa ---
+                    $event->menu->add([
+                        'text' => 'Configuración',
+                        'icon' => 'fas fa-fw fa-cogs',
+                        'can' => 'view_payment_history--',
+                        'submenu' => [
+                            [
+                                'text' => 'Tarifas',
+                                'url' => "admin/casas/{$selectedHouseId}/tarifas",
+                                'icon' => 'fas fa-fw fa-dollar-sign',
+                            ],
+                            [
+                                'text' => 'Políticas',
+                                'url' => "admin/casas/{$selectedHouseId}/politicas",
                                 'icon' => 'fas fa-fw fa-file-alt',
+                            ],
                         ],
-                    ],
-                ]);
-            }
+                    ]);
+                }
 
-            if (!Request::is('user/houses/*')) {
-                $event->menu->add([
-                    'text' => 'Perfil',
-                    'url' => 'user/profile',
-                    'icon' => 'fas fa-fw fa-user',
-                    'can' => 'view_payment_history',
-                ]);
-                $event->menu->add([
-                    'text' => 'Mi (Codigo QR)',
-                    'url' => 'user/my-qr-code',
-                    'can' => 'view_payment_history',
-                ]);
-                $event->menu->add([
-                    'text' => 'Presupuesto vs Gastos',
-                    'route' => 'user.budgets-vs-expenses.show-page',
-                    'can' => 'view_payment_history',
-                ]);
-                $event->menu->add([
-                    'text' => 'Docs del Condominio',
-                    'icon' => 'fas fa-fw fa-file',
-                    'route' => 'user.documents.show-page',
-                    'can' => 'view_payment_history',
-                ]);
-                $event->menu->add([
-                    'text' => 'Cotizaciones Presentadas',
-                    'url' => 'admin/blog',
-                    'can' => 'view_payment_history',
-                ]);
-                $event->menu->add([
-                    'text' => 'Peticiones al Vocal',
-                    'route' => 'user.petitions.show-page',
-                    'icon' => 'fas fa-fw fa-envelope',
-                    'can' => 'view_payment_history',
-                ]);
-                $event->menu->add([
-                    'text' => 'Reservar Espacio',
-                    'url' => '#',
-                    'can' => 'view_payment_history',
-                ]);
+                if (!Request::is('user/houses/*')) {
+                    $event->menu->add([
+                        'text' => 'Perfil',
+                        'url' => 'user/profile',
+                        'icon' => 'fas fa-fw fa-user',
+                        'can' => 'view_payment_history',
+                    ]);
+                    $event->menu->add([
+                        'text' => 'Mi (Codigo QR)',
+                        'url' => 'user/my-qr-code',
+                        'can' => 'view_payment_history',
+                    ]);
+                    $event->menu->add([
+                        'text' => 'Presupuesto vs Gastos',
+                        'route' => 'user.budgets-vs-expenses.show-page',
+                        'can' => 'view_payment_history',
+                    ]);
+                    $event->menu->add([
+                        'text' => 'Docs del Condominio',
+                        'icon' => 'fas fa-fw fa-file',
+                        'route' => 'user.documents.show-page',
+                        'can' => 'view_payment_history',
+                    ]);
+                    $event->menu->add([
+                        'text' => 'Cotizaciones Presentadas',
+                        'url' => 'admin/blog',
+                        'can' => 'view_payment_history',
+                    ]);
+                    $event->menu->add([
+                        'text' => 'Peticiones al Vocal',
+                        'route' => 'user.petitions.show-page',
+                        'icon' => 'fas fa-fw fa-envelope',
+                        'can' => 'view_payment_history',
+                    ]);
+                    $event->menu->add([
+                        'text' => 'Reservar Espacio',
+                        'url' => '#',
+                        'can' => 'view_payment_history',
+                    ]);
+                }
             }
             //  'route' => ['nombre.ruta.con.parametro', ['parametro_id' => $algunaVariableId]], // Pasa parámetros como array
             // --- COMBINAR CON LÓGICA DE ROLES ---
