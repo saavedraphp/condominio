@@ -44,9 +44,6 @@ class HouseController extends Controller
         }
         $balance = $house->calculateBalance();
 
-
-
-
         return response()->json([
             'house' => $house,
             'balance' => $balance,

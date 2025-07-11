@@ -10,9 +10,18 @@ import DeleteConfirmationModal from "@/components/DeleteConfirmationModal.vue"; 
 const props = defineProps({
     isAdmin: Boolean,
     urlBase: {
-        type: String,
+        type: Object,
         require: true
+    },
+    houseId: {
+        type: [Number, String],
+        default: null
+    },
+    meta : {
+        type: Object,
+        default: () => ({})
     }
+
 });
 
 const mySnackbar = ref(null);
@@ -46,7 +55,12 @@ onMounted(() => {
 async function getMonthlyCharge() {
     loadingProjects.value = true;
     try {
-        const response = await axios.get(`${props.urlBase}`);
+        console.log(props.urlBase['base']);
+        const response = await axios.get(`${props.urlBase['base']}`, {
+            params: {
+                house_id: props.houseId,
+            }
+        });
         projects.value = response.data.map(project => ({
             ...project,
             issued_date_format: formatDate(project.issued_date),
@@ -54,6 +68,7 @@ async function getMonthlyCharge() {
 
         }));
     } catch (error) {
+        console.log(error);
         mySnackbar.value.show(error.response?.data?.message || 'Failed to load projects.', 'error');
     } finally {
         loadingProjects.value = false;
@@ -93,9 +108,12 @@ const closeDeleteModal = () => {
 };
 
 const downloadFile = async (item) => {
-    const url = `${props.urlBase}/${item.id}/download`;
+    const templateUrl = props.urlBase.download;
+
+    const finalUrl = templateUrl.replace('PLACEHOLDER', item.id);
+    //const url = `${props.urlBase['base']}/${item.id}/download`;
     currentlyDownloading.value = item.id;
-    await handleAxiosDownload(url, `documento-${item.id}.pdf`);
+    await handleAxiosDownload(finalUrl, `documento-${item.id}.pdf`);
     currentlyDownloading.value = null;
 };
 
@@ -190,7 +208,7 @@ const deleteConfirmed = async () => {
     if (!elementToDelete.value) return;
     isDeleting.value = true;
     try {
-        const response = await axios.delete(`${props.urlBase}/${elementToDelete.value.id}`);
+        const response = await axios.delete(`${props.urlBase['base']}/${elementToDelete.value.id}`);
         if (response.data && response.data.success) {
             mySnackbar.value.show(response.data.message || 'Project deleted successfully.', 'success');
             await getMonthlyCharge(); // Recarga la lista
@@ -220,7 +238,7 @@ const refreshList = (message) => {
                 <v-icon icon="mdi-briefcase-check-outline"></v-icon>
                   Gestión Cobros Mensuales
                 <v-spacer></v-spacer>
-                <v-btn
+                <v-btn v-if="isAdmin"
                     color="primary"
                     prepend-icon="mdi-plus"
                     @click="openAddProjectModal"
@@ -271,7 +289,7 @@ const refreshList = (message) => {
                             ></v-btn>
                         </template>
                     </v-tooltip>
-                    <v-tooltip text="Delete Project">
+                    <v-tooltip text="Delete Project" v-if="isAdmin">
                         <template v-slot:activator="{ props: tooltipProps }">
                             <v-btn
                                 v-bind="tooltipProps"
@@ -296,7 +314,7 @@ const refreshList = (message) => {
         <HouseMonthlyChargeForm
             v-model="showProjectFormModal"
             :project-data-prop="selectedProject"
-            :url-base="props.urlBase"
+            :url-base="props.urlBase['base']"
             @monthly-charge-created="refreshList"
         />
 

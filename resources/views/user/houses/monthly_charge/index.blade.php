@@ -4,8 +4,9 @@
     <div id="house-charge-container">
         <house-monthly-charge-list
             :url-base='@json($routes)'
-            :is-admin='@json($is_admin)'
+            :house-id="'{{ $house_id ?? null }}'"
             :meta='@json($meta)'
+            :is-admin='@json($is_admin)'
         >
         </house-monthly-charge-list>
     </div>

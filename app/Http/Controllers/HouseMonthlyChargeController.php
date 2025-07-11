@@ -12,6 +12,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -32,10 +33,66 @@ class HouseMonthlyChargeController extends Controller
 
     public function showPage(): View
     {
-        return view('admin.house_monthly_charge.index');
+        $routes = [
+            'base' => route('admin.house-monthly-charges.index'),
+            'download' => route('admin.house-monthly-charges.download', ['houseMonthlyCharge' => 'PLACEHOLDER']),
+        ];
+        $meta = [
+            'title' => 'Gestión Cobros Mensuales',
+            'subtitle' => 'Gestión de presupuestos anuales de la asociación',
+            'icon' => 'mdi mdi-account-group',
+        ];
+
+        return view('admin.house_monthly_charge.index', [
+            'routes' => $routes,
+            'meta' => $meta,
+            'is_admin' => true,
+        ]);
     }
 
-    public function index(Request $request): JsonResponse
+    public function showPageByHouseId(House $house): View
+    {
+        $routes = [
+            'base' => route('user.house.house-monthly-charges.index', ['house' => $house->id]),
+            'download' => route('user.house-monthly-charges.download', ['houseMonthlyCharge' => 'PLACEHOLDER']),
+        ];
+        $meta = [
+            'title' => 'Recibos de Mantenimiento',
+            'subtitle' => 'Gestión de presupuestos anuales de la asociación',
+            'icon' => 'mdi mdi-account-group',
+        ];
+
+
+        return view('user.houses.monthly_charge.index', [
+            'routes' => $routes,
+            'meta' => $meta,
+            'house_id' => $house->id,
+            'is_admin' => false,
+        ]);
+    }
+
+    public function indexByHouseId(Request $request): JsonResponse
+    {
+        $webUser = Auth::guard('web_user')->user();
+
+        if (!$webUser) {
+            return response()->json(['message' => 'No autenticado.'], JsonResponse::HTTP_UNAUTHORIZED);
+        }
+
+        $houseId = $request->input('house_id');
+        $isRelated = $webUser->houses()->where('house_id', $houseId)->exists();
+
+        if (!$isRelated) {
+            return response()->json(['message' => 'No autorizado para acceder a este recurso.'], JsonResponse::HTTP_FORBIDDEN);
+        }
+
+
+        $query = $this->queryBase($request);
+
+        return response()->json($query);
+    }
+
+    public function queryBase(Request $request): Collection
     {
         // Iniciar la consulta
         $query = HouseMonthlyCharge::query();
@@ -107,8 +164,14 @@ class HouseMonthlyChargeController extends Controller
 
             return $charge;
         });
+        return $monthlyCharges;
+    }
 
-        return response()->json($monthlyCharges);
+    public function index(Request $request): JsonResponse
+    {
+        $query = $this->queryBase($request);
+
+        return response()->json($query);
     }
 
     public function preparedData(array $input): array
@@ -505,7 +568,7 @@ LOTE ACUMULADO C-39A',
         // PASO 3.4: Mapear la colección para invocar el accesor y obtener los datos.
         // Aquí es donde la magia ocurre. Al acceder a ->consumption_calculated, Eloquent lo calcula por nosotros.
         $dbConsumptions = $allRelevantPayments->map(function (PaymentService $payment) {
-            return (object) [ // Creamos un objeto para imitar la salida original de la BD
+            return (object)[ // Creamos un objeto para imitar la salida original de la BD
                 'year' => $payment->payment_date->year,
                 'month' => $payment->payment_date->month,
                 // ¡AQUÍ SE USA TU ACCESOR!
