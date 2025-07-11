@@ -27,6 +27,7 @@ class UserRequest extends FormRequest
             'phone' => 'required|numeric|min:7',
             'status' => 'required',
             'has_payment_arrangement' => 'nullable',
+            'is_associated' => 'nullable',
         ];
     }
 
