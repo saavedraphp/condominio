@@ -98,10 +98,10 @@ onMounted(async () => {
                         </v-avatar>
                         <div>
                             <div class="text-h6 font-weight-medium">
-                                ¡Casa, {{ house?.property_unit }}!
+                                ¡Casa, {{ house?.house?.address }}!
                             </div>
                             <div class="text-body-2 text-medium-emphasis">
-                                Número de Casa: <strong>{{ userId }}</strong>
+                                Unidad: <strong>{{ house?.house?.property_unit }}</strong>
                             </div>
                         </div>
                     </div>

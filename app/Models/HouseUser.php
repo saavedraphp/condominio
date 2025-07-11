@@ -10,6 +10,4 @@ class HouseUser extends Pivot
 {
     use HasFactory;
 
-
-
 }
