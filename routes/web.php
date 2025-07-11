@@ -105,6 +105,13 @@ Route::prefix('user')->name('user.')->group(function () {
         Route::get('/houses/{house}/payments/list', [PaymentController::class, 'showPage'])->name('user.show-page');
         Route::resource('/house/{house}/payments', PaymentController::class);
 
+        /* LISTA DE RECIBOS DE MANTENIENTO*/
+        Route::get('/houses/{house}/house-monthly-charges/list', [HouseMonthlyChargeController::class, 'showPageByHouseId'])->name('house.house-monthly-charges.list');
+        Route::get('/house/{house}/house-monthly-charges', [HouseMonthlyChargeController::class, 'indexByHouseId'])->name('house.house-monthly-charges.index');
+        Route::get('/house-monthly-charges/{houseMonthlyCharge}/download', [HouseMonthlyChargeController::class, 'download'])
+            ->name('house-monthly-charges.download')
+            ->where('document_pdf', '[0-9]+');
+
         Route::get('/payments/{payment}/download', [PaymentController::class, 'downloadPayment'])
             ->name('payments.download');
 
