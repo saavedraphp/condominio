@@ -10,6 +10,7 @@ import {getStructureTypes} from "@/utils/functions.js";
 const mySnackbar = ref(null);
 
 const headers = ref([
+    {title: 'Id', key: 'id', sortable: true},
     {title: 'Dirección', key: 'address', sortable: true},
     {title: 'Propietario', key: 'owner_name', sortable: true},
     {title: 'Unid', key: 'property_unit', align: 'start', sortable: true},

@@ -20,7 +20,7 @@ const props = defineProps({
     },
 });
 
-const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
 // --- Refs ---
 const isSubmitting = ref(false); // Renombrado de isRecording para claridad
 const mySnackbar = ref(null);
@@ -193,7 +193,7 @@ const close = () => {
                     <v-spacer></v-spacer>
                     <v-btn
                         color="grey"
-                        variant="text"
+                        variant="flat"
                         @click="close"
                         :disabled="isSubmitting"
                     >
@@ -201,6 +201,7 @@ const close = () => {
                     </v-btn>
                     <v-btn
                         color="primary"
+                        variant="flat"
                         type="submit"
                         :loading="isSubmitting"
                         :disabled="isSubmitting"

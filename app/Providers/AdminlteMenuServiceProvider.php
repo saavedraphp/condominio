@@ -127,11 +127,11 @@ class AdminlteMenuServiceProvider extends ServiceProvider
                         'icon' => 'fas fa-fw fa-envelope',
                         'can' => 'view_payment_history',
                     ]);
-                    $event->menu->add([
+/*                    $event->menu->add([
                         'text' => 'Reservar Espacio',
                         'url' => '#',
                         'can' => 'view_payment_history',
-                    ]);
+                    ]);*/
                 }
             }
             //  'route' => ['nombre.ruta.con.parametro', ['parametro_id' => $algunaVariableId]], // Pasa parámetros como array

@@ -40,10 +40,11 @@ const downloadError = ref(null);
 
 const headers = ref([
     {title: 'ID', key: 'id', align: 'start', sortable: true},
+    {title: 'Propietario', key: 'property_name', align: 'start', sortable: true},
     {title: 'Casa', key: 'house.address', align: 'start', sortable: true},
     {title: 'Periodo', key: 'period_name', sortable: true},
     {title: 'Monto Total', key: 'total_amount', sortable: true},
-    {title: 'F. Emision', key: 'issued_date_format', align: 'end', sortable: true},
+    {title: 'Archivo', key: 'file_name', align: 'center', sortable: true},
     {title: 'F. Vencimiento', key: 'due_format', align: 'end', sortable: true},
     {title: 'Acciones', key: 'actions', sortable: false, align: 'center'},
 ]);
@@ -65,6 +66,8 @@ async function getMonthlyCharge() {
             ...project,
             issued_date_format: formatDate(project.issued_date),
             due_format: formatDate(project.due_date),
+            file_name: getFileName(project.pdf_path),
+            property_name: project.house.owners[0]?.name || 'Sin propietario',
 
         }));
     } catch (error) {
@@ -222,11 +225,19 @@ const deleteConfirmed = async () => {
         closeDeleteModal();
     }
 };
-
 const refreshList = (message) => {
     mySnackbar.value.show(message, 'success');
     showProjectFormModal.value = false;
     getMonthlyCharge();
+};
+
+const getFileName = (fullPath) => {
+    // Si la ruta es nula, vacía o no es una cadena, devuelve un valor por defecto
+    if (!fullPath || typeof fullPath !== 'string') {
+        return 'No hay archivo';
+    }
+    // Divide la cadena por '/' y devuelve el último elemento
+    return fullPath.split('/').pop();
 };
 
 </script>
@@ -247,10 +258,10 @@ const refreshList = (message) => {
                 </v-btn>
             </v-card-title>
 
-            <v-text-field v-if="false"
+            <v-text-field v-if="true"
                 v-model="search"
                 density="compact"
-                label="Search Projects..."
+                label="Search ..."
                 prepend-inner-icon="mdi-magnify"
                 variant="solo-filled"
                 flat
