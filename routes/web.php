@@ -302,3 +302,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 Route::get('/status/verify/{token}', [PublicStatusController::class, 'showStatusByToken'])
     ->name('public.user.status.by-token');
+
+Route::get('/php-info', function () {
+    phpinfo();
+});
