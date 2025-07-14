@@ -46,6 +46,7 @@ class DocumentRequest extends FormRequest
             'title.required' => 'El campo título es obligatorio.',
             'file_path.required' => 'El documento es obligatorio.',
             'file_path.mimes' => 'El formato del archivo es incorrecto.',
+            'file_path.max' => 'El tamaño máximo del archivo es de 2 MB.',
         ];
     }
 }
