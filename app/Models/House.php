@@ -111,4 +111,9 @@ class House extends Model
         ];
     }
 
+/*    public function getOwnerAttribute(): ?WebUser
+    {
+        return $this->owners()->latest('pivot_web_user_house.id')->first();
+    }*/
+
 }

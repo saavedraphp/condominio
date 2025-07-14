@@ -453,6 +453,12 @@ return [
                 ],
             ]
         ],
+        [
+            'text' => 'Configuración',
+            'route' => 'admin.settings.show-page',
+            'icon' => 'fas fa-fw fa-sliders-h',
+            'can' => 'view_ads',
+        ],
 
 /*        [
             'text' => 'Caja Chica',
