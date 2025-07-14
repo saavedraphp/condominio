@@ -20,7 +20,7 @@ const props = defineProps({
     },
 });
 
-const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
 // --- Refs ---
 const isSubmitting = ref(false); // Renombrado de isRecording para claridad
 const mySnackbar = ref(null);

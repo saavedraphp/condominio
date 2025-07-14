@@ -29,11 +29,11 @@ class DocumentRequest extends FormRequest
         if ($this->isMethod('post')) {
             // --- CREACIÓN ---
             // El archivo es estrictamente requerido
-            $rules['file_path'] = 'required|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048';
+            $rules['file_path'] = 'required|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:10240';
         }
         elseif ($this->isMethod('put') || $this->isMethod('patch')) {
             // 'sometimes' significa: valida esto sólo si el campo está presente en la data de la solicitud.
-            $rules['file_path'] = 'sometimes|required|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:2048'; // Ajusta mimes y max
+            $rules['file_path'] = 'sometimes|required|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:10240'; // Ajusta mimes y max
         }
 
         return $rules;

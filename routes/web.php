@@ -27,6 +27,7 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectQuotationController;
 use App\Http\Controllers\PublicStatusController;
 use App\Http\Controllers\ReportBalanceDueController;
+use App\Http\Controllers\SettingController;
 use App\Http\Controllers\User\AdsController as UserAdsController;
 use App\Http\Controllers\User\Auth\LoginUserController;
 use App\Http\Controllers\User\DashboardController as UserDashboard;
@@ -290,6 +291,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/reports/balance-due/list', [ReportBalanceDueController::class, 'showListPage'])->name('reports.balance-due.list');
         Route::get('/reports/balance-due/index', [ReportBalanceDueController::class, 'index'])->name('reports.balance-due.index');
 
+        // Rutas para gestionar la configuración
+        Route::get('/settings/list', [SettingController::class, 'showPage'])->name('settings.show-page');
+        Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
+        Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
+        Route::post('/settings/upload', [SettingController::class, 'upload'])->name('settings.upload');
     });
 
 });

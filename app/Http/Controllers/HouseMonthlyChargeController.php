@@ -99,7 +99,10 @@ class HouseMonthlyChargeController extends Controller
 
         // Cargar la relación con 'house' para obtener el nombre de la casa
         // y con 'details' si necesitas alguna información agregada de los detalles (opcional aquí)
-        $query->with('house:id,address,ownership_structure'); // Carga selectiva de columnas de house
+        $query->with([
+            'house:id,address,ownership_structure',
+            'house.owners:id,name'
+        ]); // Carga selectiva de columnas
 
         // --- Filtrado (Ejemplos) ---
         if ($request->has('house_id') && $request->input('house_id') != '') {
@@ -299,7 +302,7 @@ LOTE ACUMULADO C-39A',
             // 3. Definir la ruta y nombre del archivo
             $year = $data['period_year'];
             $month = str_pad($data['period_month'], 2, '0', STR_PAD_LEFT);
-            $fileName = "recibo-propiedad-{$data['house_id']}-{$year}-{$month}.pdf";
+            $fileName = "{$data['associated']['name']}-{$data['house_id']}-{$month}-{$year}.pdf";
             $filePath = "file_paths/receipts/{$year}/{$month}/{$fileName}";
 
             // 4. Guardar el archivo en el disco de storage
