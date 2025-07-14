@@ -193,7 +193,7 @@ const close = () => {
                     <v-spacer></v-spacer>
                     <v-btn
                         color="grey"
-                        variant="text"
+                        variant="flat"
                         @click="close"
                         :disabled="isSubmitting"
                     >
@@ -201,6 +201,7 @@ const close = () => {
                     </v-btn>
                     <v-btn
                         color="primary"
+                        variant="flat"
                         type="submit"
                         :loading="isSubmitting"
                         :disabled="isSubmitting"
