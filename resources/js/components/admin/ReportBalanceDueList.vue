@@ -23,6 +23,7 @@ const houses = ref([]);
 const loading = ref(true);
 const search = ref('Buscando resultados');
 const typeMap = getStructureTypes();
+const totalAmountDue = ref();
 // --- METHODS ---
 onMounted(() => {
     getHouses();
@@ -33,11 +34,12 @@ async function getHouses() {
 
     try {
         const response = await axios.get(`/admin/reports/balance-due/index`);
-        houses.value = response.data.map(item => ({
+        houses.value = response.data.data.map(item => ({
             ...item,
             type_structure: typeMap[item.ownership_structure] ?? 'N/A',
             status: item.status || 'inactive', // Aseguramos que siempre haya un estado
         }));
+        totalAmountDue.value = formattedMoney(response.data.total_amount_due);
 
     } catch (error) {
         mySnackbar.value.show('Lo sentimos, hubo un problema obtener la información. Intenta de nuevo, por favor.', 'error');
@@ -54,6 +56,13 @@ async function getHouses() {
                  
                 Reporte de Casas con Deuda a la fecha: {{ dateMow }}
                 <v-spacer></v-spacer>
+                <v-chip
+                    color="primary"
+                    variant="elevated"
+                    size="large"
+                >
+                    <strong>El total es: {{ totalAmountDue }}</strong>
+                </v-chip>
 
             </v-card-title>
 

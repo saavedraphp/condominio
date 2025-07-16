@@ -17,7 +17,7 @@ class ReportBalanceDueController extends Controller
 
     public function index(): JsonResponse
     {
-
+        $totalAmountDue = 0;
         try {
             $houses = House::with([
                 'owner:id,name,has_payment_arrangement',
@@ -31,20 +31,26 @@ class ReportBalanceDueController extends Controller
             })->values(); // `values()` limpia los índices
 
             // Opcional: mapear a una estructura limpia para Vue
-            $response = $debtorHouses->map(function ($house) {
+            $response = $debtorHouses->map(function ($house) use (&$totalAmountDue) {
                 $balance = $house->calculateBalance();
-
+                $amountDue =  round((float)$balance['amount_due'], 2);
+                $totalAmountDue +=  $amountDue;
                 return [
                     'id' => $house->id,
                     'address' => $house->address,
-                    'amount_due' => round((float)$balance['amount_due'], 2),
+                    'amount_due' => $amountDue,
                     'amount_paid' => $balance['amount_paid'],
                     'owner' => $house->owner[0]->name ?? 'Sin propietario',
                     'opening_balance' => number_format($house->opening_balance, 2),
                     'has_payment_arrangement' => $house->owner[0]->has_payment_arrangement ?? false,
                 ];
             });
-            return response()->json($response);
+            return response()->json([
+                'success' => true,
+                'data' => $response,
+                'total_amount_due' => round((float)$totalAmountDue, 2),
+            ],JsonResponse::HTTP_OK);
+
 
         } catch (\Exception $e) {
             Log::error('Error al intentar obtener las casas: ' . $e->getMessage());
