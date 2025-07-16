@@ -43,12 +43,26 @@ class ProjectController extends Controller
     {
         DB::beginTransaction();
         try {
+            $filePath = null;
+            if ($request->hasFile('file_path') && $request->file('file_path')->isValid()) {
+                $file = $request->file('file_path');
+                $filePath = $file->store('file_paths/projects');
+
+
+                if (!$filePath) {
+                    return response()->json(['error' => 'No se pudo guardar el archivo.'], JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
+                }
+            } else {
+                return response()->json(['error' => 'Archivo  inválido o no encontrado.'], JsonResponse::HTTP_BAD_REQUEST);
+            }
+
             $project = Project::create([
                 'name' => $request->input('name'),
                 'start_date' => $request->input('start_date'),
                 'end_date' => $request->input('end_date'),
                 'additional_expenses' => $request->input('additional_expenses', 0),
                 'details' => $request->input('details'),
+                'file_path' => $filePath,
             ]);
 
             $createdQuotations = [];
@@ -104,9 +118,26 @@ class ProjectController extends Controller
     public function update(ProyectRequest $request, Project $project): JsonResponse
     {
         try {
-            $project->update($request->only([
-                'name', 'start_date', 'end_date', 'additional_expenses', 'details'
-            ]));
+            $dataToUpdate = [
+                'name' => $request->input('name'),
+                'start_date' => $request->input('start_date'),
+                'end_date' => $request->input('end_date'),
+                'additional_expenses' => $request->input('additional_expenses', 0),
+                'details' => $request->input('details'),
+            ];
+
+            if ($request->hasFile('file_path') && $request->file('file_path')->isValid()) {
+                if ($project->file_path && Storage::exists($project->file_path)) {
+                    Storage::delete($project->file_path);
+                }
+
+                $file = $request->file('file_path');
+                $filePath = $file->store('file_paths/projects');
+
+                $dataToUpdate['file_path'] = $filePath;
+            }
+
+            $project->update($dataToUpdate);
 
             $project->load(['quotations', 'chosenQuotation']);
             return response()->json(['success' => true, 'message' => 'Proyecto actualizado con éxito.', 'project' => $project]);
@@ -119,8 +150,12 @@ class ProjectController extends Controller
 
     public function destroy(Project $project): JsonResponse
     {
+        $filePath = $project->file_path;
         DB::beginTransaction();
         try {
+            if ($filePath && Storage::exists($filePath)) {
+                Storage::delete($filePath);
+            }
             foreach ($project->quotations as $quotation) {
                 if ($quotation->file_path && Storage::disk('public')->exists($quotation->file_path)) {
                     Storage::disk('public')->delete($quotation->file_path);

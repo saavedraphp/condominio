@@ -28,7 +28,7 @@ const headers = ref([
     {title: 'Gasto', key: 'description', align: 'start', sortable: true},
     {title: 'Tipo de presupuesto', key: 'annual_budget.budget_type.name', sortable: true},
     {title: 'Monto', key: 'amount', sortable: true},
-    {title: 'Fecha del gasto', key: 'expense_date_format', sortable: true},
+    {title: 'Fecha', key: 'expense_date_format', sortable: true},
     {title: 'Acciones', key: 'actions', sortable: false, align: 'end'},
 ]);
 
