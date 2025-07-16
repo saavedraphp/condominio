@@ -52,10 +52,10 @@ const schema = yup.object({
 const {handleSubmit, resetForm, setValues} = useForm({
     validationSchema: schema,
     initialValues: {
-        title: 'Anuncio de prueba',
-        description: 'Detalle del anuncio de prueba',
-        start_day: '2025-01-02',
-        end_day: '2025-02-02',
+        title: '',
+        description: '',
+        start_day: '',
+        end_day: '',
         active: true,
         documentFile: null,
     }
@@ -71,7 +71,6 @@ const existingImageUrl = ref(null);
 const isLoading = ref(false);
 const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 const mySnackbar = ref(null);
-
 
 const isEditing = computed(() => !!props.element?.id);
 const formTitle = computed(() => {

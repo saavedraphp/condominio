@@ -68,7 +68,7 @@ const {handleSubmit, resetForm, setValues, setFieldValue } = useForm({
         documentFile: null,
     }
 });
-
+// LSL DESESTRUCTURACIÓN DE CAMPOS
 // --- Desestructuración de useField (Sin cambios) ---
 const { value: house_id, errorMessage: house_idError } = useField('house_id');
 const { value: payment_date, errorMessage: payment_dateError } = useField('payment_date');
