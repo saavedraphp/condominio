@@ -37,7 +37,7 @@ class ReportBalanceDueController extends Controller
                 return [
                     'id' => $house->id,
                     'address' => $house->address,
-                    'amount_due' => number_format($balance['amount_due'], 2),
+                    'amount_due' => round((float)$balance['amount_due'], 2),
                     'amount_paid' => $balance['amount_paid'],
                     'owner' => $house->owner[0]->name ?? 'Sin propietario',
                     'opening_balance' => number_format($house->opening_balance, 2),

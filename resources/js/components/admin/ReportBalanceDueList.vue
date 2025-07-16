@@ -3,7 +3,7 @@ import {ref, onMounted} from 'vue';
 import axios from "axios";
 import Snackbar from "@/components/Snackbar.vue";
 import {getStructureTypes} from "@/utils/functions.js";
-
+import {formattedMoney} from "../../utils/functions.js";
 
 const mySnackbar = ref(null);
 
@@ -45,8 +45,6 @@ async function getHouses() {
         loading.value = false;
     }
 }
-// --FIN METHODS
-
 </script>
 <template>
     <v-container fluid>
@@ -54,7 +52,7 @@ async function getHouses() {
             <v-card-title class="d-flex align-center pe-2">
                 <v-icon icon="mdi mdi-home"></v-icon>
                  
-                Reporte de Casas con Deuda  a la fecha:  {{dateMow}}
+                Reporte de Casas con Deuda a la fecha: {{ dateMow }}
                 <v-spacer></v-spacer>
 
             </v-card-title>
@@ -68,7 +66,7 @@ async function getHouses() {
                           dense
             >
                 <template v-slot:item.amount_due="{ value }">
-                    <span style="color: darkred">{{ value}}</span>
+                    <span style="color: darkred">{{ formattedMoney(value) }}</span>
                 </template>
                 <template v-slot:item.has_payment_arrangement="{ value }">
                     <v-chip :color="value  === true ? 'success' : 'grey'" size="small">
