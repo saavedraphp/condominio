@@ -25,7 +25,6 @@ class UserDebtService
        return Cache::remember($cacheKey, 60, function () use ($user) {
 
             $ownedHouses = $user->houses()
-                ->wherePivot('is_owner', true)
                 ->with('payments', 'monthlyCharges')
                 ->get();
 
