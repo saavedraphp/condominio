@@ -63,11 +63,15 @@ const {handleSubmit: handleProjectSubmit, resetForm: resetProjectForm, setValues
         additional_expenses: 0,
         details: '',
         chosen_quotation_id: null,
-        quotations: [] // Para almacenar cotizaciones temporalmente si el proyecto es nuevo
+        quotations: [], // Para almacenar cotizaciones temporalmente si el proyecto es nuevo
+        documentFile: null,
     }
 });
 
 // Campos del proyecto
+const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+const existingImageUrl = ref(null);
+const {value: documentFile, errorMessage: documentFileError} = useField('documentFile');
 const name = useField('name');
 const start_date = useField('start_date');
 const end_date = useField('end_date');
@@ -102,10 +106,12 @@ watch(() => props.projectDataProp, (newVal) => {
                 details: localProjectData.value.details || '',
                 chosen_quotation_id: localProjectData.value.chosen_quotation_id,
             });
+            existingImageUrl.value = localProjectData.value.file_path_url || null;
             // Aquí podrías cargar las cotizaciones si no vienen con projectDataProp
             // fetchQuotationsForProject(localProjectData.value.id);
         } else { // Adding new project
             resetProjectForm(); // Resetea a initialValues
+            existingImageUrl.value = null;
             localProjectData.value = { // Configura el objeto local para el nuevo proyecto
                 ...projectSchema.getDefault(), // Usa los defaults de yup
                 quotations: [],
@@ -138,6 +144,20 @@ watch(dialog, (newVal) => {
 
 
 const submitProject = handleProjectSubmit(async (values) => {
+    let fileToUpload = null;
+    const proofValue = values.documentFile;
+
+    if (Array.isArray(proofValue) && proofValue.length > 0) {
+        fileToUpload = proofValue[0];
+    } else if (proofValue instanceof File) {
+        fileToUpload = proofValue;
+    }
+    // Doble chequeo por si acaso, aunque yup debería haberlo atrapado
+    if (!fileToUpload && !props.projectDataProp?.file_path) {
+        mySnackbar.value.show('Por favor, seleccione una imagen para subir.', 'error');
+        return;
+    }
+
     isLoading.value = true;
     const projectPayload = {...values}; // Datos del formulario del proyecto
 
@@ -159,6 +179,10 @@ const submitProject = handleProjectSubmit(async (values) => {
 
     // --- Lógica de FormData para el proyecto y sus archivos de cotización (si es nuevo y se envían juntos) ---
     const formData = new FormData();
+    if (fileToUpload instanceof File) {
+        formData.append('file_path', fileToUpload, fileToUpload.name);
+    }
+
     Object.keys(projectPayload).forEach(key => {
         if (key === 'quotations' && !isEditingProject.value) {
             // Para proyectos nuevos, serializamos las cotizaciones
@@ -481,6 +505,19 @@ const closeDeleteQuotationModal = () => {
                                         rows="4"
                                         density="compact"
                                     ></v-textarea>
+                                </v-col>
+                                <v-col cols="12">
+                                    <v-file-input
+                                        v-model="documentFile"
+                                        :error-messages="documentFileError"
+                                        label="Selecciono una (Imagen) maximo 2MB"
+                                        variant="outlined"
+                                        :accept="ACCEPTED_IMAGE_TYPES.join(',')"
+                                        prepend-icon=""
+                                        show-size
+                                        clearable
+                                    ></v-file-input>
+                                    <v-img v-if="existingImageUrl" :src="existingImageUrl" class="mt-2" max-height="200px"></v-img>
                                 </v-col>
                             </v-row>
                         </v-form>

@@ -38,15 +38,19 @@ const {handleSubmit, resetForm} = useForm({
         description: '',
         amount: '',
         expense_date: new Date().toISOString().split('T')[0], // Formato YYYY-MM-DD
+        documentFile: null,
     }
 });
 
+const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+const existingImageUrl = ref(null);
 // Campos de VeeValidate
 const selectedAnnualBudget = ref(null);
 const annualBudget = ref([]);
 const isLoadingBudget = ref(false);
 const expense_date = useField('expense_date');
 const description = useField('description');
+const {value: documentFile, errorMessage: documentFileError} = useField('documentFile');
 const amount = useField('amount');
 const isRecording = ref(false);
 const mySnackbar = ref(null);
@@ -83,6 +87,10 @@ watch(() => props.element, (newValue) => {
         description.value.value = newValue.description || "";
         amount.value.value = newValue.amount || "";
         expense_date.value.value = new Date(newValue.expense_date).toISOString().split('T')[0] || "";
+        existingImageUrl.value = newValue.file_path_url || null;
+    }else {
+        resetForm();
+        existingImageUrl.value = null;
     }
 }, {immediate: true});
 
@@ -104,26 +112,48 @@ const submitForm = handleSubmit(async (values) => {
         return;
     }
 
+    const formData = new FormData();
+    formData.append('description', values.description);
+    formData.append('amount', values.amount);
+    formData.append('expense_date', values.expense_date);
+    formData.append('annual_budget_id', selectedAnnualBudget.value.id);
+
+    let fileToUpload = null;
+    const proofValue = values.documentFile;
+
+    if (Array.isArray(proofValue) && proofValue.length > 0) {
+        fileToUpload = proofValue[0];
+    } else if (proofValue instanceof File) {
+        fileToUpload = proofValue;
+    }
+    // Doble chequeo por si acaso, aunque yup debería haberlo atrapado
+    if (!fileToUpload && !props.element?.file_path) {
+        mySnackbar.value.show('Por favor, seleccione una imagen para subir.', 'error');
+        return;
+    }
+
+    if (fileToUpload instanceof File) {
+        formData.append('file_path', fileToUpload, fileToUpload.name);
+    }
+
     isRecording.value = true;
-    const url = isEditing.value
-        ? `${props.urlBase['base']}/${props.element?.id}`
-        : `${props.urlBase['base']}/`;
-    const method = isEditing.value ? 'put' : 'post';
+    let url = `${props.urlBase['base']}/`;
+
+    if (isEditing.value) {
+        url = `${props.urlBase['base']}/${props.element?.id}`
+        formData.append('_method', 'PUT');
+    }
+
     const typeEmit = isEditing.value ? 'expense-edited' : 'expense-created';
 
-    const payload = {
-        description: values.description,
-        amount: values.amount,
-        expense_date: values.expense_date,
-        annual_budget_id: selectedAnnualBudget.value.id,
+    const config = {
+        headers: {
+            'Accept': 'application/json',
+        }
     };
 
     try {
-        const response = await axios({
-            method: method,
-            url: url,
-            data: payload
-        });
+        const response = await axios.post(url, formData, config);
         if (response.data.success) {
             emit(typeEmit, response.data.message);
             close()
@@ -206,6 +236,25 @@ onMounted(() => {
                         label="Fecha del gasto"
                         type="date"
                     />
+                    <v-file-input
+                        v-model="documentFile"
+                        :error-messages="documentFileError"
+                        label="Selecciono una (Imagen) maximo 2MB"
+                        variant="outlined"
+                        :accept="ACCEPTED_IMAGE_TYPES.join(',')"
+                        prepend-icon=""
+                        show-size
+                        clearable
+                    ></v-file-input>
+                    <div v-if="existingImageUrl" class="mb-3">
+                        <v-img
+                            :src="existingImageUrl"
+                            max-height="150"
+                            contain
+                            alt="Imagen actual"
+                            class="mb-2"
+                        ></v-img>
+                    </div>
                     <v-card-actions>
                         <v-spacer></v-spacer>
                         <v-btn color="grey"

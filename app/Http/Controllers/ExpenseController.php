@@ -8,7 +8,9 @@ use App\Models\Expense;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class ExpenseController extends Controller
@@ -70,11 +72,26 @@ class ExpenseController extends Controller
     {
         try {
             $validatedData = $request->validated();
+
+            $filePath = null;
+            if ($request->hasFile('file_path') && $request->file('file_path')->isValid()) {
+                $file = $request->file('file_path');
+                $filePath = $file->store('file_paths/expenses');
+
+
+                if (!$filePath) {
+                    return response()->json(['error' => 'No se pudo guardar el archivo.'], JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
+                }
+            } else {
+                return response()->json(['error' => 'Archivo  inválido o no encontrado.'], JsonResponse::HTTP_BAD_REQUEST);
+            }
+
             $expense = Expense::create([
                 'annual_budget_id' => $validatedData['annual_budget_id'],
                 'description' => $validatedData['description'],
                 'amount' => $validatedData['amount'],
                 'expense_date' => $validatedData['expense_date'],
+                'file_path' => $filePath,
                 'white_label_id' => 1,
             ]);
 
@@ -98,12 +115,26 @@ class ExpenseController extends Controller
     {
         $validatedData = $request->validated();
         try {
-            $expense->update([
+            $dataToUpdate = [
                 'annual_budget_id' => $validatedData['annual_budget_id'],
                 'description' => $validatedData['description'],
                 'amount' => $validatedData['amount'],
                 'expense_date' => $validatedData['expense_date'],
-            ]);
+            ];
+
+            if ($request->hasFile('file_path') && $request->file('file_path')->isValid()) {
+
+                if ($expense->file_path && Storage::exists($expense->file_path)) {
+                    Storage::delete($expense->file_path);
+                }
+
+                $file = $request->file('file_path');
+                $filePath = $file->store('file_paths/expenses');
+
+                $dataToUpdate['file_path'] = $filePath;
+            }
+
+            $expense->update($dataToUpdate);
 
             return response()->json([
                 'success' => true,
@@ -123,9 +154,14 @@ class ExpenseController extends Controller
 
     public function destroy(Expense $expense): JsonResponse
     {
+        $filePath = $expense->file_path;
         try {
-
-            $expense->delete();
+            DB::transaction(function () use ($expense, $filePath) {
+                if ($filePath && Storage::exists($filePath)) {
+                    Storage::delete($filePath);
+                }
+                $expense->delete();
+            });
 
             return response()->json([
                 'success' => true,
