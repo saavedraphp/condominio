@@ -29,7 +29,8 @@ class BudgetReportController extends Controller
     {
         $whiteLabelId = $this->getWhiteLabelId($request);
         $year = $request->input('year', Carbon::now()->year);
-        $month = $request->input('month'); // Opcional: mes hasta el cual calcular gastos
+        $month = $request->input('month', Carbon::now()->month); // Opcional: mes hasta el cual calcular gastos
+
 
         $reportItems = [];
         $grandTotalBudgeted = 0;
@@ -71,10 +72,12 @@ class BudgetReportController extends Controller
 
         $overallPercentageSpent = $grandTotalBudgeted > 0 ? round(($grandTotalSpent / $grandTotalBudgeted) * 100, 2) : 0;
 
+        $nameMes =$month ? Carbon::create()->month($month)->locale('es')->translatedFormat('F') : "";
+
         return [
             'year' => (int) $year,
-            'month_label' => $month ? Carbon::create()->month($month)->format('F') : 'Full Year',
-            'report_title' => "Budgets vs. Real Expenses ({$year}" . ($month ? " up to " . Carbon::create()->month($month)->format('F') : "") . ")",
+            'month_label' => $month ? $nameMes : 'Todo el año',
+            'report_title' => "Presupuestos vs. Gastos ({$year}" . ($month ? " Hasta " . $nameMes : "") . ")",
             'items' => $reportItems,
             'totals' => [
                 'total_budgeted' => (float) $grandTotalBudgeted,
@@ -103,16 +106,16 @@ class BudgetReportController extends Controller
 
     public function downloadPdfReport(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+/*        $validator = Validator::make($request->all(), [
             'year' => 'sometimes|required|integer|min:2000|max:2100',
             'month' => 'sometimes|nullable|integer|min:1|max:12',
             'white_label_id' => 'sometimes|required|integer'
-        ]);
+        ]);*/
 
-        if ($validator->fails()) {
+/*        if ($validator->fails()) {
             // Podrías redirigir con error o mostrar una vista de error simple
             return response("Invalid parameters for PDF report.", 422);
-        }
+        }*/
 
         $data = $this->getReportData($request);
         $data['report_owner'] = "Propietarios de Islas Cerdeñas"; // Ejemplo de la imagen

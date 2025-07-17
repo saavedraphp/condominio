@@ -202,5 +202,4 @@ class UserHouseAssignmentController extends Controller
 
     }
 
-
 }
