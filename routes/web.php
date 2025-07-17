@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\DoormanController;
 use App\Http\Controllers\Admin\HouseController as AdminHouseController;
 use App\Http\Controllers\Admin\HouseResidentController;
 use App\Http\Controllers\Admin\PetitionController as AdminPetitionController;
+use App\Http\Controllers\Admin\StatisticsController;
 use App\Http\Controllers\Admin\UserController as AdminUserAdsController;
 use App\Http\Controllers\Admin\UserHouseAssignmentController;
 use App\Http\Controllers\Admin\UserSettingPageController;
@@ -148,6 +149,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
     Route::middleware(['auth:web'])->group(function () {
         Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
+
+        /* STASTISTICS  DASHBOARD*/
+        Route::get('/statistic-cards', [StatisticsController::class, 'getStatisticCards'])->name('get-statistic-cards');
 
         /* ANUNCIOS */
         Route::get('/ads/list', [AdsController::class, 'showListPage'])->name('ads.list');
@@ -296,6 +300,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
         Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
         Route::post('/settings/upload', [SettingController::class, 'upload'])->name('settings.upload');
+
     });
 
 });

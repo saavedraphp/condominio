@@ -8,6 +8,8 @@ use App\Models\House;
 use App\Models\HouseMonthlyCharge;
 use App\Models\PaymentService;
 use App\Models\Setting;
+use App\Models\WebUser;
+use App\Services\StatisticsService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -26,12 +28,17 @@ class HouseMonthlyChargeController extends Controller
     const TYPE_HOUSE_ASSOCIATED = 'association_only';
     const TYPE_HOUSE_BOARD_ASSOCIATED = 'owners_board_with_association';
     const TYPE_HOUSE_BOARD = 'owners_board';
-    const NRO_ASSOCIATED = 93;
     const NRO_DEPARTMENT = 17;
     const FEE_JP_SARDINIA_ISLANDS = 334.66; // Cuota de la Asociación
     const FEET_IS_LOT = 150.00; // Cuota de la Asociación para lotes, si aplica
     const PRICE_BY_KWH = 0.625;
 
+    private $statisticsService;
+
+    public function __construct()
+    {
+        $this->serviceStatistics = app(StatisticsService::class);
+    }
     public function showPage(): View
     {
         $routes = [
@@ -475,6 +482,12 @@ LOTE ACUMULADO C-39A',
 
     public function getQuoteAssociated(): array
     {
+        $associatedUsersCount = $this->serviceStatistics->getAssociatedUsersCount();
+
+        if ($associatedUsersCount === 0) {
+            return [];
+        }
+
         $annualBudgets = AnnualBudget::query()
             ->whereHas('budgetType', function ($query) {
                 $query->where('budget_scope', BudgetScope::ASSOCIATION->value);
@@ -483,10 +496,10 @@ LOTE ACUMULADO C-39A',
             ->where('year', Carbon::now()->year)
             ->get();
 
-        return $annualBudgets->map(function ($budget) {
+        return $annualBudgets->map(function ($budget) use ($associatedUsersCount) {
             return [
                 'title' => $budget->budgetType->name,
-                'amount' => ($budget->amount / 12) / self::NRO_ASSOCIATED,
+                'amount' => ($budget->amount / 12) / $associatedUsersCount,
             ];
         })->toArray();
 
@@ -494,6 +507,10 @@ LOTE ACUMULADO C-39A',
 
     public function getBuildingBudgetList(): array
     {
+        $nroDepartments = $this->serviceStatistics->getNroDepartments();
+        if ($nroDepartments === 0) {
+            return [];
+        }
         $annualBudgets = AnnualBudget::query()
             ->whereHas('budgetType', function ($query) {
                 $query->where('budget_scope', BudgetScope::BUILDING->value);
@@ -502,10 +519,10 @@ LOTE ACUMULADO C-39A',
             ->where('year', Carbon::now()->year)
             ->get();
 
-        return $annualBudgets->map(function ($budget) {
+        return $annualBudgets->map(function ($budget) use ($nroDepartments) {
             return [
                 'title' => $budget->budgetType->name,
-                'amount' => ($budget->amount / 12) / self::NRO_DEPARTMENT,
+                'amount' => ($budget->amount / 12) / $nroDepartments,
             ];
         })->toArray();
 
