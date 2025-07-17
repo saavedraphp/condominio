@@ -27,8 +27,9 @@ const imageUrl = computed(() => {
     // Si hay una URL en el modelo (de la BD), la muestra
     if (props.modelValue) {
         // Asegurarse de que si es una URL relativa, se resuelve correctamente
-        const baseUrl = import.meta.env.VITE_APP_URL || ''; // Configura esto en tu .env.VITE
-        return props.modelValue.startsWith('http') ? props.modelValue : `${baseUrl}${props.modelValue}`;
+        const baseUrl = document.location.origin+'/storage/'|| ''; // Configura esto en tu .env.VITE
+        console.log('Base URL:', baseUrl);
+        return `${baseUrl}${props.modelValue}`;
     }
     // Si no hay nada, no muestra imagen
     return null;

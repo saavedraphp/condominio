@@ -110,7 +110,7 @@ class SettingController extends Controller
         // 3. Devolver la URL pública del archivo
         // Storage::url($path) genera una URL como '/storage/file_paths/settings/archivo_unico.png'
         return response()->json([
-            'url' => Storage::url($path)
+            'url' => $path
         ]);
     }
 }

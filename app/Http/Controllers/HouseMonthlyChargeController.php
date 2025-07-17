@@ -7,6 +7,9 @@ use App\Models\AnnualBudget;
 use App\Models\House;
 use App\Models\HouseMonthlyCharge;
 use App\Models\PaymentService;
+use App\Models\Setting;
+use App\Models\WebUser;
+use App\Services\StatisticsService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -25,12 +28,17 @@ class HouseMonthlyChargeController extends Controller
     const TYPE_HOUSE_ASSOCIATED = 'association_only';
     const TYPE_HOUSE_BOARD_ASSOCIATED = 'owners_board_with_association';
     const TYPE_HOUSE_BOARD = 'owners_board';
-    const NRO_ASSOCIATED = 93;
     const NRO_DEPARTMENT = 17;
     const FEE_JP_SARDINIA_ISLANDS = 334.66; // Cuota de la Asociación
     const FEET_IS_LOT = 150.00; // Cuota de la Asociación para lotes, si aplica
     const PRICE_BY_KWH = 0.625;
 
+    private $statisticsService;
+
+    public function __construct()
+    {
+        $this->serviceStatistics = app(StatisticsService::class);
+    }
     public function showPage(): View
     {
         $routes = [
@@ -196,12 +204,22 @@ class HouseMonthlyChargeController extends Controller
         $historyElectric = $this->getConsumptions($house_id);
         $matrix = $this->makeMatrixConsumption($historyElectric['consumptionDetails']);
 
+        $settings = Setting::query()
+            ->where('group', 'general')
+            ->pluck('value', 'key')
+            ->toArray();
+
+        $signaturePath = $settings['signature_for_receipts_imagen'] ?? null;
+        $tablaImagePath = $settings['annual_expense_statistics_imagen'] ?? null;
         if ($preview === "true") {
             $logoPath = asset('assets/images/logo.jpg');
             $tablaImagePath = asset('assets/images/statistical-table-v2.jpg'); // public/assets/images
+            $signaturePath = asset('assets/images/firma-digital.jpg'); // public/assets/images
         } else {
             $logoPath = storage_path('app/public/file_paths/profile/nVcxTYTvFIndE6SVndfDMUTG6uFp5CPcCSFKhmFc.jpg');
-            $tablaImagePath = storage_path('app/public/file_paths/profile/Qy2zeu5E4aeE8ks2tv7uiU0KzWcWfCAV52qxMb8u.jpg');
+            $tablaImagePath = storage_path('app/public/' . $tablaImagePath);
+            $signaturePath = storage_path('app/public/' . $signaturePath);
+
         }
 
         Carbon::setLocale('es');
@@ -225,6 +243,7 @@ class HouseMonthlyChargeController extends Controller
             ],
             'electrical_history_table' => $matrix,
             'logoPath' => $logoPath,
+            'signature_path' => $signaturePath,
             'title' => 'Asociación de Propietarios Islas de San Pedro',
             'tablaImagePath' => $tablaImagePath,
             'debt' => empty($balanceHouse['opening_balance']) ? 'Pendiente a Revisión' : number_format($balanceHouse['amount_due'], 2),
@@ -463,6 +482,12 @@ LOTE ACUMULADO C-39A',
 
     public function getQuoteAssociated(): array
     {
+        $associatedUsersCount = $this->serviceStatistics->getAssociatedUsersCount();
+
+        if ($associatedUsersCount === 0) {
+            return [];
+        }
+
         $annualBudgets = AnnualBudget::query()
             ->whereHas('budgetType', function ($query) {
                 $query->where('budget_scope', BudgetScope::ASSOCIATION->value);
@@ -471,10 +496,10 @@ LOTE ACUMULADO C-39A',
             ->where('year', Carbon::now()->year)
             ->get();
 
-        return $annualBudgets->map(function ($budget) {
+        return $annualBudgets->map(function ($budget) use ($associatedUsersCount) {
             return [
                 'title' => $budget->budgetType->name,
-                'amount' => ($budget->amount / 12) / self::NRO_ASSOCIATED,
+                'amount' => ($budget->amount / 12) / $associatedUsersCount,
             ];
         })->toArray();
 
@@ -482,6 +507,10 @@ LOTE ACUMULADO C-39A',
 
     public function getBuildingBudgetList(): array
     {
+        $nroDepartments = $this->serviceStatistics->getNroDepartments();
+        if ($nroDepartments === 0) {
+            return [];
+        }
         $annualBudgets = AnnualBudget::query()
             ->whereHas('budgetType', function ($query) {
                 $query->where('budget_scope', BudgetScope::BUILDING->value);
@@ -490,10 +519,10 @@ LOTE ACUMULADO C-39A',
             ->where('year', Carbon::now()->year)
             ->get();
 
-        return $annualBudgets->map(function ($budget) {
+        return $annualBudgets->map(function ($budget) use ($nroDepartments) {
             return [
                 'title' => $budget->budgetType->name,
-                'amount' => ($budget->amount / 12) / self::NRO_DEPARTMENT,
+                'amount' => ($budget->amount / 12) / $nroDepartments,
             ];
         })->toArray();
 
