@@ -71,6 +71,8 @@ const downloadPdf = () => {
         url += `&month=${filters.value.month}`;
     }
 
+    url = `/user/reports/budget-summary/download`;
+
     // Abrir en una nueva pestaña para iniciar la descarga
     window.open(url, '_blank');
 
@@ -90,7 +92,7 @@ onMounted(() => {
     <v-container>
         <v-card>
             <v-card-title>
-                Reporte de Presupuestos vs. Gastos Reales
+                Reporte de Presupuestos vs. Gastos
             </v-card-title>
             <v-card-subtitle v-if="isAdmin">
                 Filtra y genera el reporte.
@@ -126,6 +128,19 @@ onMounted(() => {
                             Ver Reporte
                         </v-btn>
                         <v-btn
+                            color="secondary"
+                            @click="downloadPdf"
+                            :disabled="!reportData"
+                            :loading="downloadingPdf"
+                        >
+                            Descargar PDF
+                        </v-btn>
+                    </v-col>
+                </v-row>
+                <v-row>
+                    <v-col cols="12" class="text-right">
+                        <v-btn
+                            class="mt-5"
                             color="secondary"
                             @click="downloadPdf"
                             :disabled="!reportData"
