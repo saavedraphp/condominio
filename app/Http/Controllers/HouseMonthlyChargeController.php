@@ -386,7 +386,7 @@ LOTE ACUMULADO C-39A',
         }
         $fee_association_ISP = $this->getFeeAssociationISP();
 
-        if ($type === self::TYPE_HOUSE_ASSOCIATED) {
+        if ($type === self::TYPE_HOUSE_ASSOCIATED) { // Asociación I.S.P
             if ($house['is_lot']) {
                 return $this->getLotDetails($fee_association_ISP);
             }
@@ -435,7 +435,7 @@ LOTE ACUMULADO C-39A',
             ],
             [
                 'title' => 'Cuota a la J.P. Isla Cerdeña',
-                'amount' => self::FEE_JP_SARDINIA_ISLANDS - $totalBuildingBudget - $fee_association_ISP
+                'amount' => self::FEE_JP_SARDINIA_ISLANDS - $totalBuildingBudget - $fee_association_ISP + $house['cost_jp']
             ]
         ];
     }

@@ -25,6 +25,7 @@ class House extends Model
         'is_lot',
         'opening_balance',
         'is_department',
+        'cost_jp',
     ];
 
     public function webUsers(): BelongsToMany
