@@ -29,6 +29,7 @@ class HouseRequest extends FormRequest
             'participation_percentage' => 'nullable',
             'ownership_structure' => 'required',
             'opening_balance' => 'required|numeric',
+            'cost_jp' => 'nullable|numeric',
             'is_department' => 'nullable|boolean',
             'is_lot' => 'nullable|boolean',
         ];
@@ -48,6 +49,7 @@ class HouseRequest extends FormRequest
             'opening_balance.required' => 'El saldo de apertura es obligatorio',
             'opening_balance.numeric' => 'El saldo de apertura debe ser un número',
             'participation_percentage.required' => 'El porcentaje de parcipación es obligatorio',
+            'cost_jp.numeric' => 'El costo de JP debe ser un número',
         ];
     }
 }
