@@ -45,6 +45,7 @@ const {handleSubmit, resetForm, setValues} = useForm({
         participationPercentage: '',
         ownershipStructure: '',
         is_department: false,
+        cost_jp: 0,
         is_lot: false,
     }
 });
@@ -57,6 +58,7 @@ const participationPercentage = useField('participationPercentage')
 const ownershipStructure = useField('ownershipStructure');
 const is_lot = useField('is_lot');
 const is_department = useField('is_department');
+const cost_jp = useField('cost_jp');
 const opening_balance = useField('opening_balance');
 
 const structureTypes = ref([
@@ -81,6 +83,7 @@ const submitForm = handleSubmit((values) => {
             ownership_structure: values.ownershipStructure,
             opening_balance: values.opening_balance || 0,
             is_department: values.is_department ? 1 : 0,
+            cost_jp: values.cost_jp || 0,
             is_lot: values.is_lot ? 1 : 0,
         };
 
@@ -111,6 +114,7 @@ watch(() => props.house, (newValue) => {
             ownershipStructure: newValue.ownership_structure || '',
             opening_balance: newValue.opening_balance ?? null,
             is_department: newValue.is_department === 1,
+            cost_jp: newValue.cost_jp ?? 0,
             is_lot: newValue.is_lot === 1
         });
     } else {
@@ -167,7 +171,7 @@ watch(() => props.house, (newValue) => {
                             label="Porcentaje de participación"
                         ></v-text-field>
                     </v-col>
-                    <v-col cols="12" md="6">
+                    <v-col cols="12">
                         <v-select
                             v-model="ownershipStructure.value.value"
                             :error-messages="ownershipStructure.errorMessage.value"
@@ -187,6 +191,15 @@ watch(() => props.house, (newValue) => {
                             variant="outlined"
                             type="number"
                             label="Saldo Inicial"
+                        ></v-text-field>
+                    </v-col>
+                    <v-col cols="12" md="6">
+                        <v-text-field
+                            v-model="cost_jp.value.value"
+                            :error-messages="cost_jp.errorMessage.value"
+                            variant="outlined"
+                            type="number"
+                            label="Costo JP"
                         ></v-text-field>
                     </v-col>
                     <v-col cols="6">
