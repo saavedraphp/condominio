@@ -37,9 +37,9 @@ const schema = yup.object({
 const {handleSubmit, resetForm} = useForm({
     validationSchema: schema,
     initialValues: {
-        plateNumber: '9993-AB',
-        brand: 'HONDA',
-        model: 'CHACARERA',
+        plateNumber: '',
+        brand: '',
+        model: '',
     }
 });
 
