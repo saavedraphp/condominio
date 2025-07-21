@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\DoormanController;
 use App\Http\Controllers\Admin\HouseController as AdminHouseController;
 use App\Http\Controllers\Admin\HouseResidentController;
+use App\Http\Controllers\Admin\HouseVehicleController;
 use App\Http\Controllers\Admin\PetitionController as AdminPetitionController;
 use App\Http\Controllers\Admin\StatisticsController;
 use App\Http\Controllers\Admin\UserController as AdminUserAdsController;
@@ -35,7 +36,8 @@ use App\Http\Controllers\User\DashboardController as UserDashboard;
 use App\Http\Controllers\User\HouseController;
 use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\User\ProfileController;
-use App\Http\Controllers\VehicleController;
+use App\Http\Controllers\User\HouseVehicleController as HouseVehicleUserController;
+use App\Http\Controllers\User\HouseResidentController as HouseResidentUserController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -94,9 +96,12 @@ Route::prefix('user')->name('user.')->group(function () {
             ->where('document', '[0-9]+');
         /* FIN rutas documentos*/
 
-       // Route::resource('/vehicles', VehicleController::class);
-        Route::get('/vehicles/list', [VehicleController::class, 'showPage'])->name('vehicles.list');
-        Route::get('/vehicles/', [VehicleController::class, 'getVehicles'])->name('vehicles.getVehicles');
+        /* RESIDENTES DE LA CASA */
+        Route::get('/houses/{house}/house-residents', [HouseResidentUserController::class, 'index'])->name('members.index');
+
+        /*VEHICLES*/
+        Route::get('/houses/{house}/house-vehicles', [HouseVehicleUserController::class, 'index'])->name('house-vehicles.index');
+
 
         Route::get('/houses/{house}/dashboard', [HouseController::class, 'dashboard'])->name('user.house.dashboard');
         Route::get('/houses/show/{house}', [HouseController::class, 'show'])->name('user.house.show');
@@ -169,11 +174,18 @@ Route::prefix('admin')->name('admin.')->group(function () {
         });
 
         Route::prefix('/user/{webUser}/house/{house}/')->name('user.house.')->group(function () {
-            Route::get('/members/list', [HouseResidentController::class, 'showListPage'])->name('member.list');
+
+            Route::get('/attributes/list', [HouseResidentController::class, 'showListPage'])->name('attributes.list');
+            //Route::get('/members/list', [HouseResidentController::class, 'showListPage'])->name('member.list');
             Route::get('/house-residents', [HouseResidentController::class, 'index'])->name('members.index');
             Route::post('/house-residents', [HouseResidentController::class, 'store'])->name('members.store');
             Route::put('/house-residents/{houseResident}', [HouseResidentController::class, 'update'])->name('members.update');
             Route::delete('/house-residents/{houseResident}', [HouseResidentController::class, 'destroy'])->name('members.destroy');
+
+            Route::get('/house-vehicles', [HouseVehicleController::class, 'index'])->name('house-vehicles.index');
+            Route::post('/house-vehicles', [HouseVehicleController::class, 'store'])->name('house-vehicles.store');
+            Route::put('/house-vehicles/{house_vehicle}', [HouseVehicleController::class, 'update'])->name('house-vehicles.update');
+            Route::delete('/house-vehicles/{house_vehicle}', [HouseVehicleController::class, 'destroy'])->name('house-vehicles.destroy');
 /*            Route::get('/getUnassigned', [UserHouseAssignmentController::class, 'getUnassigned'])->name('getUnassigned');
             Route::post('/', [UserHouseAssignmentController::class, 'store'])->name('store');
             //Route::delete('/{house}', [UserHouseAssignmentController::class, 'destroy'])->name('destroy');
@@ -182,10 +194,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         });
 
         /* VEHICULOS */
-        Route::get('/user/{webUser}/vehicles/', [VehicleController::class, 'index'])->name('user.vehicles.index');
-        Route::post('/user/{webUser}/vehicles/', [VehicleController::class, 'store'])->name('user.vehicles.store');
-        Route::put('/user/{webUser}/vehicles/{vehicle}', [VehicleController::class, 'update'])->name('user.vehicles.update');
-        Route::delete('/user/{webUser}/vehicles/{vehicle}', [VehicleController::class, 'destroy'])->name('user.vehicles.destroy');
+        //Route::get('/user/{webUser}/vehicles/', [VehicleController::class, 'index'])->name('user.vehicles.index');
+        //Route::post('/user/{webUser}/vehicles/', [VehicleController::class, 'store'])->name('user.vehicles.store');
+        //Route::put('/user/{webUser}/vehicles/{vehicle}', [VehicleController::class, 'update'])->name('user.vehicles.update');
+        //Route::delete('/user/{webUser}/vehicles/{vehicle}', [VehicleController::class, 'destroy'])->name('user.vehicles.destroy');
         //Route::get('/vehicles/list', [VehicleController::class, 'showListPage'])->name('houses.list');
         /*LIST HOUSES*/
         Route::get('/houses/list', [AdminHouseController::class, 'showListPage'])->name('houses.list');

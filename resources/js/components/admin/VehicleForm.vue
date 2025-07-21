@@ -8,8 +8,8 @@ import Snackbar from "@/components/Snackbar.vue";
 const emit = defineEmits(['vehicle-created', 'vehicle-edited', 'update:modelValue']);
 const props = defineProps({
     modelValue: Boolean,
+    house: Object,
     vehicle: Object,
-    user: Object,
     urlBase: {
         type: String,
         required: true
@@ -37,9 +37,9 @@ const schema = yup.object({
 const {handleSubmit, resetForm} = useForm({
     validationSchema: schema,
     initialValues: {
-        plateNumber: '',
-        brand: '',
-        model: ''
+        plateNumber: '9993-AB',
+        brand: 'HONDA',
+        model: 'CHACARERA',
     }
 });
 
@@ -68,7 +68,7 @@ const submitForm = handleSubmit(async (values) => {
     const typeEmit = isEditing.value ? 'vehicle-edited' : 'vehicle-created';
 
     const payload = {
-        web_user_id: props.user.id,
+        house_id: props.house.id,
         plate_number: values.plateNumber,
         brand: values.brand,
         model: values.model,
@@ -125,8 +125,8 @@ const close = () => {
                     />
                     <v-card-actions>
                         <v-spacer></v-spacer>
-                        <v-btn color="grey" @click="close" :disabled="isLoading">Cancelar</v-btn>
-                        <v-btn color="red" type="submit" :loading="isLoading">Guardar</v-btn>
+                        <v-btn color="grey" variant="flat" @click="close" :disabled="isLoading">Cancelar</v-btn>
+                        <v-btn color="primary" type="submit"  variant="flat" :loading="isLoading">Guardar</v-btn>
                     </v-card-actions>
                 </v-form>
             </v-card-text>

@@ -6,13 +6,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Vehicle extends Model
+class HouseVehicle extends Model
 {
     use HasFactory;
-    protected $fillable = ['web_user_id', 'brand', 'model', 'plate_number'];
+    protected $fillable = ['house_id', 'brand', 'model', 'plate_number'];
 
-    public function web_user(): BelongsTo
+    public function house(): BelongsTo
     {
-        return $this->belongsTo(WebUser::class);
+        return $this->belongsTo(House::class);
     }
 }

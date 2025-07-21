@@ -1,11 +1,9 @@
 <script setup>
 import {computed, onMounted, ref} from "vue";
-import House from "@/components/user/House.vue";
 import axios from "axios";
 import AssignedHouseForm from "@/components/admin/AssignedHouseForm.vue";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal.vue";
 import Snackbar from "@/components/Snackbar.vue";
-import VehicleList from "@/components/admin/VehicleList.vue";
 
 const props = defineProps({
     user: Object
@@ -58,8 +56,12 @@ const openDeleteModal = (item) => {
     dialogDelete.value = true;
 };
 
-const gotToMembers = (item) => {
-    window.location.href = `${window.location.origin}/admin/user/${props.user.id}/house/${item.id}/members/list`;
+const goToAttributes = (item) => {
+    window.location.href = `${window.location.origin}/admin/user/${props.user.id}/house/${item.id}/attributes/list`;
+};
+
+const gotToVehicles = (item) => {
+    window.location.href = `${window.location.origin}/admin/user/${props.user.id}/house/${item.id}/vehicles/list`;
 };
 
 const deleteHouseAssignment = async () => {
@@ -128,8 +130,7 @@ const goBack = () => {
             </v-card-title>
             <v-divider></v-divider>
             <v-tabs v-model="activeKey">
-                <v-tab :value="TABS_KEYS.HOUSES">Casas e Integrantes</v-tab>
-                <v-tab :value="TABS_KEYS.VEHICLES">Vehículos</v-tab>
+                <v-tab :value="TABS_KEYS.HOUSES">Casas</v-tab>
             </v-tabs>
             <v-card-text>
                 <v-window v-model="activeKey">
@@ -168,12 +169,12 @@ const goBack = () => {
                                     <template v-slot:activator="{ props }">
                                         <v-btn
                                             v-bind="props"
-                                            icon="mdi mdi-account-group"
+                                            icon="mdi-cog"
                                             variant="text"
                                             color="primary"
                                             size="small"
                                             class="me-2"
-                                            @click="gotToMembers(item)"
+                                            @click="goToAttributes(item)"
                                         ></v-btn>
                                     </template>
                                 </v-tooltip>
@@ -206,13 +207,6 @@ const goBack = () => {
                                 </v-chip>
                             </template>
                         </v-data-table>
-                    </v-window-item>
-                    <v-window-item :value="TABS_KEYS.VEHICLES">
-                        <VehicleList
-                            :user="user"
-                            :is-admin="true"
-                        >
-                        </VehicleList>
                     </v-window-item>
                 </v-window>
             </v-card-text>

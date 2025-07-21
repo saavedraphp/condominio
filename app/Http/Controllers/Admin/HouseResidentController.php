@@ -19,6 +19,7 @@ class HouseResidentController extends Controller
         return view('admin.users.house_attributes',[
             'webUser' => $webUser,
             'house' => $house,
+            'is_admin' => true,
         ]);
     }
     public function store(Request $request): JsonResponse
@@ -26,7 +27,9 @@ class HouseResidentController extends Controller
         try {
             $validateData = $request->validate([
                 'house_id' => 'required|exists:houses,id',
-                'name' => 'required|string|max:255',
+                'name' => 'required|string|max:50',
+                'phone' => 'nullable|string|max:20',
+                'email' => 'nullable|email'
             ]);
 
             $resident = HouseResident::create($validateData);
@@ -65,9 +68,9 @@ class HouseResidentController extends Controller
         try {
             $validateData = $request->validate([
                 'house_id' => 'required|exists:houses,id',
-                'name' => 'required|string|max:255',
-                'phone' => 'required|string|max:20',
-                'email' => 'required|email'
+                'name' => 'required|string|max:50',
+                'phone' => 'nullable|string|max:20',
+                'email' => 'nullable|email'
             ]);
 
             $updateSuccessful = $houseResident->update($validateData);
