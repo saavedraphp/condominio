@@ -3,6 +3,7 @@ import Snackbar from "@/components/Snackbar.vue";
 import axios from "axios";
 import {onMounted, ref} from "vue";
 import DebtStatusAlert from "@/components/user/DebtStatusAlert.vue";
+import HouseAttribute from "@/components/admin/HouseAttribute.vue";
 
 const props = defineProps({
     userId: {
@@ -17,6 +18,7 @@ const props = defineProps({
 
 
 const loading = ref(true);
+const totalLoading = ref(false);
 const house = ref(null);
 const mySnackbar = ref(null);
 const totalDebt = ref(null);
@@ -61,17 +63,16 @@ async function getHouse() {
 }
 
 onMounted(async () => {
-    loading.value = true;
+    totalLoading.value = true;
     try {
         await Promise.all([
-            getUser(),
-            getHouse()
+             await getUser(),
+            await getHouse(),
+            totalLoading.value = false,
         ]);
     }catch (e) {
         console.error("Hubo un error al cargar los datos iniciales:", error);
         mySnackbar.value.show('No se pudieron cargar todos los datos. Intenta de nuevo.', 'error');
-    }finally {
-        loading.value = false;
     }
 
 });
@@ -79,7 +80,7 @@ onMounted(async () => {
 
 <template>
     <v-container fluid>
-        <p v-if="loading">Cargango datos</p>
+        <p v-if="totalLoading">Cargango datos</p>
         <v-row dense v-else>
             <!-- Card Bienvenida -->
             <v-col cols="12">
@@ -90,22 +91,10 @@ onMounted(async () => {
                 />
             </v-col>
             <v-col cols="12">
-                <v-card class="pa-3 mb-4" elevation="2">
-                    <div class="d-flex align-center">
-                        <v-avatar color="primary" size="40" class="mr-3">
-                            <v-icon icon="mdi-account-circle"></v-icon>
-                            <!-- O puedes poner iniciales: <span class="text-h6">SA</span> -->
-                        </v-avatar>
-                        <div>
-                            <div class="text-h6 font-weight-medium">
-                                ¡Casa, {{ house?.house?.address }}!
-                            </div>
-                            <div class="text-body-2 text-medium-emphasis">
-                                Unidad: <strong>{{ house?.house?.property_unit }}</strong>
-                            </div>
-                        </div>
-                    </div>
-                </v-card>
+                <HouseAttribute v-if="house?.house"
+                    :user="user"
+                    :house="house.house"
+                />
             </v-col>
         </v-row>
         <Snackbar ref="mySnackbar"/>

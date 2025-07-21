@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use App\Models\Vehicle;
+use App\Models\HouseVehicle;
 
 class VehicleRequest extends FormRequest
 {
@@ -23,33 +23,27 @@ class VehicleRequest extends FormRequest
      */
     public function rules(): array
     {
-        $vehicle = optional($this->route('vehicle'));
-        $rules = [
-            'web_user_id' => 'required|exists:web_users,id',
-            'brand' => 'required|string|min:3|max:50',
-            'model' => 'required|string|max:50',
+        $house_vehicle = $this->route('house_vehicle');
+        $house_id = $this->input('house_id'); // Obtenemos el ID de la casa desde el input del request
+
+        return [
+            'house_id'     => ['required', 'exists:houses,id'],
+            'brand'        => ['required', 'string', 'min:3', 'max:50'],
+            'model'        => ['required', 'string', 'max:50'],
+            'plate_number' => [
+                'required',
+                'string',
+                'max:10',
+                // Aquí está la magia:
+                Rule::unique('house_vehicles', 'plate_number')
+                    // 1. Ignorar el registro actual si estamos editando
+                    ->ignore($house_vehicle?->id)
+                    // 2. Añadir la condición de que la unicidad solo se aplica
+                    //    para el `house_id` que se está enviando.
+                    ->where('house_id', $house_id),
+            ],
         ];
 
-        $plateRules = [
-            'required',
-            'string',
-            'max:10',
-        ];
-
-        $uniqueRule = Rule::unique('vehicles', 'plate_number');
-
-        if ($this->isMethod('put')) {
-            $vehicle = $this->route('vehicle');
-            if ($vehicle) {
-                $uniqueRule->ignore($vehicle->id);
-            }
-        }
-
-        $plateRules[] = $uniqueRule;
-
-        $rules['plate_number'] = $plateRules;
-
-        return $rules;
     }
 
     public function messages(): array

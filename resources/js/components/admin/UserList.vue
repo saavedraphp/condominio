@@ -14,6 +14,7 @@ const headers = ref([        // Definición de las columnas de la tabla
     {title: 'Email', key: 'email', sortable: true},
     {title: 'Teléfono', key: 'phone', sortable: true},
     {title: 'Arreglo de pago', key: 'has_payment_arrangement', align:'center' , sortable: true},
+    {title: 'Asociado', key: 'is_associated', align:'center' , sortable: true},
     {title: 'Estado', key: 'status', sortable: true},
     {title: 'Acciones', key: 'actions', sortable: false, align: 'end'},
 ]);
@@ -226,6 +227,11 @@ const closeDeleteModal = () => {
                     </v-chip>
                 </template>
                 <template v-slot:item.has_payment_arrangement="{ value }">
+                    <v-chip :color="value  === true ? 'success' : 'grey'" size="small">
+                        {{ value === true ? 'Si' : 'No' }}
+                    </v-chip>
+                </template>
+                <template v-slot:item.is_associated="{ value }">
                     <v-chip :color="value  === true ? 'success' : 'grey'" size="small">
                         {{ value === true ? 'Si' : 'No' }}
                     </v-chip>

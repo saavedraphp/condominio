@@ -19,6 +19,7 @@ class ReportBalanceDueController extends Controller
     {
         $totalAmountDue = 0;
         try {
+            /*CASAS CON PROPIETARIOS*/
             $houses = House::with([
                 'owner:id,name,has_payment_arrangement',
                 'payments:id,house_id,amount,payment_date',

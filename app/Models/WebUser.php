@@ -53,11 +53,6 @@ class WebUser extends Authenticatable
         return $this->morphOne(AccountActivation::class, 'activatable');
     }
 
-    public function vehicles(): HasMany
-    {
-        return $this->hasMany(Vehicle::class);
-    }
-
     public function houses(): BelongsToMany
     {
         return $this->belongsToMany(House::class, 'house_web_user')
