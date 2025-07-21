@@ -288,7 +288,7 @@ export default {
                         </v-card>
                     </v-col>
 
-                    <!-- Card para Gestión de Autos -->
+<!--                    &lt;!&ndash; Card para Gestión de Autos &ndash;&gt;
                     <v-col cols="12" md="6">
                         <v-card
                             class="mx-auto"
@@ -321,7 +321,7 @@ export default {
                                 </v-btn>
                             </v-card-actions>
                         </v-card>
-                    </v-col>
+                    </v-col>-->
                 </v-row>
             </v-col>
 

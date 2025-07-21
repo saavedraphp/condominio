@@ -8,9 +8,19 @@ import Snackbar from "@/components/Snackbar.vue";
 const props = defineProps({
     user: Object,
     house: Object,
+    isAdmin: {
+        type: Boolean,
+        default: false
+    }
 });
+const apiBaseMemberUrl = ref('');
+if (props.isAdmin) {
+    apiBaseMemberUrl.value = `${window.location.origin}/admin/user/${props.user.id}/house/${props.house.id}/house-residents`;
+} else {
+    apiBaseMemberUrl.value = `${window.location.origin}/user/houses/${props.house.id}/house-residents`;
+}
 
-let apiBaseMemberUrl = `${window.location.origin}/admin/user/${props.user.id}/house/${props.house.id}/house-residents`;
+
 const loading = ref(true)
 const showModal = ref(false)
 const members = ref([])
@@ -20,17 +30,26 @@ const dialogDeleteVisible = ref(false);
 const itemToDelete = ref(null);
 const isDeleting = ref(false);
 const mySnackbar = ref(null);
-const headers = ref([
-    {title: 'Nombre', key: 'name'},
-    {title: 'Teléfono', key: 'phone'},
-    {title: 'email', key: 'email'},
-    {title: "Acciones", key: "actions", sortable: false},
-])
+const headers = computed(() => {
+    const baseHeaders = [
+        {title: 'Nombre', key: 'name', sortable: true},
+        {title: 'Teléfono', key: 'phone', sortable: true},
+        {title: 'email', key: 'email', sortable: true},
+    ];
+    if (props.isAdmin) {
+        return [
+            ...baseHeaders,
+            {title: "Acciones", key: "actions", sortable: false, visible: props.isAdmin},
+        ];
+    }
+    return baseHeaders;
+})
+
 
 async function getMembers() {
     loading.value = true;
     try {
-        const response = await axios.get(`${apiBaseMemberUrl}`);
+        const response = await axios.get(`${apiBaseMemberUrl.value}`);
         members.value = response.data;
     } catch (error) {
         error.value = 'Error al obtener los recidentes';
@@ -94,10 +113,10 @@ onMounted(() => {
 
 <template>
     <div class="d-flex justify-end mb-4">
-        <v-btn
-            color="primary"
-            prepend-icon="mdi-plus"
-            @click="showModal = true"
+        <v-btn v-if="props.isAdmin"
+               color="primary"
+               prepend-icon="mdi-plus"
+               @click="showModal = true"
         >
             Agregar Integrante
         </v-btn>
@@ -118,7 +137,7 @@ onMounted(() => {
                 <span>{{ item.name }}</span>
             </v-tooltip>
         </template>
-        <template v-slot:item.actions="{ item }">
+        <template v-slot:item.actions="{ item }" v-if="props.isAdmin">
             <div class="d-flex align-center">
                 <v-tooltip text="Editar">
                     <template v-slot:activator="{ props }">

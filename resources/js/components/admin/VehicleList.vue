@@ -14,7 +14,7 @@ const props = defineProps({
     }
 });
 
-let apiBaseMemberUrl = `${window.location.origin}/admin/user/${props.user.id}/vehicles`;
+let apiBaseMemberUrl = `${window.location.origin}/admin/user/${props.user.id}/house/${props.house.id}/house-vehicles`;
 const loading = ref(true)
 const showModal = ref(false)
 const vehicles = ref([])
@@ -29,7 +29,7 @@ const header = computed(() => {
     const baseHeaders = [
         { title: 'Marca', key: 'brand' },
         { title: 'Modelo', key: 'model' },
-        { title: 'Número de placa', key: 'plate_number' },
+        { title: 'Placa', key: 'plate_number' },
     ];
 
     if (props.isAdmin) {
@@ -47,7 +47,7 @@ async function getVehicles() {
     try {
         let url = props.isAdmin
             ? apiBaseMemberUrl
-            : `/user/vehicles/`;
+            : `/user/houses/${props.house.id}/house-vehicles/`;
         const response = await axios.get(`${url}`);
         vehicles.value = response.data;
     } catch (error) {
@@ -116,7 +116,7 @@ onMounted(() => {
             v-show="props.isAdmin"
             color="primary"
             prepend-icon="mdi-plus"
-            @click="showModal = true"
+            @click="showModal = true; selectedVehicle = null"
         >
             Agregar Vehículo
         </v-btn>
@@ -170,6 +170,7 @@ onMounted(() => {
     <VehicleForm
         v-model="showModal"
         :vehicle="selectedVehicle"
+        :house="props.house"
         :user="user"
         :url-base="apiBaseMemberUrl"
         @vehicle-created="getVehicles"
