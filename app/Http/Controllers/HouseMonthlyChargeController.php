@@ -198,7 +198,7 @@ class HouseMonthlyChargeController extends Controller
             ->firstOrFail();
         $houseArray = $house->toArray();
         $typeHouse = $house->ownership_structure;
-        $balanceHouse = $this->getBalanceHouse($house->id);
+        $balanceHouse = $house->calculateBalance();
 
         $monthInput = (int)$month;
         $historyElectric = $this->getConsumptions($house_id);
@@ -662,32 +662,6 @@ LOTE ACUMULADO C-39A',
             1 => 'Enero', 2 => 'Febrero', 3 => 'Marzo', 4 => 'Abril', 5 => 'Mayo', 6 => 'Junio',
             7 => 'Julio', 8 => 'Agosto', 9 => 'Septiembre', 10 => 'Octubre', 11 => 'Noviembre', 12 => 'Diciembre'
         ];
-    }
-
-    public function getBalanceHouse(int $house_id): array
-    {
-        $house = House::query()
-            ->where('id', $house_id)
-            ->with(['payments' => function ($query) {
-                $query->select('id', 'house_id', 'amount', 'payment_date');
-            }])
-            ->with(['monthlyCharges' => function ($query) {
-                $query->select('id', 'house_id', 'period_year', 'period_month', 'total_amount', 'status');
-            }])
-            ->firstOrFail();
-
-        $payments = $house->payments->sum('amount'); // TOTAL PAYMENTS TO HOUSE_ID
-        $amountCharges = $house->monthlyCharges
-            ->sum('total_amount'); // TOTAL MONTHLY CHARGES TO HOUSE_ID
-
-        return [
-            'house_id' => $house_id,
-            'amount_paid' => $payments,
-            'opening_balance' => $house->opening_balance,
-            'amount_due' => ($house->opening_balance + $amountCharges) - $payments,
-            'house' => $house->toArray()
-        ];
-
     }
 
     public function destroy(HouseMonthlyCharge $houseMonthlyCharge): JsonResponse
