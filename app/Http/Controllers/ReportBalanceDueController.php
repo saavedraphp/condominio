@@ -23,7 +23,7 @@ class ReportBalanceDueController extends Controller
             $houses = House::with([
                 'owner:id,name,has_payment_arrangement',
                 'payments:id,house_id,amount,payment_date',
-                'monthlyCharges:id,house_id,period_year,period_month,total_amount,status',
+                'monthlyCharges:id,house_id,period_year,period_month,due_date,total_amount,status',
             ])->get();
             // Solo casas donde el cálculo final es positivo
             $debtorHouses = $houses->filter(function ($house) {

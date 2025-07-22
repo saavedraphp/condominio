@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
 class House extends Model
 {
@@ -75,11 +76,13 @@ class House extends Model
     {
         $this->loadMissing([
             'payments:id,house_id,amount,payment_date',
-            'monthlyCharges:id,house_id,period_year,period_month,total_amount,status',
+            'monthlyCharges:id,house_id,period_year,period_month,due_date,total_amount,status',
         ]);
 
         $payments = $this->payments->sum('amount');
-        $charges = $this->monthlyCharges->sum('total_amount');
+        $charges = $this->monthlyCharges()
+            ->where('due_date', '<=', Carbon::today())
+            ->sum('total_amount');
 
         return [
             'house_id' => $this->id,
