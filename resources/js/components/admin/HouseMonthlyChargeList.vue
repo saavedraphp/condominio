@@ -45,7 +45,7 @@ const headers = ref([
     {title: 'Periodo', key: 'period_name', sortable: true},
     {title: 'Monto Total', key: 'total_amount', sortable: true},
     {title: 'Archivo', key: 'file_name', align: 'center', sortable: true},
-    {title: 'F. Vencimiento', key: 'due_format', align: 'end', sortable: true},
+    {title: 'Vencimiento', key: 'due_format', align: 'end', sortable: true},
     {title: 'Acciones', key: 'actions', sortable: false, align: 'center'},
 ]);
 
