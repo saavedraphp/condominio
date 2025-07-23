@@ -4,6 +4,7 @@ import axios from "axios";
 import Snackbar from "@/components/Snackbar.vue";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal.vue";
 import UserForm from "@/components/admin/UserForm.vue";
+import {route} from "ziggy-js";
 
 
 const mySnackbar = ref(null);
@@ -144,6 +145,16 @@ const closeDeleteModal = () => {
         isDeleting.value = false;
     }, 300);
 };
+
+const impersonateUser = (user) => {
+    // Construimos la URL completa dinámicamente
+    const url = `${window.location.origin}/admin/users/impersonate-in-new-tab/${user.id}`;
+    //const url = route('admin.impersonate.new_tab', { user: user.id });
+    console.log(url);
+
+    // Usamos window.open() para abrir la URL en una nueva pestaña/ventana
+    window.open(url, '_blank');
+}
 </script>
 <template>
     <v-container fluid>
@@ -191,6 +202,19 @@ const closeDeleteModal = () => {
                                 size="small"
                                 class="me-2"
                                 @click="openModalEdit(item)"
+                            ></v-btn>
+                        </template>
+                    </v-tooltip>
+                    <v-tooltip text="Login">
+                        <template v-slot:activator="{ props }">
+                            <v-btn
+                                v-bind="props"
+                                icon="mdi mdi-login"
+                                variant="text"
+                                color="primary"
+                                size="small"
+                                class="me-2"
+                                @click="impersonateUser(item)"
                             ></v-btn>
                         </template>
                     </v-tooltip>
