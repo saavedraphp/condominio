@@ -151,10 +151,12 @@ async function getPayments() {
     }
 }
 
-const handlePaymentAdded = (message) => {
-    mySnackbar.value.show(message, 'success');
+const handleRefreshData = (message) => {
+    closeDialog();
     getPayments();
+    mySnackbar.value.show(message, 'success');
 };
+
 const downloadPaymentFile = async (payment) => {
     const url = `/user/payments/${payment.id}/download`;
     currentlyDownloading.value = payment.id;
@@ -401,8 +403,9 @@ onMounted(() => {
                     <v-table density="compact" fixed-header height="400px">
                         <thead>
                         <tr>
-                            <th class="text-left">Fecha de Pago</th>
+                            <th class="text-left">Fecha</th>
                             <th class="text-left">Archivo</th>
+                            <th class="text-right">Cod Trasacción</th>
                             <th class="text-right">Monto</th>
                             <th class="text-center">Acciones</th>
                         </tr>
@@ -425,6 +428,7 @@ onMounted(() => {
                                     {{ payment.title || 'N/A' }}
                                 </div>
                             </td>
+                            <td class="text-right">{{ payment.transaction_code }}</td>
                             <td class="text-right">S/ {{ formatCurrency(payment.amount) }}</td>
                             <td class="text-center">
                                 <v-tooltip text="Descargar Comprobante">
@@ -445,7 +449,7 @@ onMounted(() => {
                                     <template v-slot:activator="{ props }">
                                         <v-btn
                                             v-bind="props"
-                                            icon="mdi-eye"
+                                            icon="mdi-pencil"
                                             variant="text"
                                             color="primary"
                                             size="small"
@@ -474,7 +478,7 @@ onMounted(() => {
                 <v-divider></v-divider>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="blue-darken-1" variant="text" @click="closeDialog">
+                    <v-btn color="primary" variant="flat" @click="closeDialog">
                         Cerrar
                     </v-btn>
                 </v-card-actions>
@@ -499,7 +503,8 @@ onMounted(() => {
             <PaymentForm
                 :payment="selectedElement"
                 :house="props.house"
-                @payment-added="handlePaymentAdded"
+                @payment-added="handleRefreshData"
+                @payment-edit="handleRefreshData"
                 @close-modal="closeModal"
             >
             </PaymentForm>

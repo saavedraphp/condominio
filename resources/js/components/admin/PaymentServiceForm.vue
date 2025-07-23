@@ -87,7 +87,7 @@ const isLoadingHouses = ref(false);
 const currentSearch = ref('');
 const existingImageUrl = ref(null);
 const quantityLast = ref('');
-const labelLastQuantity = ref('Ultima Lectura');
+const labelLastQuantity = ref('última Lectura');
 const isLoadingLastConsumption = ref(false);
 
 const isLoading = ref(false);

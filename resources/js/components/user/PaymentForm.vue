@@ -4,6 +4,7 @@ import {useField, useForm} from 'vee-validate'
 import Snackbar from "./../Snackbar.vue"
 import * as yup from "yup";
 import axios from "axios";
+import dayjs from "dayjs";
 
 const emit = defineEmits(['payment-added', 'payment-edit', 'close-modal']);
 
@@ -31,6 +32,9 @@ const schema = yup.object({
         .typeError('El valor tiene que ser númerico.')
         .required('El monto es requerida.')
         .positive('El monto debe ser positivo.'),
+    payment_date: yup.string().required().min(10, 'Este campo es requerido.'),
+    transaction_code: yup.string()
+        .required('El código de transacción es requerido.'),
     // Añade la validación para el campo del archivo
     paymentProof: yup.mixed()
         .required('El comprobante es requerido.')
@@ -64,14 +68,18 @@ const schema = yup.object({
 const {handleSubmit, resetForm, setValues} = useForm({
     validationSchema: schema,
     initialValues: {
-        title: '',
-        amount: null,
+        title: 'Pago con fecha',
+        amount: 200,
+        transaction_code: '123654789',
+        payment_date: dayjs().format('YYYY-MM-DD'),
         paymentProof: [],
     }
 });
 
 const title = useField('title')
 const amount = useField('amount')
+const {value: transaction_code, errorMessage: transaction_codeError} = useField('transaction_code')
+const {value: payment_date, errorMessage: payment_dateError} = useField('payment_date');
 const paymentProof = useField('paymentProof');
 
 // --- Computed Properties ---
@@ -84,6 +92,9 @@ const submitForm = handleSubmit(async (values) => {
         const formData = new FormData();
         formData.append('title', values.title);
         formData.append('amount', values.amount);
+        formData.append('payment_date', values.payment_date);
+        formData.append('transaction_code', values.transaction_code);
+
         //const cleanAmount = String(values.amount).replace(/,/g, '');
 
         let fileToUpload = null;
@@ -95,24 +106,45 @@ const submitForm = handleSubmit(async (values) => {
             fileToUpload = proofValue;
         }
 
-        if (fileToUpload instanceof File) {
-            formData.append('file_path', fileToUpload, fileToUpload.name);
-        } else {
-            mySnackbar.value.show('La imagen del comprobante es requerido', 'error');
+
+        // Doble chequeo por si acaso, aunque yup debería haberlo atrapado
+        if (!fileToUpload && !props.payment?.file_path) {
+            mySnackbar.value.show('Por favor, seleccione un archivo para subir.', 'error');
             return;
         }
 
-        isRecording.value = true;
+        if (fileToUpload instanceof File) {
+            formData.append('file_path', fileToUpload, fileToUpload.name);
+        }
 
-        const response = await axios.post(`/user/house/${props.house.id}/payments/`, formData);
+        const isEditingMode = isEditing.value;
+        let url = `/user/house/${props.house.id}/payments`;
+        const config = {
+            headers: {
+                'Accept': 'application/json',
+            }
+        };
+
+        if (isEditingMode) {
+            url = url+`/${props.payment.id}`;
+            formData.append('_method', 'PUT');
+        }
+
+        isRecording.value = true;
+        const response = await axios.post(url, formData, config);
+
         if (response.data.success) {
-            emit('payment-added', response.data.message);
+            if (isEditingMode) {
+                emit('payment-edit', response.data.message);
+            } else {
+                emit('payment-added', response.data.message);
+            }
             close();
         } else {
             mySnackbar.value.show(response.data.message, 'error');
         }
     } catch (error) {
-        mySnackbar.value.show('Lo sentimos, hubo un problema al guardar la información. Intenta de nuevo, por favor.', 'error');
+        mySnackbar.value.show(error.response.data.message || 'Lo sentimos, hubo un problema al guardar la información. Intenta de nuevo, por favor.', 'error');
         console.log(error);
     } finally {
         isRecording.value = false;
@@ -131,6 +163,8 @@ watch(() => props.payment, (newValue) => {
             id: newValue.id || null,
             title: newValue.title || '',
             amount: newValue.amount ?? null,
+            transaction_code: newValue.transaction_code || '',
+            payment_date: newValue.payment_date || '',
             file_path: [],
         });
         existingImageUrl.value = newValue.file_path_url || null;
@@ -153,7 +187,6 @@ watch(() => props.payment, (newValue) => {
                     :error-messages="title.errorMessage.value"
                     variant="outlined"
                     label="Título de pago"
-                    :disabled="isEditing"
                 ></v-text-field>
                 <v-text-field
                     v-model="amount.value.value"
@@ -161,7 +194,19 @@ watch(() => props.payment, (newValue) => {
                     prefix="S/"
                     variant="outlined"
                     label="Monto del pago"
-                    :disabled="isEditing"
+                ></v-text-field>
+                <v-text-field
+                    v-model="transaction_code"
+                    :error-messages="transaction_codeError"
+                    variant="outlined"
+                    label="Código de transacción"
+                ></v-text-field>
+                <v-text-field
+                    v-model="payment_date"
+                    :error-messages="payment_dateError"
+                    label="Fecha (YYYY-MM-DD)"
+                    variant="outlined"
+                    type="date"
                 ></v-text-field>
                 <v-file-input
                     v-model="paymentProof.value.value"
@@ -172,7 +217,6 @@ watch(() => props.payment, (newValue) => {
                     prepend-icon=""
                     show-size
                     clearable
-                    :disabled="isEditing"
                 ></v-file-input>
                 <div v-if="isEditing && existingImageUrl" class="mb-3">
                     <p class="text-caption mb-1">Comprobante actual:</p>
@@ -192,7 +236,7 @@ watch(() => props.payment, (newValue) => {
                         variant="flat"
                         type="submit"
                         :loading="isRecording"
-                        :disabled="isRecording || isEditing">
+                        :disabled="isRecording">
                         Guardar
                     </v-btn>
                 </v-card-actions>
