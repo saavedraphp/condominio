@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\DoormanController;
 use App\Http\Controllers\Admin\HouseController as AdminHouseController;
 use App\Http\Controllers\Admin\HouseResidentController;
 use App\Http\Controllers\Admin\HouseVehicleController;
+use App\Http\Controllers\Admin\ImpersonateController;
 use App\Http\Controllers\Admin\PetitionController as AdminPetitionController;
 use App\Http\Controllers\Admin\StatisticsController;
 use App\Http\Controllers\Admin\UserController as AdminUserAdsController;
@@ -313,9 +314,17 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
         Route::post('/settings/upload', [SettingController::class, 'upload'])->name('settings.upload');
 
+        // Nueva ruta para generar el token y redirigir
+        Route::get('users/impersonate-in-new-tab/{webUser}', [ImpersonateController::class, 'generateTokenAndRedirect'])
+            ->name('impersonate.new_tab');
+
     });
 
 });
+
+// --- Ruta pública para iniciar sesión con el token ---
+Route::get('/login-with-token/{token}', [ImpersonateController::class, 'loginWithToken'])
+    ->name('login.with_token');
 
 Route::get('/status/verify/{token}', [PublicStatusController::class, 'showStatusByToken'])
     ->name('public.user.status.by-token');
