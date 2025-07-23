@@ -17,9 +17,10 @@ class HousePayment extends Model
         'web_user_id',
         'title',
         'amount',
+        'transaction_code',
+        'payment_date',
         'file_path',
-        'status',
-        'payment_date'
+        'status'
     ];
 
     protected $casts = [
@@ -34,9 +35,9 @@ class HousePayment extends Model
         return Attribute::make(
             get: function ($value, $attributes) {
                 // Verifica si la columna 'file_path' existe y tiene valor
-                if (!empty($attributes['file_path']) && Storage::disk('public')->exists($attributes['file_path'])) {
+                if (!empty($attributes['file_path']) && Storage::exists($attributes['file_path'])) {
                     // Retorna la URL completa generada por Laravel Storage
-                    return Storage::disk('public')->url($attributes['file_path']);
+                    return Storage::url($attributes['file_path']);
                 }
                 return null;
             }
