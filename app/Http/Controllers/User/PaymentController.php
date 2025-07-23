@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\PaymentRequest;
+use App\Http\Resources\HousePaymentResource;
 use App\Models\House;
 use App\Models\HousePayment;
 use App\Models\WebUser;
@@ -33,8 +34,9 @@ class PaymentController extends Controller
     {
         try {
             $paymentsMade = $house->payments()->get();
+            $payments = HousePaymentResource::collection($paymentsMade);
+            return response()->json($payments);
 
-            return response()->json($paymentsMade);
         } catch (\Exception $e) {
             $errorMessage = 'Error al intentar obtener los pagos. ';
             Log::error($errorMessage . $e);
@@ -147,7 +149,7 @@ class PaymentController extends Controller
                 // Guarda el archivo en storage/app/public/file_paths
                 // Laravel generará un nombre único para evitar colisiones.
                 // Asegúrate de haber ejecutado `php artisan storage:link`
-                $filePath = $file->store('file_paths', 'public');
+                $filePath = $file->store('file_paths/payments');
 
                 if (!$filePath) {
                     return response()->json(['error' => 'No se pudo guardar el archivo comprobante.'], JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
@@ -159,8 +161,9 @@ class PaymentController extends Controller
 
             $payment = HousePayment::create([
                 'title' => $validatedData['title'],
-                'payment_date' => now(),
                 'amount' => $validatedData['amount'],
+                'payment_date' => $validatedData['payment_date'],
+                'transaction_code' => $validatedData['transaction_code'],
                 'file_path' => $filePath,
                 'house_id' => $house->id,
                 'web_user_id' => $webUserId,
@@ -183,6 +186,48 @@ class PaymentController extends Controller
         }
     }
 
+    public function update(PaymentRequest $request, House $house, HousePayment $payment): JsonResponse
+    {
+        if ($payment->house_id !== $house->id) {
+            Log::warning("Intento de actualización denegado: Pago ID {$payment->id} no pertenece a Casa ID {$house->id}.");
+            return response()->json(['success' => false, 'message' => 'Acción no autorizada o recurso no encontrado.'], 403);
+        }
+
+        try {
+            $validatedData = $request->validated();
+
+            // --- Manejo del Archivo ---
+            $filePath = $payment->file_path; // Mantener el archivo existente
+            if ($request->hasFile('file_path') && $request->file('file_path')->isValid()) {
+                // Si hay un nuevo archivo, reemplazar el existente
+                if ($filePath && Storage::exists($filePath)) {
+                    Storage::delete($filePath);
+                }
+                $file = $request->file('file_path');
+                $filePath = $file->store('file_paths/payments');
+            }
+
+            // Actualizar el pago
+            $payment->update([
+                'title' => $validatedData['title'],
+                'amount' => $validatedData['amount'],
+                'payment_date' => $validatedData['payment_date'],
+                'transaction_code' => $validatedData['transaction_code'],
+                'file_path' => $filePath,
+                'status' => 'approved',
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => '¡Excelente! El Pago y su archivo fue actualizado exitosamente.',
+                'data' => new HousePaymentResource($payment),
+            ], JsonResponse::HTTP_OK);
+
+        } catch (\Exception $e) {
+            Log::error('Error al actualizar el pago: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Ocurrió un error al intentar actualizar el pago.'], 500);
+        }
+    }
     public function destroy(House $house, HousePayment $payment): JsonResponse
     {
         if ($payment->house_id !== $house->id) {
@@ -191,12 +236,11 @@ class PaymentController extends Controller
         }
 
         $filePath = $payment->file_path;
-        $disk = 'public';
 
         try {
-            DB::transaction(function () use ($payment, $disk, $filePath) {
-                if ($filePath && Storage::disk($disk)->exists($filePath)) {
-                    Storage::disk($disk)->delete($filePath);
+            DB::transaction(function () use ($payment, $filePath) {
+                if ($filePath && Storage::exists($filePath)) {
+                    Storage::delete($filePath);
                 }
                 $payment->delete();
 
