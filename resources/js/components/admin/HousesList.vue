@@ -182,6 +182,20 @@ const closeDeleteModal = () => {
                             ></v-btn>
                         </template>
                     </v-tooltip>
+                    <v-tooltip bottom>
+                        <template v-slot:activator="{ on, attrs }">
+                            <v-btn
+                                icon
+                                v-bind="attrs"
+                                v-on="on"
+                                :href="`/admin/houses/${item.id}/balance`"
+                                target="_blank"
+                            >
+                            <v-icon color="blue darken-1">mdi-chart-bar</v-icon>
+                            </v-btn>
+                        </template>
+                        <span>Ver Balance</span>
+                    </v-tooltip>
                     <v-tooltip text="Eliminar">
                         <template v-slot:activator="{ props }">
                             <v-btn
