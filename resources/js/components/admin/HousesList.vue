@@ -22,7 +22,8 @@ const headers = ref([
 
 const houses = ref([]);
 const loading = ref(true);
-const search = ref('Buscando resultados');
+const loadingHouses = ref(true);
+const search = ref('');
 const showModal = ref(false)
 const dialogDelete = ref(false);
 const isDeleting = ref(false);
@@ -41,7 +42,7 @@ const deleteDialogItemName = computed(() => {
 });
 
 async function getHouses() {
-    loading.value = true;
+    loadingHouses.value = true;
 
     try {
         const response = await axios.get(`/admin/houses/`);
@@ -55,7 +56,7 @@ async function getHouses() {
     } catch (error) {
         mySnackbar.value.show('Lo sentimos, hubo un problema obtener la información. Intenta de nuevo, por favor.', 'error');
     } finally {
-        loading.value = false;
+        loadingHouses.value = false;
     }
 }
 
@@ -159,11 +160,24 @@ const closeDeleteModal = () => {
                 </v-btn>
             </v-card-title>
 
+            <v-text-field v-if="true"
+                          v-model="search"
+                          density="compact"
+                          label="Search ..."
+                          prepend-inner-icon="mdi-magnify"
+                          variant="solo-filled"
+                          flat
+                          hide-details
+                          single-line
+                          class="pa-2"
+            ></v-text-field>
             <v-divider></v-divider>
 
             <v-data-table v-show="houses.length"
                           :headers="headers"
                           :items="houses"
+                          :search="search"
+                          :loading="loadingHouses"
                           class="elevation-1"
                           dense
             >
@@ -182,19 +196,17 @@ const closeDeleteModal = () => {
                             ></v-btn>
                         </template>
                     </v-tooltip>
-                    <v-tooltip bottom>
-                        <template v-slot:activator="{ on, attrs }">
+                    <v-tooltip text="Ver Balance" location="bottom">
+                        <template v-slot:activator="{ props }">
                             <v-btn
                                 icon
-                                v-bind="attrs"
-                                v-on="on"
+                                v-bind="props"
                                 :href="`/admin/houses/${item.id}/balance`"
                                 target="_blank"
                             >
-                            <v-icon color="blue darken-1">mdi-chart-bar</v-icon>
+                                <v-icon color="blue-darken-1">mdi-chart-bar</v-icon>
                             </v-btn>
                         </template>
-                        <span>Ver Balance</span>
                     </v-tooltip>
                     <v-tooltip text="Eliminar">
                         <template v-slot:activator="{ props }">
