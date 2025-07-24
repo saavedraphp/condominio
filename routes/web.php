@@ -21,6 +21,7 @@ use App\Http\Controllers\BudgetTypeController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\HouseBalanceController;
 use App\Http\Controllers\HouseMonthlyChargeController;
 use App\Http\Controllers\PaymentServiceController;
 use App\Http\Controllers\PetitionController;
@@ -106,6 +107,7 @@ Route::prefix('user')->name('user.')->group(function () {
 
         Route::get('/houses/{house}/dashboard', [HouseController::class, 'dashboard'])->name('user.house.dashboard');
         Route::get('/houses/show/{house}', [HouseController::class, 'show'])->name('user.house.show');
+        /* HOUSE LIST */
         Route::get('/houses', [HouseController::class, 'index'])->name('user.house.index');
         Route::get('/houses/list', [HouseController::class, 'showPage'])->name('user.house.showPage');
         Route::post('/house/{house}', [HouseController::class, 'update'])->name('user.house.update');
@@ -130,7 +132,7 @@ Route::prefix('user')->name('user.')->group(function () {
         Route::get('/houses/{house}/electricity-records/list', [PaymentServiceController::class, 'showPage'])->name('houses.electricity-history.show-page');
 
         Route::get('/houses/{house}/water-records/list', [PaymentServiceController::class, 'showPageWater'])->name('houses.electricity-history.show-page-water');
-        Route::get('/houses/{house}/consumption/', [PaymentServiceController::class,'index'])->name('houses.consumption.index');
+        Route::get('/houses/{house}/consumption/', [PaymentServiceController::class, 'index'])->name('houses.consumption.index');
 
         /* PETITICIONS */
         Route::get('/petitions/list', [PetitionController::class, 'showPage'])->name('petitions.show-page');;
@@ -187,10 +189,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::post('/house-vehicles', [HouseVehicleController::class, 'store'])->name('house-vehicles.store');
             Route::put('/house-vehicles/{house_vehicle}', [HouseVehicleController::class, 'update'])->name('house-vehicles.update');
             Route::delete('/house-vehicles/{house_vehicle}', [HouseVehicleController::class, 'destroy'])->name('house-vehicles.destroy');
-/*            Route::get('/getUnassigned', [UserHouseAssignmentController::class, 'getUnassigned'])->name('getUnassigned');
-            Route::post('/', [UserHouseAssignmentController::class, 'store'])->name('store');
-            //Route::delete('/{house}', [UserHouseAssignmentController::class, 'destroy'])->name('destroy');
-            ;*/
+            /*            Route::get('/getUnassigned', [UserHouseAssignmentController::class, 'getUnassigned'])->name('getUnassigned');
+                        Route::post('/', [UserHouseAssignmentController::class, 'store'])->name('store');
+                        //Route::delete('/{house}', [UserHouseAssignmentController::class, 'destroy'])->name('destroy');
+                        ;*/
 
         });
 
@@ -205,6 +207,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('/houses', AdminHouseController::class);
         Route::get('/houses/{house_id}/last-consumption', [AdminHouseController::class, 'getLastConsumption'])->name('houses.last-consumption');
 
+        /*BALANCY BY HOUSE*/
+        Route::get('/houses/{house}/balance', [HouseBalanceController::class, 'show'])
+            ->name('houses.balance.show');
+        Route::get('/houses/{house}/balance/download', [HouseBalanceController::class, 'download'])
+            ->name('houses.balance.download');
+
         /* DOCUMENTS*/
         Route::get('/documents/list', [DocumentController::class, 'showListPageAdmin'])->name('documents.show-page');
         Route::resource('/documents', DocumentController::class);
@@ -216,10 +224,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/electricity-records/list-all', [PaymentServiceController::class, 'showPageAll'])->name('electricity-history.show-page-all');
         Route::get('/water-records/list-all', [PaymentServiceController::class, 'showPageAllWater'])->name('water.show-page-all');
 
-        Route::get('/consumption/', [PaymentServiceController::class,'indexAll'])->name('houses.electricity-history.index-all');
-        Route::post('/consumption/', [PaymentServiceController::class,'store'])->name('houses.electricity-history.store');
-        Route::put('/consumption/{paymentService}', [PaymentServiceController::class,'update'])->name('houses.electricity-history.update');
-        Route::delete('/consumption/{paymentService}', [PaymentServiceController::class,'destroy'])->name('houses.electricity-history.destroy');
+        Route::get('/consumption/', [PaymentServiceController::class, 'indexAll'])->name('houses.electricity-history.index-all');
+        Route::post('/consumption/', [PaymentServiceController::class, 'store'])->name('houses.electricity-history.store');
+        Route::put('/consumption/{paymentService}', [PaymentServiceController::class, 'update'])->name('houses.electricity-history.update');
+        Route::delete('/consumption/{paymentService}', [PaymentServiceController::class, 'destroy'])->name('houses.electricity-history.destroy');
 
         /* PETITIONS */
         Route::get('/petitions/list', [AdminPetitionController::class, 'showPage'])->name('petitions.show-page');;
