@@ -56,7 +56,6 @@ onMounted(() => {
 async function getMonthlyCharge() {
     loadingProjects.value = true;
     try {
-        console.log(props.urlBase['base']);
         const response = await axios.get(`${props.urlBase['base']}`, {
             params: {
                 house_id: props.houseId,
