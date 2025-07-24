@@ -1,5 +1,5 @@
 <script setup>
-import {watch} from "vue";
+import {ref, watch} from "vue";
 import {useField, useForm} from "vee-validate";
 import * as yup from 'yup';
 
@@ -93,6 +93,12 @@ const close = () => {
     resetForm();
 }
 
+const TABS_KEYS = {
+    'DATA': 'data',
+    'FILES': 'files'
+};
+
+const activeKey = ref(TABS_KEYS.DATA);
 </script>
 
 <template>
@@ -100,73 +106,85 @@ const close = () => {
         <v-card-title>
             <span class="text-h5">{{ formTitle }}</span>
         </v-card-title>
+        <v-divider></v-divider>
+        <v-tabs v-model="activeKey">
+            <v-tab :value="TABS_KEYS.DATA">Datos</v-tab>
+            <v-tab :value="TABS_KEYS.FILES">Archivos</v-tab>
+        </v-tabs>
         <v-card-text>
-            <v-form @submit.prevent="submitForm">
-                <v-container>
-                    <v-row>
-                        <v-col cols="12">
-                            <v-text-field
-                                v-model="name.value.value"
-                                :error-messages="name.errorMessage.value"
-                                label="Name*"
-                                variant="outlined"
-                                required
-                            ></v-text-field>
-                        </v-col>
-                        <v-col cols="12">
-                            <v-text-field
-                                v-model="email.value.value"
-                                :error-messages="email.errorMessage.value"
-                                label="Email*"
-                                variant="outlined"
-                                required
-                            ></v-text-field>
-                        </v-col>
-                        <v-col cols="12">
-                            <v-text-field
-                                v-model="phone.value.value"
-                                :error-messages="phone.errorMessage.value"
-                                label="Teléfono*"
-                                variant="outlined"
-                                required
-                            ></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="6">
-                            <v-checkbox
-                                v-model="has_payment_arrangement.value.value"
-                                label="Tiene Arreglo de pagos"
-                                class="pa-0 ma-0"
-                                density="compact"
-                            />
-                        </v-col>
-                        <v-col cols="12" sm="6">
-                            <v-checkbox
-                                v-model="is_associated.value.value"
-                                label="Es Asociado"
-                                class="pa-0 ma-0"
-                                density="compact"
-                            />
-                        </v-col>
-                        <v-col cols="12" sm="6">
-                            <v-switch
-                                v-model="status.value.value"
-                                :label="status.value.value ? 'Activo' : 'Inactivo'"
-                                color="success"
-                                inset
-                            ></v-switch>
-                        </v-col>
-                    </v-row>
-                </v-container>
-                <blockquote v-if="false">*Se requiere verificación por correo electrónico.
-                    Se enviará un mensaje a {{ email.value }} con los pasos para confirmar
-                    su cuenta. Una vez confirmada, podrá acceder y modificar su contraseña.
-                </blockquote>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="grey" variant="flat" @click="close">Cancelar</v-btn>
-                    <v-btn color="primary" variant="flat" type="submit">Guardar</v-btn>
-                </v-card-actions>
-            </v-form>
+            <v-window v-model="activeKey">
+                <v-window-item :value="TABS_KEYS.DATA">
+                    <v-form @submit.prevent="submitForm">
+                        <v-container>
+                            <v-row>
+                                <v-col cols="12">
+                                    <v-text-field
+                                        v-model="name.value.value"
+                                        :error-messages="name.errorMessage.value"
+                                        label="Name*"
+                                        variant="outlined"
+                                        required
+                                    ></v-text-field>
+                                </v-col>
+                                <v-col cols="12">
+                                    <v-text-field
+                                        v-model="email.value.value"
+                                        :error-messages="email.errorMessage.value"
+                                        label="Email*"
+                                        variant="outlined"
+                                        required
+                                    ></v-text-field>
+                                </v-col>
+                                <v-col cols="12">
+                                    <v-text-field
+                                        v-model="phone.value.value"
+                                        :error-messages="phone.errorMessage.value"
+                                        label="Teléfono*"
+                                        variant="outlined"
+                                        required
+                                    ></v-text-field>
+                                </v-col>
+                                <v-col cols="12" sm="6">
+                                    <v-checkbox
+                                        v-model="has_payment_arrangement.value.value"
+                                        label="Tiene Arreglo de pagos"
+                                        class="pa-0 ma-0"
+                                        density="compact"
+                                    />
+                                </v-col>
+                                <v-col cols="12" sm="6">
+                                    <v-checkbox
+                                        v-model="is_associated.value.value"
+                                        label="Es Asociado"
+                                        class="pa-0 ma-0"
+                                        density="compact"
+                                    />
+                                </v-col>
+                                <v-col cols="12" sm="6">
+                                    <v-switch
+                                        v-model="status.value.value"
+                                        :label="status.value.value ? 'Activo' : 'Inactivo'"
+                                        color="success"
+                                        inset
+                                    ></v-switch>
+                                </v-col>
+                            </v-row>
+                        </v-container>
+                        <blockquote v-if="false">*Se requiere verificación por correo electrónico.
+                            Se enviará un mensaje a {{ email.value }} con los pasos para confirmar
+                            su cuenta. Una vez confirmada, podrá acceder y modificar su contraseña.
+                        </blockquote>
+                        <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn color="grey" variant="flat" @click="close">Cancelar</v-btn>
+                            <v-btn color="primary" variant="flat" type="submit">Guardar</v-btn>
+                        </v-card-actions>
+                    </v-form>
+                </v-window-item>
+                <v-window-item :value="TABS_KEYS.FILES">
+                    <p>Archivos</p>
+                </v-window-item>
+            </v-window>
         </v-card-text>
     </v-card>
 </template>
