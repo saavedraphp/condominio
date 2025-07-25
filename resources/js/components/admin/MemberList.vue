@@ -64,6 +64,10 @@ const showModalMember = (member) => {
     showModal.value = true;
 };
 
+const handleAddMember = () => {
+    selectedMember.value = null;
+    showModal.value = true;
+};
 const openDeleteDialog = (item) => {
     itemToDelete.value = item;
     dialogDeleteVisible.value = true;
@@ -87,7 +91,7 @@ const deleteMember = async () => {
         if (!itemToDelete.value) return;
         const id = itemToDelete.value.id;
 
-        const response = await axios.delete(`${apiBaseMemberUrl}/${id}`)
+        const response = await axios.delete(`${apiBaseMemberUrl.value}/${id}`)
 
         if (response.data && response.data.success) {
             members.value = members.value.filter(member => member.id !== id);
@@ -116,7 +120,7 @@ onMounted(() => {
         <v-btn v-if="props.isAdmin"
                color="primary"
                prepend-icon="mdi-plus"
-               @click="showModal = true"
+               @click="handleAddMember"
         >
             Agregar Integrante
         </v-btn>

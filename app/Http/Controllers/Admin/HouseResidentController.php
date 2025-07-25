@@ -24,14 +24,14 @@ class HouseResidentController extends Controller
     }
     public function store(Request $request): JsonResponse
     {
-        try {
-            $validateData = $request->validate([
-                'house_id' => 'required|exists:houses,id',
-                'name' => 'required|string|max:50',
-                'phone' => 'nullable|string|max:20',
-                'email' => 'nullable|email'
-            ]);
+        $validateData = $request->validate([
+            'house_id' => 'required|exists:houses,id',
+            'name' => 'required|string|max:50',
+            'phone' => 'nullable|string|max:20',
+            'email' => 'nullable|email'
+        ]);
 
+        try {
             $resident = HouseResident::create($validateData);
             return response()->json([
                 'success' => true,
@@ -64,14 +64,14 @@ class HouseResidentController extends Controller
 
     public function update(Request $request, WebUser $webUser, House $house, HouseResident $houseResident): JsonResponse
     {
+        $validateData = $request->validate([
+            'house_id' => 'required|exists:houses,id',
+            'name' => 'required|string|max:50',
+            'phone' => 'nullable|string|max:20',
+            'email' => 'nullable|email'
+        ]);
 
         try {
-            $validateData = $request->validate([
-                'house_id' => 'required|exists:houses,id',
-                'name' => 'required|string|max:50',
-                'phone' => 'nullable|string|max:20',
-                'email' => 'nullable|email'
-            ]);
 
             $updateSuccessful = $houseResident->update($validateData);
 

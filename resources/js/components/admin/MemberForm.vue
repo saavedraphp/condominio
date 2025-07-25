@@ -55,6 +55,8 @@ watch(() => props.member, (newMember) => {
         memberName.value.value = newMember.name || "";
         memberPhone.value.value = newMember.phone || "";
         memberEmail.value.value = newMember.email || "";
+    }else {
+        resetForm({values: {memberName: '', memberPhone: '', memberEmail: ''}});
     }
 }, {immediate: true});
 
@@ -88,12 +90,10 @@ const submitForm = handleSubmit(async (values) => {
             mySnackbar.value.show(response.data.message, 'error');
         }
     } catch (error) {
-        mySnackbar.value.show('Lo sentimos, hubo un problema al guardar la información. Intenta de nuevo, por favor.', 'error');
+        mySnackbar.value.show(error.response.data.message || 'Lo sentimos, hubo un problema al guardar la información. Intenta de nuevo, por favor.', 'error');
     } finally {
         isLoading.value = false;
     }
-    resetForm({values: {memberName: '', memberPhone: '', memberEmail: ''}});
-    close();
 });
 
 const close = () => {
