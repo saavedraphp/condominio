@@ -100,7 +100,6 @@ const TABS_KEYS = {
 
 const activeKey = ref(TABS_KEYS.DATA);
 </script>
-
 <template>
     <v-card>
         <v-card-title>
