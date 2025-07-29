@@ -10,6 +10,8 @@ use App\Http\Controllers\Admin\HouseController as AdminHouseController;
 use App\Http\Controllers\Admin\HouseResidentController;
 use App\Http\Controllers\Admin\HouseVehicleController;
 use App\Http\Controllers\Admin\ImpersonateController;
+use App\Http\Controllers\Admin\OtherExpenseController;
+use App\Http\Controllers\Admin\OtherExpenseDetailsController;
 use App\Http\Controllers\Admin\PetitionController as AdminPetitionController;
 use App\Http\Controllers\Admin\StatisticsController;
 use App\Http\Controllers\Admin\UserController as AdminUserAdsController;
@@ -92,6 +94,9 @@ Route::prefix('user')->name('user.')->group(function () {
         Route::get('/documents/{document}', [DocumentController::class, 'show'])
             ->where('document', '[0-9]+'); // Asegura que el ID sea numérico
 
+        Route::get('/documents/{document}/preview-image', [DocumentController::class, 'previewImage'])
+            ->name('documents.preview-image')
+            ->where('document', '[0-9]+');
         // Ruta nombrada para la descarga segura
         Route::get('/documents/{document}/download', [DocumentController::class, 'download'])
             ->name('documents.download') // Nombre de la ruta usado en el Modelo
@@ -270,6 +275,20 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/building-expenses', [ExpenseController::class, 'store'])->name('building-expenses.store');
         Route::put('/building-expenses/{expense}', [ExpenseController::class, 'update'])->name('building-expenses.update');
         Route::delete('/building-expenses/{expense}', [ExpenseController::class, 'destroy'])->name('building-expenses.destroy');
+
+        //OTHER EXPENSES
+        Route::get('/other-expenses/list', [OtherExpenseController::class, 'showPage'])->name('other-expenses.show-page');
+        Route::get('/other-expenses', [OtherExpenseController::class, 'index'])->name('other-expenses.index');
+        Route::post('/other-expenses', [OtherExpenseController::class, 'store'])->name('other-expenses.store');
+        Route::put('/other-expenses/{otherExpense}', [OtherExpenseController::class, 'update'])->name('other-expenses.update');
+        Route::delete('/other-expenses/{otherExpense}', [OtherExpenseController::class, 'destroy'])->name('other-expenses.destroy');
+        Route::post('/other-expenses/{otherExpense}/details-other-expenses', [OtherExpenseDetailsController::class, 'store'])
+            ->name('details-other-expenses.store');
+        Route::delete('/other-expenses/{otherExpense}/details-other-expenses/{detailsOtherExpense}', [OtherExpenseDetailsController::class, 'destroy'])
+            ->name('details-other-expenses.destroy');
+        Route::get('details-other-expenses/{detailsOtherExpense}/preview-image', [OtherExpenseDetailsController::class, 'previewImage'])
+            ->name('details-other-expenses.preview-image');
+
 
         /*PROJECTS*/
         Route::get('/projects/list', [ProjectController::class, 'showListPage'])->name('projects.list');

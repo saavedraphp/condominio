@@ -1,6 +1,6 @@
 <script setup>
 import {ref, onMounted, computed} from 'vue';
-import DocumentDetailDialog from './DocumentDetailDialog.vue'; // Importa el diálogo
+import PreviewImageDialog from './PreviewImageDialog.vue'; // Importa el diálogo
 import {formatDate, getMegabytes} from "@/utils/functions.js";
 import DocumentForm from "@/components/user/DocumentForm.vue";
 import Snackbar from "@/components/Snackbar.vue";
@@ -34,6 +34,7 @@ const downloadError = ref(null);
 const showDeleteModal = ref(false);
 const itemToDelete = ref(null);
 const isDeleting = ref(false);
+const routeImage = ref(null);
 
 // --- Headers para v-data-table ---
 const headers = ref([
@@ -69,6 +70,7 @@ const getDocuments = async () => {
 const viewDocument = (document) => {
     selectedDocumentId.value = document.id;
     showDetailDialog.value = true;
+    routeImage.value = `${props.apiBaseUrl}/${document.id}/preview-image/`;
 };
 
 const closeModal = (() => {
@@ -264,7 +266,7 @@ onMounted(() => {
                 </template>
                 <!-- Columna de Acciones -->
                 <template v-slot:item.actions="{ item }">
-                    <v-tooltip text="Ver Detalles" v-if="false">
+                    <v-tooltip text="Ver Detalles" >
                         <template v-slot:activator="{ props }">
                             <v-btn
                                 icon="mdi-eye"
@@ -276,7 +278,7 @@ onMounted(() => {
                             ></v-btn>
                         </template>
                     </v-tooltip>
-                    <v-tooltip text="Descargar Comprobante">
+                    <v-tooltip text="Descargar">
                         <template v-slot:activator="{ props }">
                             <v-btn
                                 v-bind="props"
@@ -335,10 +337,10 @@ onMounted(() => {
             @confirm="deleteDocument"
             @cancel="closeDeleteModal"
         />
-        <DocumentDetailDialog
+        <PreviewImageDialog
             v-model="showDetailDialog"
-            :api-base-url="apiBaseUrl"
-            :document-id="selectedDocumentId"
+            :api-base-url="routeImage"
+            :id="selectedDocumentId"
             @close="showDetailDialog = false"
         />
         <Snackbar ref="mySnackbar"/>

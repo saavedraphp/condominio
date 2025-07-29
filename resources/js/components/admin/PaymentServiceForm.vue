@@ -57,7 +57,7 @@ const schema = yup.object({
         .required('La lectura es requerida.').min(0, 'La lectura debe ser un número positivo.'),
 });
 
-const {handleSubmit, resetForm, setValues, setFieldValue } = useForm({
+const {handleSubmit, resetForm, setValues, setFieldValue} = useForm({
     validationSchema: schema,
     initialValues: {
         payment_date: dayjs().format('YYYY-MM-DD'),
@@ -70,13 +70,13 @@ const {handleSubmit, resetForm, setValues, setFieldValue } = useForm({
 });
 // LSL DESESTRUCTURACIÓN DE CAMPOS
 // --- Desestructuración de useField (Sin cambios) ---
-const { value: house_id, errorMessage: house_idError } = useField('house_id');
-const { value: payment_date, errorMessage: payment_dateError } = useField('payment_date');
-const { value: quantity, errorMessage: quantityError } = useField('quantity');
-const { value: consumption, errorMessage: consumptionError } = useField('consumption'); // Mantenemos `consumption` para el submit
-const { value: replace } = useField('replace');
-const { value: observations } = useField('observations');
-const { value: documentFile, errorMessage: documentFileError } = useField('documentFile');
+const {value: house_id, errorMessage: house_idError} = useField('house_id');
+const {value: payment_date, errorMessage: payment_dateError} = useField('payment_date');
+const {value: quantity, errorMessage: quantityError} = useField('quantity');
+const {value: consumption, errorMessage: consumptionError} = useField('consumption'); // Mantenemos `consumption` para el submit
+const {value: replace} = useField('replace');
+const {value: observations} = useField('observations');
+const {value: documentFile, errorMessage: documentFileError} = useField('documentFile');
 
 const file_path = useField('file_path');
 const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
@@ -267,7 +267,7 @@ watchEffect(async () => {
 // En el 'consumption' computed, ahora es más simple
 const consumptionFinal = computed(() => {
     const last = parseFloat(quantityLast.value) || 0;
-    if( last === 0 ) {
+    if (last === 0) {
         return 0; // Si no hay última lectura, el consumo es 0
     }
     const current = parseFloat(quantity.value) || 0;
@@ -294,126 +294,126 @@ onMounted(() => {
             </v-card-title>
             <v-card-text>
                 <v-form @submit.prevent="submitForm">
-                        <v-row dense>
-                            <v-col cols="12">
-                                <v-autocomplete
-                                    v-model="house_id"
-                                    :items="houses"
-                                    :loading="isLoadingHouses"
-                                    :disabled="isLoadingHouses"
-                                    item-title="address"
-                                    item-value="id"
-                                    label="Buscar y seleccionar casa..."
-                                    placeholder="Escribe el nombre..."
-                                    variant="outlined"
-                                    return-object
-                                    clearable
-                                    no-data-text="No se encontraron casas"
-                                    @update:search="onSearchInput"
-                                    :error-messages="house_idError"
-                                >
-                                    <!-- Opcional: Personalizar cómo se muestra cada item en la lista -->
-                                    <template v-slot:item="{ props, item }">
-                                        <v-list-item
-                                            v-bind="props"
-                                            :title="item.raw.name"
-                                            :subtitle="item.raw.address"
-                                        ></v-list-item>
-                                    </template>
+                    <v-row dense>
+                        <v-col cols="12">
+                            <v-autocomplete
+                                v-model="house_id"
+                                :items="houses"
+                                :loading="isLoadingHouses"
+                                :disabled="isLoadingHouses"
+                                item-title="address"
+                                item-value="id"
+                                label="Buscar y seleccionar casa..."
+                                placeholder="Escribe el nombre..."
+                                variant="outlined"
+                                return-object
+                                clearable
+                                no-data-text="No se encontraron casas"
+                                @update:search="onSearchInput"
+                                :error-messages="house_idError"
+                            >
+                                <!-- Opcional: Personalizar cómo se muestra cada item en la lista -->
+                                <template v-slot:item="{ props, item }">
+                                    <v-list-item
+                                        v-bind="props"
+                                        :title="item.raw.name"
+                                        :subtitle="item.raw.address"
+                                    ></v-list-item>
+                                </template>
 
-                                    <!-- Opcional: Mostrar algo más que el item-title cuando está seleccionado -->
-                                    <template v-slot:selection="{ item }">
-                                        <span>{{ item.raw.name }} - {{ item.raw.address }}</span>
-                                    </template>
+                                <!-- Opcional: Mostrar algo más que el item-title cuando está seleccionado -->
+                                <template v-slot:selection="{ item }">
+                                    <span>{{ item.raw.name }} - {{ item.raw.address }}</span>
+                                </template>
 
-                                </v-autocomplete>
-                            </v-col>
-                            <v-col cols="12">
-                                <v-text-field
-                                    v-model="payment_date"
-                                    :error-messages="payment_dateError"
-                                    type="date"
-                                    variant="outlined"
-                                    label="Fecha"
-                                    required
-                                ></v-text-field>
-                            </v-col>
-                            <v-col cols="12" sm="6">
-                                <v-text-field
-                                    variant="outlined"
-                                    :label="labelLastQuantity"
-                                    v-model="quantityLast"
-                                    placeholder="0"
-                                    type="number"
-                                    readonly
-                                    color="grey"
-                                    hide-details
-                                    class="read-only-field"
-                                ></v-text-field>
-                            </v-col>
-                            <v-col cols="12" sm="6">
-                                <v-text-field
-                                    variant="outlined"
-                                    :label="labelUnit"
-                                    v-model="quantity"
-                                    :error-messages="quantityError"
-                                    placeholder="0"
-                                    type="number"
-                                ></v-text-field>
-                            </v-col>
-                            <v-col cols="12">
-                                <v-text-field
-                                    variant="outlined"
-                                    :label="labelConsumption"
-                                    v-model="consumptionFinal"
-                                    placeholder="0"
-                                    type="number"
-                                    :error-messages="consumptionError"
-                                    readonly
-                                    color="grey"
-                                    hide-details
-                                    class="read-only-field"
-                                />
-                            </v-col>
-                            <v-col cols="12">
-                                <v-textarea
-                                    v-model="observations"
-                                    label="Observaciones"
-                                    rows="3"
-                                    variant="outlined"
-                                    required
-                                ></v-textarea>
-                            </v-col>
-                            <v-col cols="12">
-                                <v-file-input
-                                    v-model="documentFile"
-                                    :error-messages="documentFileError"
-                                    label="Selecciono una (Imagen)"
-                                    variant="outlined"
-                                    :accept="ACCEPTED_IMAGE_TYPES.join(',')"
-                                    prepend-icon=""
-                                    show-size
-                                    clearable
-                                ></v-file-input>
-                            </v-col>
-                            <v-col cols="12">
-                                <v-switch
-                                    v-model="replace"
-                                    :label="replace ? 'Remplazo' : 'No Remplazo'"
-                                    color="success"
-                                    inset
-                                ></v-switch>
-                            </v-col>
-                            <v-col cols="12" v-if="isEditing && existingImageUrl" class="mb-3">
-                                <v-img
-                                    :src="existingImageUrl"
-                                    max-height="150"
-                                    contain
-                                    alt="Imagen actual"
-                                    class="mb-2"
-                                ></v-img>
-                            </v-col>
-                        </v-row>
+                            </v-autocomplete>
+                        </v-col>
+                        <v-col cols="12">
+                            <v-text-field
+                                v-model="payment_date"
+                                :error-messages="payment_dateError"
+                                type="date"
+                                variant="outlined"
+                                label="Fecha"
+                                required
+                            ></v-text-field>
+                        </v-col>
+                        <v-col cols="12" sm="6">
+                            <v-text-field
+                                variant="outlined"
+                                :label="labelLastQuantity"
+                                v-model="quantityLast"
+                                placeholder="0"
+                                type="number"
+                                readonly
+                                color="grey"
+                                hide-details
+                                class="read-only-field"
+                            ></v-text-field>
+                        </v-col>
+                        <v-col cols="12" sm="6">
+                            <v-text-field
+                                variant="outlined"
+                                :label="labelUnit"
+                                v-model="quantity"
+                                :error-messages="quantityError"
+                                placeholder="0"
+                                type="number"
+                            ></v-text-field>
+                        </v-col>
+                        <v-col cols="12">
+                            <v-text-field
+                                variant="outlined"
+                                :label="labelConsumption"
+                                v-model="consumptionFinal"
+                                placeholder="0"
+                                type="number"
+                                :error-messages="consumptionError"
+                                readonly
+                                color="grey"
+                                hide-details
+                                class="read-only-field"
+                            />
+                        </v-col>
+                        <v-col cols="12">
+                            <v-textarea
+                                v-model="observations"
+                                label="Observaciones"
+                                rows="3"
+                                variant="outlined"
+                                required
+                            ></v-textarea>
+                        </v-col>
+                        <v-col cols="12">
+                            <v-file-input
+                                v-model="documentFile"
+                                :error-messages="documentFileError"
+                                label="Selecciono una (Imagen)"
+                                variant="outlined"
+                                :accept="ACCEPTED_IMAGE_TYPES.join(',')"
+                                prepend-icon=""
+                                show-size
+                                clearable
+                            ></v-file-input>
+                        </v-col>
+                        <v-col cols="12">
+                            <v-switch
+                                v-model="replace"
+                                :label="replace ? 'Remplazo' : 'No Remplazo'"
+                                color="success"
+                                inset
+                            ></v-switch>
+                        </v-col>
+                        <v-col cols="12" v-if="isEditing && existingImageUrl" class="mb-3">
+                            <v-img
+                                :src="existingImageUrl"
+                                max-height="150"
+                                contain
+                                alt="Imagen actual"
+                                class="mb-2"
+                            ></v-img>
+                        </v-col>
+                    </v-row>
                     <v-card-actions>
                         <v-spacer></v-spacer>
                         <v-btn color="grey" variant="flat" @click="close" :disabled="isLoading">Cancelar</v-btn>
