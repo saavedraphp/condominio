@@ -347,21 +347,21 @@ return [
             'icon' => 'fas fa-file',
             'can' => 'view_ads',
         ],
-/*        [
-            'text' => 'Recibos de Caja Chica',
-            'url' => 'admin/blog',
-            'can' => 'view_ads',
-        ],
-        [
-            'text' => 'Recibos por honorarios',
-            'url' => 'admin/blog',
-            'can' => 'view_ads',
-        ],*/
-/*        [
-            'text' => 'Estadisticas',
-            'url' => 'admin/blog',
-            'can' => 'view_ads',
-        ],*/
+        /*        [
+                    'text' => 'Recibos de Caja Chica',
+                    'url' => 'admin/blog',
+                    'can' => 'view_ads',
+                ],
+                [
+                    'text' => 'Recibos por honorarios',
+                    'url' => 'admin/blog',
+                    'can' => 'view_ads',
+                ],*/
+        /*        [
+                    'text' => 'Estadisticas',
+                    'url' => 'admin/blog',
+                    'can' => 'view_ads',
+                ],*/
         [
             'text' => 'Peticiones al Vocal',
             'route' => 'admin.petitions.show-page',
@@ -427,6 +427,11 @@ return [
                             'url' => 'admin/building-expenses/list',
                         ],
                     ]
+                ],
+                [
+                    'text' => 'Gastos de Islas C.',
+                    'route' => 'admin.other-expenses.show-page',
+                    'can' => 'view_ads',
                 ]
             ]
         ],
@@ -460,12 +465,12 @@ return [
             'can' => 'view_ads',
         ],
 
-/*        [
-            'text' => 'Caja Chica',
-            'route' => 'admin.petty-cash.list',
-            'icon' => 'fas fa-fw fa-project-diagram',
-            'can' => 'view_ads',
-        ],*/
+        /*        [
+                    'text' => 'Caja Chica',
+                    'route' => 'admin.petty-cash.list',
+                    'icon' => 'fas fa-fw fa-project-diagram',
+                    'can' => 'view_ads',
+                ],*/
         /*
 
                 [
