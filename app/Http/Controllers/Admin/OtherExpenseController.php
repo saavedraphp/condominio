@@ -24,6 +24,9 @@ class OtherExpenseController extends Controller
                     'otherExpense' => 'PLACEHOLDER_1',
                     'detailsOtherExpense' => 'PLACEHOLDER_2'
                 ]),
+                'preview_image' => route('admin.details-other-expenses.preview-image', [
+                    'detailsOtherExpense' => 'PLACEHOLDER'
+                ]),
             ],
         ]);
     }

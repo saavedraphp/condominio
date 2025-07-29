@@ -94,6 +94,9 @@ Route::prefix('user')->name('user.')->group(function () {
         Route::get('/documents/{document}', [DocumentController::class, 'show'])
             ->where('document', '[0-9]+'); // Asegura que el ID sea numérico
 
+        Route::get('/documents/{document}/preview-image', [DocumentController::class, 'previewImage'])
+            ->name('documents.preview-image')
+            ->where('document', '[0-9]+');
         // Ruta nombrada para la descarga segura
         Route::get('/documents/{document}/download', [DocumentController::class, 'download'])
             ->name('documents.download') // Nombre de la ruta usado en el Modelo
@@ -283,6 +286,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
             ->name('details-other-expenses.store');
         Route::delete('/other-expenses/{otherExpense}/details-other-expenses/{detailsOtherExpense}', [OtherExpenseDetailsController::class, 'destroy'])
             ->name('details-other-expenses.destroy');
+        Route::get('details-other-expenses/{detailsOtherExpense}/preview-image', [OtherExpenseDetailsController::class, 'previewImage'])
+            ->name('details-other-expenses.preview-image');
 
 
         /*PROJECTS*/

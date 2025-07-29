@@ -6,6 +6,7 @@ import dayjs from "dayjs";
 import {useField, useForm} from "vee-validate";
 import Snackbar from "@/components/Snackbar.vue";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal.vue";
+import PreviewImageDialog from "@/components/user/PreviewImageDialog.vue";
 
 const props = defineProps({
     modelValue: Boolean,
@@ -32,9 +33,12 @@ const file_object = useField('file_object');
 const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'application/pdf'];
 const deleteDialog = ref(false);
 const elementToDelete = ref(null);
+const selectedElement = ref(null);
 const elementIndexToDelete = ref(-1);
 const localData = ref({});
 const hasChanges = ref(false);
+const showDetailDialog = ref(false);
+const urlPreviewFile = ref('');
 
 // ---  Form ---
 // SOLUCIÓN: `isEditing` ahora depende directamente del prop, la fuente de verdad.
@@ -113,7 +117,7 @@ const submitExpense = handleExpenseSubmit(async (values) => {
 
 function closeDialog() {
     dialog.value = false;
-    if(hasChanges.value) {
+    if (hasChanges.value) {
         emit('refresh-data');
     }
 }
@@ -193,7 +197,7 @@ const deleteElementName = computed(() => {
 async function deleteConfirmed() {
     if (!elementToDelete.value) return;
     isLoading.value = true;
-    const urlTemplate =  props.routes.destroy_details;
+    const urlTemplate = props.routes.destroy_details;
     const urlToDelete = urlTemplate
         .replace('PLACEHOLDER_1', props.expense.id)
         .replace('PLACEHOLDER_2', elementToDelete.value.id);
@@ -210,15 +214,14 @@ async function deleteConfirmed() {
     } catch (error) {
         mySnackbar.value.show(error.response?.data?.message || 'Error deleting quotation.', 'error');
         console.error(error);
-    }
-    finally {
+    } finally {
         closeDeleteModal();
     }
 }
 
 const closeDeleteModal = () => {
     deleteDialog.value = false;
-    if(hasChanges.value) {
+    if (hasChanges.value) {
         emit('update:modelValue', false);
         emit('refresh-data');
     }
@@ -226,6 +229,13 @@ const closeDeleteModal = () => {
         elementToDelete.value = null;
         isLoading.value = false;
     }, 300);
+};
+
+const previewFile = (item) => {
+    selectedElement.value = item.id;
+    showDetailDialog.value = true;
+    const templateUrl = `${props.routes.preview_image}`;
+    urlPreviewFile.value = templateUrl.replace('PLACEHOLDER', item.id);
 };
 </script>
 
@@ -349,17 +359,22 @@ const closeDeleteModal = () => {
                                         </v-list-item-title>
 
                                         <template v-slot:append>
-                                            <v-tooltip text="Download File"
-                                                       v-if="false">
+                                            <v-tooltip text="Preview File">
                                                 <template v-slot:activator="{ props: tooltipProps }">
-                                                    <v-btn v-bind="tooltipProps" icon="mdi-download" variant="text" color="info"
-                                                           size="small" @click="downloadQuotationFile(item)"
-                                                           :disabled="isLoading"></v-btn>
+                                                    <v-btn
+                                                        icon="mdi-eye"
+                                                        variant="text"
+                                                        color="primary"
+                                                        size="small"
+                                                        v-bind="props"
+                                                        @click="previewFile(item)"
+                                                        :disabled="isLoading"></v-btn>
                                                 </template>
                                             </v-tooltip>
                                             <v-tooltip text="Delete imagen">
                                                 <template v-slot:activator="{ props: tooltipProps }">
-                                                    <v-btn v-bind="tooltipProps" icon="mdi-delete" variant="text" color="error"
+                                                    <v-btn v-bind="tooltipProps" icon="mdi-delete" variant="text"
+                                                           color="error"
                                                            size="small"
                                                            @click="confirmDeleteDetail(item, index)"
                                                            :disabled="isLoading"></v-btn>
@@ -383,6 +398,12 @@ const closeDeleteModal = () => {
             :loading="isLoading"
             @confirm="deleteConfirmed"
             @cancel="closeDeleteModal"
+        />
+        <PreviewImageDialog
+            v-model="showDetailDialog"
+            :api-base-url="urlPreviewFile"
+            :id="selectedElement"
+            @close="showDetailDialog = false"
         />
         <Snackbar ref="mySnackbar"/>
     </v-dialog>

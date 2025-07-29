@@ -86,4 +86,22 @@ class OtherExpenseDetailsController extends Controller
             ], JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    public function previewImage(DetailsOtherExpenses $detailsOtherExpense): JsonResponse
+    {
+        $url =  Storage::url($detailsOtherExpense->file_path);
+        $mimeType = Storage::mimeType($detailsOtherExpense->file_path);
+
+        return response()->json([
+            'success' => true,
+            'message' => '¡Excelente! El documento fue encontrado exitosamente.',
+            'data' => [
+                'title' => $detailsOtherExpense->title,
+                'url' => $url,
+                'original_filename' => $detailsOtherExpense->original_filename,
+                'mime_type' => $mimeType,
+            ],
+        ]);
+
+    }
 }

@@ -54,6 +54,24 @@ class DocumentController extends Controller
         return response()->json($document);
     }
 
+    public function previewImage(Document $document): JsonResponse
+    {
+       $url =  Storage::url($document->file_path);
+        $mimeType = Storage::mimeType($document->file_path);
+
+        return response()->json([
+            'success' => true,
+            'message' => '¡Excelente! El documento fue encontrado exitosamente.',
+            'data' => [
+                'title' => $document->title,
+                'url' => $url,
+                'original_filename' => $document->original_filename,
+                'mime_type' => $mimeType,
+            ],
+        ]);
+
+    }
+
     /**
      * Permite la descarga segura del archivo.
      */
