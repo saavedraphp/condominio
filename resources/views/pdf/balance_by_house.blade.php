@@ -42,6 +42,11 @@
             color: #6c757d;
         }
 
+        .card-header img {
+            max-width: 120px;
+            margin-bottom: 15px;
+        }
+
         .report-meta {
             display: flex;
             align-items: center;
@@ -130,6 +135,32 @@
             padding-top: 20px;
         }
 
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .summary-table .label {
+            font-size: 14px;
+            color: #6c757d;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .summary-table .value {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .summary-table .positive {
+            color: #28a745; /* Verde */
+        }
+
+        .summary-table .negative {
+            color: #dc3545; /* Rojo */
+        }
+
         .summary-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -167,12 +198,15 @@
 
 <div class="report-container">
     <div class="card-header">
+        <img src="{{ $attributes['logo_path'] }}" alt="Logo">
         @if(!$isPdf)
             <a href="{{ route('admin.houses.balance.download', $house) }}" class="download-button">Descargar PDF</a>
         @endif
         <h1>Estado de Cuenta</h1>
-        <p>Balance detallado de movimientos</p>
-        <div class="report-meta">
+        <h2>ASOCIACION DE PROPIETARIOS ISLAS DE SAN PEDRO</h2>
+        <p>Balance detallado de movimientos : {{ $reportDate->isoFormat('D [de] MMMM [de] Y') }}</p>
+
+        <!--        <div class="report-meta">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="#6c757d" xmlns="http://www.w3.org/2000/svg"
                  style="vertical-align: middle;">
                 <path
@@ -182,8 +216,8 @@
             </svg>
             <span>
                 Fecha de reporte: {{ $reportDate->isoFormat('D [de] MMMM [de] Y') }}
-            </span>
-        </div>
+        </span>
+    </div>-->
     </div>
 
     <div class="card-body">
@@ -228,26 +262,57 @@
         </table>
 
         <div class="summary">
-            <div class="summary-grid">
+            <table class="summary-table">
+                <tbody>
+                <!-- Fila para Cobros y Pagos -->
+                <tr>
+                    <!-- Celda de Total Cobros -->
+                    <td style="width: 50%; padding: 10px; border: 1px solid #dee2e6; vertical-align: top;">
+                        <div class="label">Total Cobros</div>
+                        <div class="value negative">S/ {{ number_format($totals['charges'], 2) }}</div>
+                    </td>
+                    <!-- Celda de Total Pagos -->
+                    <td style="width: 50%; padding: 10px; border: 1px solid #dee2e6; vertical-align: top;">
+                        <div class="label">Total Pagos</div>
+                        <div class="value positive">S/ {{ number_format($totals['payments'], 2) }}</div>
+                    </td>
+                </tr>
+                <!-- Fila para Balance Final -->
+                <tr>
+                    <!-- Celda que ocupa las dos columnas -->
+                    <td colspan="2" style="padding: 15px 10px; border: 1px solid #dee2e6; background-color: #e2f0ff;">
+                        <!-- Usamos una tabla anidada para alinear label y value -->
+                        <table style="width: 100%;">
+                            <tr>
+                                <td class="label" style="text-align: left;">Balance Final</td>
+                                <td class="value {{ $totals['final_balance'] >= 0 ? 'negative' : 'positive' }}"
+                                    style="text-align: right;">
+                                    S/ {{ number_format($totals['final_balance'], 2) }}
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+            <!--            <div class="summary-grid">
                 <div class="summary-item">
                     <div class="label">Total Cobros</div>
-                    <div class="value">S/ {{ number_format($totals['charges'], 2) }}</div>
+                    <div class="value negative">S/ {{ number_format($totals['charges'], 2) }}</div>
                 </div>
                 <div class="summary-item">
                     <div class="label">Total Pagos</div>
-                    <div class="value">S/ {{ number_format($totals['payments'], 2) }}</div>
+                    <div class="value positive">S/ {{ number_format($totals['payments'], 2) }}</div>
                 </div>
             </div>
             <div class="summary-item" style="margin-top: 15px; background-color: #e2f0ff;">
                 <div class="label">Balance Final</div>
-                <div class="value {{ $totals['final_balance'] >= 0 ? 'positive' : 'negative' }}">
+                <div class="value {{ $totals['final_balance'] > 0 ? 'negative' : 'positive' }}">
                     S/ {{ number_format($totals['final_balance'], 2) }}
-                </div>
             </div>
+        </div>-->
         </div>
-
     </div>
 </div>
-
 </body>
 </html>
