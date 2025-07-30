@@ -109,6 +109,7 @@ const closeDeleteModal = () => {
     }, 300);
 };
 
+/*LSL REPLACE PLACEHOLDER*/
 const downloadFile = async (item) => {
     const templateUrl = props.urlBase.download;
 

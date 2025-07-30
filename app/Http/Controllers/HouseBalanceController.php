@@ -2,9 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\House; // Asegúrate de importar tu modelo House
-use App\Models\HousePayment; // Tu modelo de pagos
-use App\Models\HouseMonthlyCharge; // Tu modelo de cobros
+use App\Models\House;
+
+// Asegúrate de importar tu modelo House
+use App\Models\HousePayment;
+
+// Tu modelo de pagos
+use App\Models\HouseMonthlyCharge;
+
+// Tu modelo de cobros
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Carbon;
@@ -23,12 +29,13 @@ class HouseBalanceController extends Controller
         $house->load('owner'); // Asumiendo que tienes una relación 'owner' en tu modelo House
         $balanceData = $this->generateBalanceData($house);
         $reportDate = now();
-
+        $attributes = $this->getSharedViewData(true);
         return view('pdf.balance_by_house', [
             'house' => $house,
             'balanceItems' => $balanceData['items'],
             'totals' => $balanceData['totals'],
             'reportDate' => $reportDate,
+            'attributes' => $attributes,
             'isPdf' => false // Variable para ocultar el botón de descarga en el PDF
         ]);
     }
@@ -42,12 +49,14 @@ class HouseBalanceController extends Controller
         $reportDate = now();
 
         $balanceData = $this->generateBalanceData($house);
+        $attributes = $this->getSharedViewData(false);
 
         $pdf = PDF::loadView('pdf.balance_by_house', [
             'house' => $house,
             'balanceItems' => $balanceData['items'],
             'totals' => $balanceData['totals'],
             'reportDate' => $reportDate,
+            'attributes' => $attributes,
             'isPdf' => true // Ocultará el botón de descarga en el PDF
         ]);
 
@@ -62,6 +71,19 @@ class HouseBalanceController extends Controller
      * @param House $house
      * @return array
      */
+
+    private function getSharedViewData(bool $preview = false): array
+    {
+        $logoPath = $preview
+            ? asset('assets/images/logo.jpg')
+            : storage_path('app/public/file_paths/profile/nVcxTYTvFIndE6SVndfDMUTG6uFp5CPcCSFKhmFc.jpg');
+
+        return [
+            'logo_path' => $logoPath,
+            'date' => now()->format('d/m/Y'),
+        ];
+    }
+
     private function generateBalanceData(House $house): array
     {
         // 1. Obtener todos los pagos y darles un formato estándar
@@ -99,7 +121,9 @@ class HouseBalanceController extends Controller
             });
 
         // 3. Unir ambas colecciones y ordenarlas por fecha
-        $allItems = $payments->merge($charges)->sortBy('date');
+        $allItems = $payments->toBase()->merge($charges)->sortBy('date');
+
+
 
         // 4. Calcular el balance acumulado
         $balance = $house->opening_balance;
