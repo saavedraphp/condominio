@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\HouseVehicleController;
 use App\Http\Controllers\Admin\ImpersonateController;
 use App\Http\Controllers\Admin\OtherExpenseController;
 use App\Http\Controllers\Admin\OtherExpenseDetailsController;
+use App\Http\Controllers\Admin\PaymentReportController;
 use App\Http\Controllers\Admin\PetitionController as AdminPetitionController;
 use App\Http\Controllers\Admin\StatisticsController;
 use App\Http\Controllers\Admin\UserController as AdminUserAdsController;
@@ -331,9 +332,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/receipt/preview', [HouseMonthlyChargeController::class, 'previewPdfReceipt']);
         Route::post('/receipt/generate', [HouseMonthlyChargeController::class, 'generateAndStore']);
 
-        /* REPORTS */
+        /* REPORTS BALANCE*/
         Route::get('/reports/balance-due/list', [ReportBalanceDueController::class, 'showListPage'])->name('reports.balance-due.list');
         Route::get('/reports/balance-due/index', [ReportBalanceDueController::class, 'index'])->name('reports.balance-due.index');
+
+        /* REPORTS PAYMENT*/
+        Route::get('/reports/payments/list', [PaymentReportController::class, 'showListPage'])->name('reports.payments.list');
+        Route::get('/reports/payments/index', [PaymentReportController::class, 'index'])->name('reports.payments.index');
+
+        Route::get('/reports/payments/preview', [PaymentReportController::class, 'previewPdf'])->name('reports.payments.preview-pdf');
+        Route::get('/reports/payments/download-pdf', [PaymentReportController::class, 'downloadPdf'])->name('reports.payments.pdf');
 
         // Rutas para gestionar la configuración
         Route::get('/settings/list', [SettingController::class, 'showPage'])->name('settings.show-page');
