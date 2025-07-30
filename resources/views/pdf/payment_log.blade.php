@@ -130,20 +130,19 @@
         <table>
             <thead>
             <tr>
-                <th>ID</th>
                 {{-- Cambia estos encabezados por los de tu modelo --}}
-                <th>Descripción / Nombre</th>
-                <th>Fecha de pago</th>
+                <th>Fecha</th>
+                <th>Dirección</th>
+                <th>Código de transacción</th>
                 <th style="text-align: right;">Monto</th>
             </tr>
             </thead>
             <tbody>
             @foreach($data['items'] as $payment)
                 <tr>
-                    <td>{{ $payment->id }}</td>
-                    {{-- Adapta 'name' y 'price' a tus columnas --}}
-                    <td>{{ $payment->title ?? 'Sin Descripción' }}</td>
                     <td>{{ \Carbon\Carbon::parse($payment->payment_date)->format('d/m/Y') }}</td>
+                    <td>{{ substr($payment->house->address,0,30) ?? 'Sin dirección' }}</td>
+                    <td>{{ $payment->transaction_code ?? 'Sin Código' }}</td>
                     <td style="text-align: right;">S/ {{ number_format($payment->amount, 2) }}</td>
                 </tr>
             @endforeach

@@ -37,7 +37,7 @@ class PaymentReportController extends Controller
         try {
             $query = $this->getQueryBase($request);
             $totalAmount = round((float)$query->clone()->sum('amount'), 2);
-            $query = $query->orderBy('payment_date', 'asc')->get();
+            $query = $query->orderBy('payment_date', 'desc')->get();
 
             $payments = $query->map(function ($payment) {
                 return [
@@ -129,7 +129,7 @@ class PaymentReportController extends Controller
     private function groupDataByMonth(\Illuminate\Database\Eloquent\Builder $query): \Illuminate\Support\Collection
     {
         // 3. Obtener los resultados
-        $houses = $query->orderBy('payment_date', 'asc')->get();
+        $houses = $query->orderBy('payment_date', 'desc')->get();
 
         // 4. Agrupar por mes y año y calcular totales
         // ¡Esta es la parte clave!

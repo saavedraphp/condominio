@@ -10,9 +10,9 @@ const mySnackbar = ref(null);
 
 const headers = ref([
     {title: 'Fecha', key: 'payment_date', sortable: true},
-    {title: 'Propiedad', key: 'address', align: 'start', sortable: true},
+    {title: 'Dirección', key: 'address', align: 'start', sortable: true},
+    {title: 'Código de transacción', key: 'transaction_code', sortable: true},
     {title: 'Monto', key: 'amount_formatted', sortable: true, align: 'end'},
-    {title: 'Cod Transacción', key: 'transaction_code', sortable: true},
 ]);
 
 const dateMow = new Date().toLocaleDateString('es-ES', {
@@ -68,7 +68,7 @@ async function getHouses() {
 
 // Se llama al hacer clic en el botón "Aplicar Filtro"
 const applyDateFilter = () => {
-    // Simplemente volvemos a llamar a fetchHouses, que ya sabe cómo usar las fechas
+    search.value = '';
     getHouses();
 };
 
@@ -81,12 +81,8 @@ const clearFilters = () => {
 };
 
 const previewReport = () => {
-    if(startDate.value === null) {
-        mySnackbar.value.show('Por favor, selecciona una fecha de inicio para previsualizar el reporte.', 'error');
-        return;
-    }
-    if(endDate.value === null) {
-        mySnackbar.value.show('Por favor, selecciona una fecha de fin para previsualizar el reporte.', 'error');
+    if (startDate.value === null || endDate.value === null) {
+        mySnackbar.value.show('Por favor, seleccione un rango de fecha para previsualizar el reporte.', 'error');
         return;
     }
 
@@ -104,12 +100,6 @@ const previewReport = () => {
                  
                 Reporte de pagos
                 <v-spacer></v-spacer>
-                <div>
-                    <!-- NUEVO BOTÓN PARA EL REPORTE -->
-                    <v-btn @click="previewReport" color="secondary" prepend-icon="mdi-printer" class="mr-2">
-                        Previsualizar
-                    </v-btn>
-                </div>
                 <v-chip
                     color="primary"
                     variant="elevated"
@@ -126,25 +116,28 @@ const previewReport = () => {
                     <!-- Filtro por Fechas (Server-Side) -->
                     <v-col cols="12" sm="3">
                         <v-text-field class="mt-5"
-                            v-model="startDate"
-                            label="Fecha Inicio"
-                            type="date"
-                            density="compact"
-                            variant="outlined"
+                                      v-model="startDate"
+                                      label="Fecha Inicio"
+                                      type="date"
+                                      density="compact"
+                                      variant="outlined"
                         ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="3">
                         <v-text-field class="mt-5"
-                            v-model="endDate"
-                            label="Fecha Fin"
-                            type="date"
-                            density="compact"
-                            variant="outlined"
+                                      v-model="endDate"
+                                      label="Fecha Fin"
+                                      type="date"
+                                      density="compact"
+                                      variant="outlined"
                         ></v-text-field>
                     </v-col>
-                    <v-col cols="12" sm="6">
-                        <v-btn @click="applyDateFilter" color="primary" class="mr-2">Aplicar Filtro</v-btn>
+                    <v-col cols="12" sm="6" class="d-flex justify-end align-center flex-wrap ga-2">
+                        <v-btn @click="applyDateFilter" color="primary">Aplicar Filtro</v-btn>
                         <v-btn @click="clearFilters" color="grey">Limpiar</v-btn>
+                        <v-btn @click="previewReport" color="secondary" prepend-icon="mdi-printer">
+                            Previsualizar
+                        </v-btn>
                     </v-col>
                 </v-row>
                 <v-divider></v-divider>
@@ -173,11 +166,6 @@ const previewReport = () => {
             >
                 <template v-slot:item.amount_due="{ value }">
                     <span style="color: darkred">{{ formattedMoney(value) }}</span>
-                </template>
-                <template v-slot:item.has_payment_arrangement="{ value }">
-                    <v-chip :color="value  === true ? 'success' : 'grey'" size="small">
-                        {{ value === true ? 'Si' : 'No' }}
-                    </v-chip>
                 </template>
             </v-data-table>
         </v-card>
