@@ -456,6 +456,10 @@ return [
                     'text' => 'Casas con Deuda',
                     'url' => 'admin/reports/balance-due/list',
                 ],
+                [
+                    'text' => 'Lista de pagos',
+                    'url' => 'admin/reports/payments/list',
+                ],
             ]
         ],
         [
