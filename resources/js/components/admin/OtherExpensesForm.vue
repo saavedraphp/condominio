@@ -189,7 +189,6 @@ function confirmDeleteDetail(item, index) {
 }
 
 const deleteElementName = computed(() => {
-
     if (!elementToDelete.value) return '';
     return `Imagen : ${elementToDelete.value.original_filename} (ID: ${elementToDelete.value.id})`;
 });

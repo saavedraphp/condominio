@@ -121,4 +121,12 @@ class WebUser extends Authenticatable
         }
         return route('public.user.status.by-token', ['token' => $this->public_access_token]);
     }
+
+    public function images(): MorphMany
+    {
+        // El primer argumento es la clase del modelo relacionado.
+        // El segundo argumento es el "nombre" de la relación ('imageable'),
+        // que coincide con el que usamos en la migración y en el modelo Image.
+        return $this->morphMany(Image::class, 'imageable');
+    }
 }
