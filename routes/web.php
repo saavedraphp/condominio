@@ -43,6 +43,7 @@ use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\HouseVehicleController as HouseVehicleUserController;
 use App\Http\Controllers\User\HouseResidentController as HouseResidentUserController;
+use App\Http\Controllers\WebUserImageController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -88,6 +89,9 @@ Route::prefix('user')->name('user.')->group(function () {
         Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
         Route::get('/ads', [UserAdsController::class, 'index']);
         Route::resource('/profile', ProfileController::class);
+        /*PREVIEW DOCUMENT OF USER*/
+        Route::get('/files/preview-image/{image}', [WebUserImageController::class, 'previewImage'])
+            ->name('users.files.preview-image');
 
         /* INICIO rutas documentos*/
         Route::get('/documents/list', [DocumentController::class, 'showPage'])->name('documents.show-page');
@@ -174,6 +178,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/users/list', [AdminUserAdsController::class, 'showListPage'])->name('user.list');
         Route::resource('/users', AdminUserAdsController::class);
         Route::get('/users/{webUser}/settings', UserSettingPageController::class);
+
+        /*GESTION DE IMAGENES*/
+        Route::get('/users/{webUser}/files/list', [WebUserImageController::class, 'showListPage'])->name('users.files.list');
+        Route::get('/users/{webUser}/files', [WebUserImageController::class, 'index'])->name('users.files.index');
+        Route::post('/users/{webUser}/files', [WebUserImageController::class, 'store'])->name('users.files.store');
+        Route::put('/users/{webUser}/files/{image}', [WebUserImageController::class, 'update'])->name('users.files.update');
+        Route::get('users/files/{image}/preview-image', [WebUserImageController::class, 'previewImage'])
+            ->name('users.files.preview-image');
+        Route::delete('/users/{webUser}/files/{image}', [WebUserImageController::class, 'destroy'])->name('users.files.destroy');
+
 
         Route::prefix('/user/{webUser}/house-assignments/')->name('users.house-assignments.')->group(function () {
             Route::get('/', [UserHouseAssignmentController::class, 'index'])->name('index');

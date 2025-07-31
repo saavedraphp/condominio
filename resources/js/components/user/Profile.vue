@@ -5,6 +5,7 @@ import {useField, useForm} from 'vee-validate'
 
 import Snackbar from "@/components/Snackbar.vue";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal.vue";
+import PreviewImageDialog from "@/components/user/PreviewImageDialog.vue";
 
 const props = defineProps({
     userId: String
@@ -169,12 +170,18 @@ const submit = handleSubmit(async values => {
 //    alert(JSON.stringify(values, null, 2))
 })
 
-
-
 function getImage(fileName, imageDefault = '') {
     let image = fileName || imageDefault;
     return `/storage/web_user/${image}`;
 }
+const showDetailDialog = ref(false);
+const urlPreviewFile = ref('');
+const selectedElement = ref(null);
+const previewFile = (item) => {
+    selectedElement.value = item.id;
+    showDetailDialog.value = true;
+    urlPreviewFile.value = `/user/files/preview-image/${item.id}`;
+};
 </script>
 <template>
     <v-container>
@@ -210,18 +217,27 @@ function getImage(fileName, imageDefault = '') {
                         <v-list-subheader inset></v-list-subheader>
 
                         <v-list-item
-                            v-for="folder in items"
-                            :key="folder.title"
-                            :title="folder.title"
+                            v-for="file in user.images"
+                            :key="file.title"
+                            :title="file.title"
                         >
                             <template v-slot:append>
-                                <span class="total-list text-primary">{{ folder.total }}</span>
+                                    <v-btn
+                                        icon="mdi-eye"
+                                        variant="text"
+                                        color="primary"
+                                        size="small"
+                                        v-bind="props"
+                                        @click="previewFile(file)"
+                                        ></v-btn>
                             </template>
                         </v-list-item>
                     </v-list>
 
+                    <div v-if="false">
                     <v-btn color="blue" block class="mt-3">Follow</v-btn>
                     <v-btn color="blue lighten-1" block class="mt-2">About Me</v-btn>
+                    </div>
                 </v-card>
             </v-col>
             <!-- Panel Derecho (Formulario) -->
@@ -276,6 +292,12 @@ function getImage(fileName, imageDefault = '') {
             </v-col>
         </v-row>
         <Snackbar ref="mySnackbar"/>
+        <PreviewImageDialog v-if="showDetailDialog"
+                            v-model="showDetailDialog"
+                            :api-base-url="urlPreviewFile"
+                            :id="selectedElement"
+                            @close="showDetailDialog = false"
+        />
     </v-container>
 </template>
 <style scoped>

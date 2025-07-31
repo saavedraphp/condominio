@@ -30,6 +30,9 @@ class UserController extends Controller
     {
         try {
             $users = WebUser::query()
+                ->with(['images' => function ($query) {
+                    $query->orderBy('date_document', 'asc');
+                }])
                 ->select(['id', 'name', 'email', 'phone', 'email_verified_at', 'has_payment_arrangement', 'is_associated', 'status'])
                 ->orderBy('created_at', 'desc')
                 ->get();
