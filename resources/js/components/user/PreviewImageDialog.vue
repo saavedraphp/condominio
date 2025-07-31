@@ -174,12 +174,19 @@ watch(() => [props.id, props.modelValue], ([newId, isVisible]) => {
                             </v-img>
 
                             <!-- Previsualización de PDF -->
-                            <div v-else-if="isPdf" style="height: 500px; border: 1px solid #e0e0e0;">
-                                <iframe :src="fileUrl" width="100%" height="100%" frameborder="0">
-                                    Tu navegador no soporta iframes. <a :href="fileUrl" target="_blank">Abre el PDF aquí.</a>
+                            <div v-else-if="isPdf" style="border: 1px solid #e0e0e0;">
+                                <!-- El iframe para mostrar el PDF -->
+                                <iframe :src="fileUrl" width="100%" height="500px" frameborder="0">
+                                    <!-- Puedes dejar un texto simple para navegadores muy antiguos -->
+                                    Tu navegador no soporta contenido incrustado.
                                 </iframe>
-                            </div>
 
+                                <!-- El enlace de respaldo, fuera del iframe y siempre visible por si falla la carga -->
+                                <p style="padding: 10px; text-align: center; margin: 0;">
+                                    Si no puedes ver el documento,
+                                    <a :href="fileUrl" target="_blank">haz clic aquí para abrir el PDF.</a>
+                                </p>
+                            </div>
                             <!-- Fallback para otros tipos -->
                             <v-sheet v-else color="grey-lighten-3" class="d-flex flex-column align-center justify-center pa-8 rounded" height="300">
                                 <v-icon size="64" class="mb-4">mdi-file-question-outline</v-icon>

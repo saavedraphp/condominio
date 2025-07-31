@@ -16,16 +16,17 @@ use Illuminate\Support\Facades\Storage;
 class ProfileController extends Controller
 {
     use ManagesHouseSession;
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
         $this->clearHouseSession();
-        return view('user.profile',['userId' => Auth::id()]);
+        return view('user.profile', ['userId' => Auth::id()]);
     }
 
-    public function show():JsonResponse
+    public function show(): JsonResponse
     {
         $user = Auth::guard('web_user')->user();
         if (!$user) {
@@ -33,6 +34,7 @@ class ProfileController extends Controller
         }
         return response()->json($user, 200);
     }
+
     /**
      * Show the form for creating a new resource.
      */
@@ -56,9 +58,14 @@ class ProfileController extends Controller
     public function getUserData(UserDebtService $debtService): JsonResponse
     {
         $user = Auth::guard('web_user')->user();
+        $user->load(['images' => function ($query) {
+            $query->where('is_visible', true)
+                ->orderBy('date_document', 'asc');
+        }]);
+
         $totalDebt = $debtService->calculateTotalDebt($user);
 
-        $user->debt =  $totalDebt;
+        $user->debt = $totalDebt;
 
         if (!$user) {
             return response()->json(['message' => 'Usuario no encontrado'], 404);

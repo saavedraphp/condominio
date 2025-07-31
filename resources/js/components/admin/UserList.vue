@@ -14,8 +14,8 @@ const headers = ref([        // Definición de las columnas de la tabla
     {title: 'Nombre', key: 'name', align: 'start', sortable: true},
     {title: 'Email', key: 'email', sortable: true},
     {title: 'Teléfono', key: 'phone', sortable: true},
-    {title: 'Arreglo de pago', key: 'has_payment_arrangement', align:'center' , sortable: true},
-    {title: 'Asociado', key: 'is_associated', align:'center' , sortable: true},
+    {title: 'Arreglo de pago', key: 'has_payment_arrangement', align: 'center', sortable: true},
+    {title: 'Asociado', key: 'is_associated', align: 'center', sortable: true},
     {title: 'Estado', key: 'status', sortable: true},
     {title: 'Acciones', key: 'actions', sortable: false, align: 'end'},
 ]);
@@ -170,7 +170,7 @@ const impersonateUser = (user) => {
                     @click="showModal = true"
                     class="d-none d-sm-flex"
                 >
-                Agregar Usuario
+                    Agregar Usuario
                 </v-btn>
 
                 <v-btn
@@ -268,19 +268,15 @@ const impersonateUser = (user) => {
 
             </v-data-table>
         </v-card>
-
-        <!-- Diálogo para Agregar/Editar Anuncio -->
-
-        <v-dialog v-model="showModal" persistent max-width="600px">
-            <UserForm
-                :user="selectedElement"
-                @added="addUser"
-                @edit="editUser"
-                @close-modal="closeModal"
-            >
-            </UserForm>
-
-        </v-dialog>
+        <UserForm v-if="showModal"
+                  v-model="showModal"
+                  :user="selectedElement"
+                  @added="addUser"
+                  @edit="editUser"
+                  @close-modal="closeModal"
+                  @refresh-data="getData"
+        >
+        </UserForm>
         <DeleteConfirmationModal
             v-model:show="dialogDelete"
             :item-name="deleteDialogItemName"
