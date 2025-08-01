@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\AdsController;
 use App\Http\Controllers\Admin\Auth\LoginUserController as AdminLogin;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\DoormanController;
+use App\Http\Controllers\Admin\ExpenseReportController;
 use App\Http\Controllers\Admin\HouseController as AdminHouseController;
 use App\Http\Controllers\Admin\HouseResidentController;
 use App\Http\Controllers\Admin\HouseVehicleController;
@@ -356,6 +357,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::get('/reports/payments/preview', [PaymentReportController::class, 'previewPdf'])->name('reports.payments.preview-pdf');
         Route::get('/reports/payments/download-pdf', [PaymentReportController::class, 'downloadPdf'])->name('reports.payments.pdf');
+
+        /* REPORT EXPENSES*/
+        Route::get('/reports/expenses/list', [ExpenseReportController::class, 'showListPage'])->name('reports.expenses.list');
+        Route::get('/reports/expenses/index', [ExpenseReportController::class, 'index'])->name('reports.expenses.index');
+        Route::get('/reports/expenses/preview', [ExpenseReportController::class, 'previewPdf'])->name('reports.expenses.preview-pdf');
+        Route::get('/reports/expenses/download-pdf', [ExpenseReportController::class, 'downloadPdf'])->name('reports.expenses.pdf');
+
 
         // Rutas para gestionar la configuración
         Route::get('/settings/list', [SettingController::class, 'showPage'])->name('settings.show-page');

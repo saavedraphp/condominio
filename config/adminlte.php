@@ -457,8 +457,12 @@ return [
                     'url' => 'admin/reports/balance-due/list',
                 ],
                 [
-                    'text' => 'Lista de pagos',
+                    'text' => 'Lista de Pagos',
                     'url' => 'admin/reports/payments/list',
+                ],
+                [
+                    'text' => 'Lista de Gastos',
+                    'url' => 'admin/reports/expenses/list',
                 ],
             ]
         ],
