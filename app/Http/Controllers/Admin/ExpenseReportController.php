@@ -54,13 +54,13 @@ class ExpenseReportController extends Controller
 
     public function previewPdf(Request $request): view
     {
-        $data = $this->prepareReportData($request);
+        $data = $this->prepareReportData($request, true);
         return view('pdf.expenses_log', array_merge($data, ['isPdf' => true]));
     }
 
     public function downloadPdf(Request $request): \Illuminate\Http\Response
     {
-        $data = $this->prepareReportData($request);
+        $data = $this->prepareReportData($request, false);
 
         // Cargamos la misma vista Blade en el generador de PDF
         $pdf = PDF::loadView('pdf.expenses_log', array_merge($data, ['isPdf' => false]));
@@ -69,12 +69,12 @@ class ExpenseReportController extends Controller
         return $pdf->download('reporte-gastos-' . now()->format('Y-m-d') . '.pdf');
     }
 
-    private function prepareReportData(Request $request): array
+    private function prepareReportData(Request $request, bool $isPreview): array
     {
         // 1. Obtener los datos de gastos
         $ExpensesArray = $this->getExpensesData($request);
         $groupedData = $this->groupDataByMonth($ExpensesArray['items']);
-        $attributes = $this->sharedViewDataService->get(true);
+        $attributes = $this->sharedViewDataService->get($isPreview);
 
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
@@ -128,7 +128,7 @@ class ExpenseReportController extends Controller
                     'type' => $expense->annualBudget?->budgetType?->budget_scope == 'association'
                         ? self::EXPENSE_TYPE_ASSOCIATION : self::EXPENSE_TYPE_BUILDING,
                     'title' => $expense->description ?: 'GASTO',
-                    'description' => $expense->description,
+                    'description' => 'N/A',
                     'amount' => round((float)$expense->amount, 2),
                     'date' => $expense->expense_date?->format('Y-m-d') ?: 'No disponible',
                 ];
