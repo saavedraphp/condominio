@@ -102,18 +102,18 @@
     <div class="card-header">
         <img src="{{ $attributes['logo_path'] }}" alt="Logo">
         @if($isPdf)
-            <a href="{{ route('admin.reports.payments.pdf', [
+            <a href="{{ route('admin.reports.expenses.pdf', [
             'start_date' => $attributes['start_date'],
             'end_date' => $attributes['end_date'],
             ])
             }}" class="download-button">Descargar PDF
             </a>
         @endif
-        <h1>Bitacora de Pagos</h1>
+        <h1>Bitacora de Gastos</h1>
         <h2>ASOCIACION DE PROPIETARIOS ISLAS DE SAN PEDRO</h2>
-        <p>Generado el: {{ date('d/m/Y H:i') }}</p>
-        <p>Período: {{ \Carbon\Carbon::parse($attributes['start_date'])->format('d/m/Y') }} - {{  \Carbon\Carbon::parse($attributes['end_date'])->format('d/m/Y') }}</p>
-        <h1>Total: {{ number_format($attributes['total_amount'],2)}}</h1>
+        <p>Generado el: {{ now()->format('d/m/Y H:i') }}</p>
+        <p>Período: {{ \Carbon\Carbon::parse($attributes['start_date'])->format('d/m/Y') }} - {{ \Carbon\Carbon::parse($attributes['end_date'])->format('d/m/Y') }}</p>
+        <h1>Total: {{ number_format($totals['total_amount'],2)}}</h1>
     </div>
 
     @forelse($reportData as $monthYear => $data)
@@ -132,17 +132,17 @@
             <tr>
                 {{-- Cambia estos encabezados por los de tu modelo --}}
                 <th>Fecha</th>
-                <th>Dirección</th>
-                <th>Código de transacción</th>
+                <th>Título</th>
+                <th>Tipo</th>
                 <th style="text-align: right;">Monto</th>
             </tr>
             </thead>
             <tbody>
             @foreach($data['items'] as $payment)
                 <tr>
-                    <td>{{ \Carbon\Carbon::parse($payment->payment_date)->format('d/m/Y') }}</td>
-                    <td>{{ substr($payment->house->address,0,30) ?? 'Sin dirección' }}</td>
-                    <td>{{ $payment->transaction_code ?? 'Sin Código' }}</td>
+                    <td>{{ \Carbon\Carbon::parse($payment->date)->format('d/m/Y') }}</td>
+                    <td>{{ \Illuminate\Support\Str::limit(($payment->title?? 'No disponible'),40,'...') }}</td>
+                    <td>{{ $payment->type ?? 'N/A' }}</td>
                     <td style="text-align: right;">S/ {{ number_format($payment->amount, 2) }}</td>
                 </tr>
             @endforeach
