@@ -89,8 +89,8 @@ class PaymentReportController extends Controller
             'reportData' => $groupedData,
             'attributes' => array_merge($attributes, [
                 'total_amount' => $totalAmount,
-                'start_date' => $startDate ? Carbon::parse($startDate)->format('d/m/Y') : null,
-                'end_date' => $endDate ? Carbon::parse($endDate)->format('d/m/Y') : null,
+                'start_date' => $startDate,
+                'end_date' => $endDate,
             ]),
         ];
     }

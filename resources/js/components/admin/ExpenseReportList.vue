@@ -9,9 +9,10 @@ import dayjs from "dayjs";
 const mySnackbar = ref(null);
 
 const headers = ref([
-    {title: 'Fecha', key: 'payment_date', sortable: true},
-    {title: 'Dirección', key: 'address', align: 'start', sortable: true},
-    {title: 'Código de transacción', key: 'transaction_code', sortable: true},
+    {title: 'Fecha', key: 'date', sortable: true},
+    {title: 'Título', key: 'title', align: 'start', sortable: true},
+    {title: 'Detalle', key: 'description', sortable: true},
+    {title: 'Tipo', key: 'type', sortable: true},
     {title: 'Monto', key: 'amount_formatted', sortable: true, align: 'end'},
 ]);
 
@@ -20,11 +21,11 @@ const dateMow = new Date().toLocaleDateString('es-ES', {
     month: '2-digit',
     day: '2-digit',
 });
-const houses = ref([]);
+const expenses = ref([]);
 const loading = ref(true);
 const search = ref('');
 const typeMap = getStructureTypes();
-const totalAmountDue = ref();
+const totalAmount = ref();
 
 const startDate = ref(null);
 const endDate = ref(null);
@@ -49,15 +50,16 @@ async function getHouses() {
             params.append('end_date', dayjs(endDate.value).format('YYYY-MM-DD'));
         }
 
-        const response = await axios.get(`/admin/reports/payments/index?${params.toString()}`);
-        houses.value = response.data.data.map(item => ({
+        const response = await axios.get(`/admin/reports/expenses/index?${params.toString()}`);
+        expenses.value = response.data.data.map(item => ({
             ...item,
             amount_formatted: formattedMoney(item.amount),
         }));
-        totalAmountDue.value = formattedMoney(response.data.total_amount);
+        totalAmount.value = formattedMoney(response.data.totals.total_amount);
 
     } catch (error) {
         mySnackbar.value.show('Lo sentimos, hubo un problema obtener la información. Intenta de nuevo, por favor.', 'error');
+        console.error('Error al obtener los gastos:', error);
     } finally {
         loading.value = false;
     }
@@ -83,7 +85,7 @@ const previewReport = () => {
         return;
     }
 
-    const url = `/admin/reports/payments/preview?start_date=${startDate.value}&end_date=${endDate.value}`;
+    const url = `/admin/reports/expenses/preview?start_date=${startDate.value}&end_date=${endDate.value}`;
     window.open(url, '_blank');
 };
 
@@ -95,14 +97,14 @@ const previewReport = () => {
             <v-card-title class="d-flex align-center pe-2">
                 <v-icon icon="mdi mdi-home"></v-icon>
                  
-                Reporte de pagos
+                Reporte de Gastos
                 <v-spacer></v-spacer>
                 <v-chip
                     color="primary"
                     variant="elevated"
                     size="large"
                 >
-                    <strong>El total es: {{ totalAmountDue }}</strong>
+                    <strong>El total es: {{ totalAmount }}</strong>
                 </v-chip>
 
             </v-card-title>
@@ -153,9 +155,9 @@ const previewReport = () => {
             </v-card-text>
             <v-divider></v-divider>
 
-            <v-data-table v-show="houses.length"
+            <v-data-table v-show="expenses.length"
                           :headers="headers"
-                          :items="houses"
+                          :items="expenses"
                           :search="search"
                           :loading="loading"
                           class="elevation-1"
@@ -163,6 +165,9 @@ const previewReport = () => {
             >
                 <template v-slot:item.amount_due="{ value }">
                     <span style="color: darkred">{{ formattedMoney(value) }}</span>
+                </template>
+                <template v-slot:item.description="{ value }">
+                    <span  :title="value">{{ value.substring(0,30) }}</span>
                 </template>
             </v-data-table>
         </v-card>

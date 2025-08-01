@@ -26,7 +26,7 @@ class HouseBalanceController extends Controller
     public function show(House $house): View
     {
         // Cargamos las relaciones para obtener el nombre del propietario si es necesario
-        $house->load('owner'); // Asumiendo que tienes una relación 'owner' en tu modelo House
+        $house->load('owner');
         $balanceData = $this->generateBalanceData($house);
         $reportDate = now();
         $attributes = $this->getSharedViewData(true);
