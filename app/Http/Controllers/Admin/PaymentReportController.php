@@ -70,17 +70,17 @@ class PaymentReportController extends Controller
 
     public function previewPdf(Request $request): view
     {
-        $data = $this->prepareReportData($request);
+        $data = $this->prepareReportData($request, true);
         return view('pdf.payment_log', array_merge($data, ['isPdf' => true]));
     }
 
-    private function prepareReportData(Request $request): array
+    private function prepareReportData(Request $request, bool $isPreview): array
     {
         $query = $this->getQueryBase($request);
 
         $totalAmount = round((float) $query->clone()->sum('amount'), 2);
         $groupedData = $this->groupDataByMonth($query);
-        $attributes = $this->sharedViewDataService->get(true);
+        $attributes = $this->sharedViewDataService->get($isPreview);
 
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
@@ -98,7 +98,7 @@ class PaymentReportController extends Controller
 
     public function downloadPdf(Request $request): \Illuminate\Http\Response
     {
-        $data = $this->prepareReportData($request);
+        $data = $this->prepareReportData($request, false);
 
         // Cargamos la misma vista Blade en el generador de PDF
         $pdf = PDF::loadView('pdf.payment_log', array_merge($data, ['isPdf' => false]));

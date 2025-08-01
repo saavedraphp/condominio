@@ -22,7 +22,7 @@ const headers = ref([        // Definición de las columnas de la tabla
 
 const users = ref([]);
 const loading = ref(true);
-const search = ref('Buscando resultados');
+const search = ref('');
 const showModal = ref(false)
 const dialogDelete = ref(false);
 const isDeleting = ref(false);
@@ -124,6 +124,10 @@ const openModalEdit = (item) => {
     showModal.value = true;
 };
 
+const openModalAdd = () => {
+    selectedElement.value = null;
+    showModal.value = true;
+};
 const openSettings = (item) => {
     window.location.href = `${window.location.origin}/admin/users/${item.id}/settings`;
 };
@@ -167,7 +171,7 @@ const impersonateUser = (user) => {
                 <v-btn
                     color="primary"
                     prepend-icon="mdi-plus"
-                    @click="showModal = true"
+                    @click="openModalAdd"
                     class="d-none d-sm-flex"
                 >
                     Agregar Usuario
@@ -176,17 +180,29 @@ const impersonateUser = (user) => {
                 <v-btn
                     color="primary"
                     icon="mdi-plus"
-                    @click="showModal = true"
+                    @click="openModalAdd"
                     class="d-sm-none"
                     aria-label="Agregar Usuario"
                 ></v-btn>
             </v-card-title>
-
+            <v-divider></v-divider>
+            <v-text-field
+                v-model="search"
+                density="compact"
+                label="Buscar en los resultados..."
+                prepend-inner-icon="mdi-magnify"
+                variant="solo-filled"
+                flat
+                hide-details
+                single-line
+                class="pa-2"
+            ></v-text-field>
             <v-divider></v-divider>
 
             <v-data-table v-show="users.length"
                           :headers="headers"
                           :items="users"
+                          :search="search"
                           class="elevation-1"
                           dense
             >
