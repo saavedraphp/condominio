@@ -20,11 +20,25 @@ class PublicStatusController extends Controller
             abort(404, 'Token de verificación inválido o expirado.');
         }
 
+        $residentHouse = null;
+        $vehicles = null;
+        $residentHouse =  $user->houses()
+            ->wherePivot('is_resident', true)
+            ->first();
+
+        if($residentHouse) {
+            $vehicles = $residentHouse->HouseVehicles;
+        }
+
         // --- Lógica para verificar la deuda (SIMPLIFICADA) ---
         $resultDebt = $this->checkUserDebtStatus($user->id, $debtService); // Reutiliza tu lógica de deuda
 
         return view('user.qr_verification.result', [
-            'user'      => $user,
+            'user' => $user,
+            'attributes' => [
+                'houses' => $residentHouse,
+                'vehicles' => $vehicles,
+            ],
             'debt' => $resultDebt['debtAmount'],
             'status' => true,
 
