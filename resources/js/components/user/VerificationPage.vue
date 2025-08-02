@@ -6,6 +6,10 @@ const props = defineProps({
         type: Object,
         required: true
     },
+    attributes: {
+        type: Object,
+        default: () => ({})
+    },
     debt: {
         type: Number,
         default: 0.00
@@ -17,7 +21,7 @@ const props = defineProps({
 });
 
 // Nombre de la empresa, podría venir de una config o ser estático
-const companyName = ref('LA ESQUINA DEL VOCAL'); // O el nombre que corresponda
+const companyName = ref('Condominio Islas de San Pedro'); // O el nombre que corresponda
 
 const hasDebt = computed(() => props.debt > 0);
 const isEnabled = computed(() => !hasDebt.value || props.user.has_payment_arrangement);
@@ -36,8 +40,6 @@ const userData = computed(() => ({
 
 // Estado de verificación del usuario (esto también vendría de tu API)
 const userVerified = ref(false); // Por defecto no verificado hasta que la API responda
-
-
 </script>
 <template>
     <v-app style="background-color: #f0f2f5;">
@@ -52,12 +54,42 @@ const userVerified = ref(false); // Por defecto no verificado hasta que la API r
 
                     <!-- Datos del Usuario -->
                     <v-card-text>
-                        <div class="mb-3">
-                            <p class="text-subtitle-1 mb-1">
+                        <div class="info-usuario">
+                            <!-- Primera línea: Nombre -->
+                            <p class="nombre">
                                 <strong>Nombre:</strong> {{ userData.name }}
+                            </p>
+                            <!-- Segunda línea: Dirección (Casa) -->
+                            <p class="direccion">
+                                {{ attributes.houses.address || 'Dirección no disponible' }}
                             </p>
                         </div>
 
+                        <div v-if="attributes.vehicles && attributes.vehicles.length > 0">
+                            <v-list lines="two" density="compact">
+                                <v-list-subheader>VEHÍCULOS</v-list-subheader>
+                                <v-list-item
+                                    v-for="vehicle in attributes.vehicles"
+                                    :key="vehicle.id"
+                                    :title="`${vehicle.brand} ${vehicle.model}`"
+                                    :subtitle="`Placa: ${vehicle.plate_number}`"
+                                >
+                                    <template v-slot:prepend>
+                                        <v-icon color="primary">mdi-car</v-icon>
+                                    </template>
+                                </v-list-item>
+                            </v-list>
+                        </div>
+                        <div v-else>
+                            <!-- Es mejor poner el v-alert dentro de un v-card-text para el padding correcto -->
+                            <v-card-text>
+                                <v-alert
+                                    type="info"
+                                    variant="tonal"
+                                    text="No hay vehículos registrados para esta casa."
+                                ></v-alert>
+                            </v-card-text>
+                        </div>
                         <div class="mb-4 d-flex align-center" v-if="false">
                             <p class="text-subtitle-1 mb-0 mr-2">
                                 <strong>Adeuda:</strong>
@@ -117,5 +149,20 @@ const userVerified = ref(false); // Por defecto no verificado hasta que la API r
 
 .v-chip {
     font-size: 1rem; /* Ajusta si es necesario */
+}
+.info-usuario {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.nombre {
+    margin-bottom: 0;
+    font-size: 16px;
+}
+
+.direccion {
+    margin-top: 4px;
+    font-size: 28px;
+    font-weight: bold;
 }
 </style>

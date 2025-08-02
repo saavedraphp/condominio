@@ -4,7 +4,7 @@
     <div class="header-login">
         <div>
             <h1 class="title">
-                <span>La Esquina del Vocal</span>
+                <span>Condominio Islas de San Pedro</span>
             </h1>
         </div>
         <div class="image-container">
@@ -88,7 +88,6 @@
             font-size: 46px;
             font-weight: bold;
             color: black;
-            text-transform: uppercase;
             text-align: center;
             letter-spacing: 5px;
         }

@@ -27,6 +27,7 @@ const dialog = computed({
 // Schema de validación con Yup
 const schema = yup.object({
     description: yup.string().required().min(2, 'El año debe tener al menos 4 caracteres.'),
+    title: yup.string().required().min(2, 'El título debe tener al menos 10 caracteres.'),
     amount: yup.string().required('El monto es requerido.'),
     expense_date: yup.string().required().min(10, 'la fecha de inicio es requerida.'),
 });
@@ -36,6 +37,7 @@ const {handleSubmit, resetForm} = useForm({
     validationSchema: schema,
     initialValues: {
         description: '',
+        title: '',
         amount: '',
         expense_date: new Date().toISOString().split('T')[0], // Formato YYYY-MM-DD
         documentFile: null,
@@ -50,6 +52,7 @@ const annualBudget = ref([]);
 const isLoadingBudget = ref(false);
 const expense_date = useField('expense_date');
 const description = useField('description');
+const {value: title, errorMessage: titleError} = useField('title');
 const {value: documentFile, errorMessage: documentFileError} = useField('documentFile');
 const amount = useField('amount');
 const isRecording = ref(false);
@@ -85,10 +88,11 @@ const getAnnualBudget = async () => {
 watch(() => props.element, (newValue) => {
     if (newValue) {
         description.value.value = newValue.description || "";
+        title.value = newValue.title || "";
         amount.value.value = newValue.amount || "";
         expense_date.value.value = new Date(newValue.expense_date).toISOString().split('T')[0] || "";
         existingImageUrl.value = newValue.file_path_url || null;
-    }else {
+    } else {
         resetForm();
         existingImageUrl.value = null;
     }
@@ -114,6 +118,7 @@ const submitForm = handleSubmit(async (values) => {
 
     const formData = new FormData();
     formData.append('description', values.description);
+    formData.append('title', values.title);
     formData.append('amount', values.amount);
     formData.append('expense_date', values.expense_date);
     formData.append('annual_budget_id', selectedAnnualBudget.value.id);
@@ -217,8 +222,15 @@ onMounted(() => {
 
                     </v-autocomplete>
                     <v-text-field
+                        v-model="title"
+                        :error-messages="titleError"
+                        variant="outlined"
+                        label="Título del gasto"
+                        ></v-text-field>
+                    <v-textarea
                         v-model="description.value.value"
                         :error-messages="description.errorMessage.value"
+                        rows="3"
                         variant="outlined"
                         label="Descripción del gasto"
                     />
