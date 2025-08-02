@@ -62,6 +62,12 @@ class House extends Model
         return $this->hasMany(HouseResident::class);
     }
 
+    public function HouseVehicles(): HasMany
+    {
+        return $this->hasMany(HouseVehicle::class);
+    }
+
+
     public function firstResident(): HasOne
     {
         return $this->hasOne(HouseResident::class)->oldestOfMany();

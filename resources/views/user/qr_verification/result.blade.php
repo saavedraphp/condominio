@@ -4,6 +4,7 @@
         <verification-page
             :status="{{ json_encode($status) }}"
             :user="{{ json_encode($user) }}"
+            :attributes="{{ json_encode($attributes) }}"
             :debt="{{ json_encode($debt) }}"
         />
     </div>

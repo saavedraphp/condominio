@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 use Spatie\Backtrace\Arguments\Reducers\DateTimeArgumentReducer;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -226,7 +227,7 @@ class HouseMonthlyChargeController extends Controller
         $now = Carbon::now()->locale('es');
         $firstDay = $now->copy();
         $firstDay->startOfMonth();
-        $date_emitted = $firstDay->translatedFormat('F d, Y');
+        $date_emitted = Str::ucfirst($firstDay->translatedFormat('F d, Y'));
         $months = $this->getMonthSpanish();
         $data = [
             'house_id' => $house_id,

@@ -23,6 +23,7 @@ class ExpenseRequest extends FormRequest
     {
         $rules = [
             'annual_budget_id' => 'required|exists:annual_budgets,id',
+            'title' => 'required|string|max:50',
             'description' => 'required|string|max:50',
             'amount' => 'required|numeric|gt:0',
             'expense_date' => 'required|date',
@@ -45,6 +46,7 @@ class ExpenseRequest extends FormRequest
         return [
             'annual_budget_id.required' => 'El campo presupuesto es obligatorio.',
             'annual_budget_id.exists' => 'El presupuesto seleccionado no es válido.',
+            'title.required' => 'El campo título es obligatorio.',
             'description.required' => 'El campo descripción es obligatorio.',
             'amount.required' => 'El campo monto es obligatorio.',
             'amount.numeric' => 'El campo monto debe ser un número.',

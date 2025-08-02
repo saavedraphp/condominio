@@ -25,7 +25,7 @@ const pros = defineProps({
 const mySnackbar = ref(null);
 
 const headers = ref([
-    {title: 'Gasto', key: 'description', align: 'start', sortable: true},
+    {title: 'Título', key: 'title', align: 'start', sortable: true},
     {title: 'Tipo de presupuesto', key: 'annual_budget.budget_type.name', sortable: true},
     {title: 'Monto', key: 'amount', sortable: true},
     {title: 'Fecha', key: 'expense_date_format', sortable: true},

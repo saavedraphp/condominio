@@ -88,6 +88,7 @@ class ExpenseController extends Controller
 
             $expense = Expense::create([
                 'annual_budget_id' => $validatedData['annual_budget_id'],
+                'title' => $validatedData['title'],
                 'description' => $validatedData['description'],
                 'amount' => $validatedData['amount'],
                 'expense_date' => $validatedData['expense_date'],
@@ -117,6 +118,7 @@ class ExpenseController extends Controller
         try {
             $dataToUpdate = [
                 'annual_budget_id' => $validatedData['annual_budget_id'],
+                'title' => $validatedData['title'],
                 'description' => $validatedData['description'],
                 'amount' => $validatedData['amount'],
                 'expense_date' => $validatedData['expense_date'],

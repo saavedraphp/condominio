@@ -88,7 +88,6 @@
             font-size: 46px;
             font-weight: bold;
             color: black;
-            text-transform: uppercase;
             text-align: center;
             letter-spacing: 5px;
         }

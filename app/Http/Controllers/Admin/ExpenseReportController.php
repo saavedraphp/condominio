@@ -127,8 +127,8 @@ class ExpenseReportController extends Controller
                     'id' => $expense->id,
                     'type' => $expense->annualBudget?->budgetType?->budget_scope == 'association'
                         ? self::EXPENSE_TYPE_ASSOCIATION : self::EXPENSE_TYPE_BUILDING,
-                    'title' => $expense->description ?: 'GASTO',
-                    'description' => 'N/A',
+                    'title' => $expense->title ?: 'GASTO',
+                    'description' => $expense->description ?: 'No disponible',
                     'amount' => round((float)$expense->amount, 2),
                     'date' => $expense->expense_date?->format('Y-m-d') ?: 'No disponible',
                 ];
