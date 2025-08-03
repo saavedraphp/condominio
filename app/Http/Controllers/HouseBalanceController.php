@@ -104,7 +104,7 @@ class HouseBalanceController extends Controller
         // 2. Obtener todos los cobros (recibos) y darles un formato estándar
         $charges = HouseMonthlyCharge::query()
             ->where('house_id', $house->id)
-            ->where('due_date', '<=', now()) // Solo los recibos emitidos
+            ->where('issued_date', '<=', now()) // Solo los recibos emitidos
             ->get()
             ->map(function ($charge) {
                 // Formatear el concepto para que sea más descriptivo, ej: "Recibo Enero 2025"
