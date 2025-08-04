@@ -11,7 +11,7 @@ const mySnackbar = ref(null);
 const headers = ref([
     {title: 'Fecha', key: 'date', sortable: true},
     {title: 'Título', key: 'title', align: 'start', sortable: true},
-    {title: 'Detalle', key: 'description', sortable: true},
+    {title: 'Detalle', key: 'detail_limited', sortable: true},
     {title: 'Tipo', key: 'type', sortable: true},
     {title: 'Monto', key: 'amount_formatted', sortable: true, align: 'end'},
 ]);
@@ -54,6 +54,7 @@ async function getHouses() {
         expenses.value = response.data.data.map(item => ({
             ...item,
             amount_formatted: formattedMoney(item.amount),
+            detail_limited: item.description.length > 30 ? item.description.substring(0, 30) + '...' : item.description,
         }));
         totalAmount.value = formattedMoney(response.data.totals.total_amount);
 
@@ -165,9 +166,6 @@ const previewReport = () => {
             >
                 <template v-slot:item.amount_due="{ value }">
                     <span style="color: darkred">{{ formattedMoney(value) }}</span>
-                </template>
-                <template v-slot:item.description="{ value }">
-                    <span  :title="value">{{ value.substring(0,30) }}</span>
                 </template>
             </v-data-table>
         </v-card>

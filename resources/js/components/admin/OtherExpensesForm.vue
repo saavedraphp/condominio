@@ -110,6 +110,7 @@ const submitExpense = handleExpenseSubmit(async (values) => {
         }
     } catch (error) {
         mySnackbar.value.show(error.response?.data?.message || 'Error al grabar el gasto.', 'error');
+        console.error(error);
     } finally {
         isLoading.value = false;
     }

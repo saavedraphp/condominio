@@ -83,6 +83,7 @@ class ExpenseReportController extends Controller
         return [
             'reportData' => $groupedData,
             'totals' => $ExpensesArray['totals'],
+            'details_total' => $ExpensesArray['details_total'],
             'attributes' => array_merge($attributes, [
                 'start_date' => $startDate,
                 'end_date' => $endDate,
@@ -96,10 +97,16 @@ class ExpenseReportController extends Controller
             return Carbon::parse($item->date)->format('Y-m');
         })->map(function ($group) {
             $total = $group->sum('amount');
+            $totalsByType = $group->groupBy('type')
+                ->map(function ($itemsByType) {
+                    return $itemsByType->sum('amount');
+                })
+                ->sortKeys(); // Opcional: ordena los totales por el nombre del tipo (A-Z)
             return [
                 'month_year' => Carbon::parse($group->first()->date)->format('F Y'),
                 'items' => $group,
                 'total' => $total,
+                'totalsByType' => $totalsByType,
             ];
         });
 
@@ -128,7 +135,7 @@ class ExpenseReportController extends Controller
                     'type' => $expense->annualBudget?->budgetType?->budget_scope == 'association'
                         ? self::EXPENSE_TYPE_ASSOCIATION : self::EXPENSE_TYPE_BUILDING,
                     'title' => $expense->title ?: 'GASTO',
-                    'description' => $expense->description ?: 'No disponible',
+                    'description' => $expense->description ?: '',
                     'amount' => round((float)$expense->amount, 2),
                     'date' => $expense->expense_date?->format('Y-m-d') ?: 'No disponible',
                 ];
@@ -147,7 +154,7 @@ class ExpenseReportController extends Controller
                     'id' => $expense->id,
                     'type' => self::EXPENSE_TYPE_ISLA_CERDENIA,
                     'title' => $expense->title,
-                    'description' => $expense->description,
+                    'description' => $expense->description ?: '',
                     'amount' => round((float)$expense->amount, 2),
                     'date' => $expense->date?->format('Y-m-d') ?: 'No disponible',
                 ];
@@ -157,6 +164,14 @@ class ExpenseReportController extends Controller
         $allItems = $expenses->toBase()->merge($other_expenses)->sortByDesc('date');
 
         $totalAmount = $allItems->sum('amount');
+
+        $detailsTotal[self::EXPENSE_TYPE_ASSOCIATION]['title'] = 'Gastos de Asociación';
+        $detailsTotal[self::EXPENSE_TYPE_ASSOCIATION]['amount'] =  $allItems->where('type', self::EXPENSE_TYPE_ASSOCIATION)->sum('amount');
+        $detailsTotal[self::EXPENSE_TYPE_BUILDING]['title'] = 'Gastos de Edificio';
+        $detailsTotal[self::EXPENSE_TYPE_BUILDING]['amount'] =  $allItems->where('type', self::EXPENSE_TYPE_BUILDING)->sum('amount');
+        $detailsTotal[self::EXPENSE_TYPE_ISLA_CERDENIA]['title'] = 'Gastos de Isla Cerdeña';
+        $detailsTotal[self::EXPENSE_TYPE_ISLA_CERDENIA]['amount'] =  $allItems->where('type', self::EXPENSE_TYPE_ISLA_CERDENIA)->sum('amount');
+
         $totalAssociation = $allItems->where('type', self::EXPENSE_TYPE_ASSOCIATION)->sum('amount');
         $totalBuilding = $allItems->where('type', self::EXPENSE_TYPE_BUILDING)->sum('amount');
         $totalCerdenia = $allItems->where('type', self::EXPENSE_TYPE_ISLA_CERDENIA)->sum('amount'); //
@@ -169,7 +184,8 @@ class ExpenseReportController extends Controller
                 'total_association' => round((float)$totalAssociation, 2),
                 'total_building' => round((float)$totalBuilding, 2),
                 'total_cerdenia' => round((float)$totalCerdenia, 2),
-            ]
+            ],
+            'details_total' => $detailsTotal,
         ];
     }
 }
