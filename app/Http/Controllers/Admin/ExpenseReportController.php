@@ -154,6 +154,7 @@ class ExpenseReportController extends Controller
                         : self::EXPENSE_TYPE_BUILDING;
 
                     return (object)[
+                        'unique_id' => 'expense-' . $expense->id,
                         'id' => $expense->id,
                         'type' => $type,
                         'title' => $expense->title ?: 'GASTO',
@@ -178,6 +179,7 @@ class ExpenseReportController extends Controller
                 ->get()
                 ->map(function ($expense) {
                     return (object)[
+                        'unique_id' => 'other-' . $expense->id,
                         'id' => $expense->id,
                         'type' => self::EXPENSE_TYPE_ISLA_CERDENIA,
                         'title' => $expense->title,

@@ -76,22 +76,20 @@ async function getHouses() {
     }
 }
 
-// Se llama al hacer clic en el botón "Aplicar Filtro"
 const applyDateFilter = () => {
     search.value = '';
-    if(selectedTypes.value.length === 0) {
+    if (selectedTypes.value.length === 0) {
         mySnackbar.value.show('Por favor, seleccione al menos un tipo de gasto para filtrar.', 'error');
         return;
     }
     getHouses();
 };
 
-// Limpia los filtros y carga todos los datos de nuevo
 const clearFilters = () => {
     startDate.value = null;
     endDate.value = null;
     selectedTypes.value = expenseTypes.value.map(type => type.value);
-    search.value = ''; // Opcional: también limpiar el buscador de texto
+    search.value = '';
     getHouses();
 };
 
@@ -104,7 +102,7 @@ const previewReport = () => {
         return;
     }
 
-    if(selectedTypes.value.length === 0) {
+    if (selectedTypes.value.length === 0) {
         mySnackbar.value.show('Por favor, seleccione al menos un tipo de gasto para previsualizar el reporte.', 'error');
         return;
     }
@@ -120,10 +118,6 @@ const previewReport = () => {
     }
 
     const finalUrl = `${baseUrl}?${params.toString()}`;
-
-    console.log('Abriendo URL en nueva pestaña:', finalUrl);
-
-    // 6. Abre la URL final en una nueva pestaña.
     window.open(finalUrl, '_blank');
 };
 
@@ -131,9 +125,9 @@ const previewReport = () => {
 
 // Opciones disponibles para el filtro de tipos
 const expenseTypes = ref([
-    { text: 'Gastos de Asociación', value: 'ASOCIACION' },
-    { text: 'Gastos de Edificio', value: 'EDIFICIO' },
-    { text: 'Gastos de Isla Cerdeña', value: 'ISLA CERDEÑA' },
+    {text: 'Gastos de Asociación', value: 'ASOCIACION'},
+    {text: 'Gastos de Edificio', value: 'EDIFICIO'},
+    {text: 'Gastos de Isla Cerdeña', value: 'ISLA CERDEÑA'},
 ]);
 
 const selectedTypes = ref(expenseTypes.value.map(type => type.value));
@@ -159,24 +153,24 @@ const selectedTypes = ref(expenseTypes.value.map(type => type.value));
 
             <v-card-text>
                 <!-- Fila de Filtros -->
-                <v-row align="center"  class="mt-5">
+                <v-row align="center" class="mt-5">
                     <!-- Filtro por Fechas (Server-Side) -->
                     <v-col cols="12" sm="3">
                         <v-text-field
-                                      v-model="startDate"
-                                      label="Fecha Inicio"
-                                      type="date"
-                                      density="compact"
-                                      variant="outlined"
+                            v-model="startDate"
+                            label="Fecha Inicio"
+                            type="date"
+                            density="compact"
+                            variant="outlined"
                         ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="3">
                         <v-text-field
-                                      v-model="endDate"
-                                      label="Fecha Fin"
-                                      type="date"
-                                      density="compact"
-                                      variant="outlined"
+                            v-model="endDate"
+                            label="Fecha Fin"
+                            type="date"
+                            density="compact"
+                            variant="outlined"
                         ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="6">
@@ -193,7 +187,7 @@ const selectedTypes = ref(expenseTypes.value.map(type => type.value));
                             density="compact"
                         ></v-select>
                     </v-col>
-                    </v-row>
+                </v-row>
                 <v-row>
                     <v-col cols="12" sm="6" class="d-flex justify-end align-center flex-wrap ga-2">
                         <v-btn @click="applyDateFilter" color="primary">Aplicar Filtro</v-btn>
@@ -222,7 +216,7 @@ const selectedTypes = ref(expenseTypes.value.map(type => type.value));
             <v-data-table v-show="expenses.length"
                           :headers="headers"
                           :items="expenses"
-                          item-value="id"
+                          item-value="unique_id"
                           :search="search"
                           :loading="loading"
                           class="elevation-1"
@@ -230,6 +224,16 @@ const selectedTypes = ref(expenseTypes.value.map(type => type.value));
             >
                 <template v-slot:item.amount_due="{ value }">
                     <span style="color: darkred">{{ formattedMoney(value) }}</span>
+                </template>
+                <template #item.detail_limited="{ item }">
+                    <v-tooltip location="top">
+                        <template #activator="{ props }">
+                          <span v-bind="props">
+                            {{ item.detail_limited }}
+                          </span>
+                        </template>
+                        <span>{{ item.description }}</span>
+                    </v-tooltip>
                 </template>
             </v-data-table>
         </v-card>
