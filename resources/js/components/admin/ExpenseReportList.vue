@@ -56,7 +56,6 @@ async function getHouses() {
             filterParams.types = selectedTypes.value;
         }
 
-
         const response = await axios.get('/admin/reports/expenses/index', {
             params: filterParams
         });
@@ -198,7 +197,6 @@ const selectedTypes = ref(expenseTypes.value.map(type => type.value));
                     </v-col>
                 </v-row>
                 <v-divider></v-divider>
-                <!-- Filtro de Texto (Client-Side) -->
                 <v-text-field
                     v-model="search"
                     density="compact"
