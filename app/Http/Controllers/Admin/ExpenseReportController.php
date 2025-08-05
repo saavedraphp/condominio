@@ -22,6 +22,12 @@ class ExpenseReportController extends Controller
     const EXPENSE_TYPE_BUILDING = 'EDIFICIO';
     const EXPENSE_TYPE_ISLA_CERDENIA = 'ISLA CERDEÑA';
 
+    private const EXPENSE_TYPE_TITLES = [
+        self::EXPENSE_TYPE_ASSOCIATION => 'Gastos de Asociación',
+        self::EXPENSE_TYPE_BUILDING => 'Gastos de Edificio',
+        self::EXPENSE_TYPE_ISLA_CERDENIA => 'Gastos de Isla Cerdeña',
+    ];
+
     public function __construct(SharedViewDataService $sharedViewDataService)
     {
         $this->sharedViewDataService = $sharedViewDataService;
@@ -87,6 +93,7 @@ class ExpenseReportController extends Controller
             'attributes' => array_merge($attributes, [
                 'start_date' => $startDate,
                 'end_date' => $endDate,
+                'types' => $request->input('types', []),
             ]),
         ];
     }
@@ -115,76 +122,105 @@ class ExpenseReportController extends Controller
     private function getExpensesData(Request $request): array
     {
         // 1. Validar las fechas de entrada
-        $request->validate([
+        $validated = $request->validate([
             'start_date' => 'nullable|date_format:Y-m-d',
             'end_date' => 'nullable|date_format:Y-m-d|after_or_equal:start_date',
+            'types' => 'required|array',
+            'types.*' => ['required', 'string', \Illuminate\Validation\Rule::in([
+                self::EXPENSE_TYPE_ASSOCIATION,
+                self::EXPENSE_TYPE_BUILDING,
+                self::EXPENSE_TYPE_ISLA_CERDENIA,
+            ])],
         ]);
 
-        // 1. Obtener todos lo expenses de Asociados y Edificio
-        $expenses = Expense::with(['annualBudget.budgetType:id,budget_scope'])
-            ->when($request->filled('start_date'), function ($query) use ($request) {
-                $query->whereDate('expense_date', '>=', $request->input('start_date'));
-            })
-            ->when($request->filled('end_date'), function ($query) use ($request) {
-                $query->whereDate('expense_date', '<=', $request->input('end_date'));
-            })
-            ->get()
-            ->map(function ($expense) {
-                return (object)[
-                    'id' => $expense->id,
-                    'type' => $expense->annualBudget?->budgetType?->budget_scope == 'association'
-                        ? self::EXPENSE_TYPE_ASSOCIATION : self::EXPENSE_TYPE_BUILDING,
-                    'title' => $expense->title ?: 'GASTO',
-                    'description' => $expense->description ?: '',
-                    'amount' => round((float)$expense->amount, 2),
-                    'date' => $expense->expense_date?->format('Y-m-d') ?: 'No disponible',
-                ];
-            });
+        $selectedTypes = $validated['types'];
+        $allItems = collect();
+        $expenseModelTypes = [self::EXPENSE_TYPE_ASSOCIATION, self::EXPENSE_TYPE_BUILDING];
 
-        $other_expenses = OtherExpenses::query()
-            ->when($request->filled('start_date'), function ($query) use ($request) {
-                $query->whereDate('date', '>=', $request->input('start_date'));
-            })
-            ->when($request->filled('end_date'), function ($query) use ($request) {
-                $query->whereDate('date', '<=', $request->input('end_date'));
-            })
-            ->get()
-            ->map(function ($expense) {
-                return (object)[
-                    'id' => $expense->id,
-                    'type' => self::EXPENSE_TYPE_ISLA_CERDENIA,
-                    'title' => $expense->title,
-                    'description' => $expense->description ?: '',
-                    'amount' => round((float)$expense->amount, 2),
-                    'date' => $expense->date?->format('Y-m-d') ?: 'No disponible',
-                ];
-            });
+        if (count(array_intersect($selectedTypes, $expenseModelTypes)) > 0) {
+            // 1. Obtener todos lo expenses de Asociados y Edificio
+            $expenses = Expense::with(['annualBudget.budgetType:id,budget_scope'])
+                ->when($request->filled('start_date'), function ($query) use ($request) {
+                    $query->whereDate('expense_date', '>=', $request->input('start_date'));
+                })
+                ->when($request->filled('end_date'), function ($query) use ($request) {
+                    $query->whereDate('expense_date', '<=', $request->input('end_date'));
+                })
+                ->get()
+                ->map(function ($expense) {
+                    // Mapeamos el 'budget_scope' a nuestro tipo estandarizado
+                    $type = $expense->annualBudget?->budgetType?->budget_scope === 'association'
+                        ? self::EXPENSE_TYPE_ASSOCIATION
+                        : self::EXPENSE_TYPE_BUILDING;
 
+                    return (object)[
+                        'id' => $expense->id,
+                        'type' => $type,
+                        'title' => $expense->title ?: 'GASTO',
+                        'description' => $expense->description ?: '',
+                        'amount' => round((float)$expense->amount, 2),
+                        'date' => $expense->expense_date?->format('Y-m-d') ?: 'No disponible',
+                    ];
+                })
+                ->whereIn('type', $selectedTypes);
+            $allItems = $allItems->merge($expenses);
+
+        }
+
+        if (in_array(self::EXPENSE_TYPE_ISLA_CERDENIA, $selectedTypes)) {
+            $other_expenses = OtherExpenses::query()
+                ->when($request->filled('start_date'), function ($query) use ($request) {
+                    $query->whereDate('date', '>=', $request->input('start_date'));
+                })
+                ->when($request->filled('end_date'), function ($query) use ($request) {
+                    $query->whereDate('date', '<=', $request->input('end_date'));
+                })
+                ->get()
+                ->map(function ($expense) {
+                    return (object)[
+                        'id' => $expense->id,
+                        'type' => self::EXPENSE_TYPE_ISLA_CERDENIA,
+                        'title' => $expense->title,
+                        'description' => $expense->description ?: '',
+                        'amount' => round((float)$expense->amount, 2),
+                        'date' => $expense->date?->format('Y-m-d') ?: 'No disponible',
+                    ];
+                });
+            $allItems = $allItems->merge($other_expenses);
+        }
         // 2. Combinar los gastos de ambos modelos
-        $allItems = $expenses->toBase()->merge($other_expenses)->sortByDesc('date');
+        //$allItems = $expenses->toBase()->merge($other_expenses)->sortByDesc('date');
+        $allItems = $allItems->sortByDesc('date');
+
+        // 4. CÁLCULO DE TOTALES EFICIENTE Y DINÁMICO
+        // Agrupamos por tipo y sumamos los montos. Esto hace UNA SOLA pasada por la colección.
+        $totalsByType = $allItems->groupBy('type')->map(function ($group) {
+            return $group->sum('amount');
+        });
 
         $totalAmount = $allItems->sum('amount');
 
-        $detailsTotal[self::EXPENSE_TYPE_ASSOCIATION]['title'] = 'Gastos de Asociación';
-        $detailsTotal[self::EXPENSE_TYPE_ASSOCIATION]['amount'] =  $allItems->where('type', self::EXPENSE_TYPE_ASSOCIATION)->sum('amount');
-        $detailsTotal[self::EXPENSE_TYPE_BUILDING]['title'] = 'Gastos de Edificio';
-        $detailsTotal[self::EXPENSE_TYPE_BUILDING]['amount'] =  $allItems->where('type', self::EXPENSE_TYPE_BUILDING)->sum('amount');
-        $detailsTotal[self::EXPENSE_TYPE_ISLA_CERDENIA]['title'] = 'Gastos de Isla Cerdeña';
-        $detailsTotal[self::EXPENSE_TYPE_ISLA_CERDENIA]['amount'] =  $allItems->where('type', self::EXPENSE_TYPE_ISLA_CERDENIA)->sum('amount');
+        // 5. CONSTRUCCIÓN DE LA RESPUESTA DINÁMICA
+        $detailsTotal = [];
+        $finalTotals = [];
+        // Construimos los arrays de respuesta solo con los datos de los tipos solicitados y encontrados.
+        foreach ($totalsByType as $type => $amount) {
+            // Para el array 'details_total'
+            $detailsTotal[$type] = [
+                'title' => self::EXPENSE_TYPE_TITLES[$type] ?? 'Gasto Desconocido', // Usamos nuestro mapa de títulos
+                'amount' => round((float)$amount, 2),
+            ];
 
-        $totalAssociation = $allItems->where('type', self::EXPENSE_TYPE_ASSOCIATION)->sum('amount');
-        $totalBuilding = $allItems->where('type', self::EXPENSE_TYPE_BUILDING)->sum('amount');
-        $totalCerdenia = $allItems->where('type', self::EXPENSE_TYPE_ISLA_CERDENIA)->sum('amount'); //
+            // Para el array 'totals'
+            $finalTotals['total_' . $type] = round((float)$amount, 2);
+        }
 
+        // Añadimos el total general
+        $finalTotals['total_amount'] = round((float)$totalsByType->sum(), 2);
 
         return [
             'items' => $allItems->values(),
-            'totals' => [
-                'total_amount' => round((float)$totalAmount, 2),
-                'total_association' => round((float)$totalAssociation, 2),
-                'total_building' => round((float)$totalBuilding, 2),
-                'total_cerdenia' => round((float)$totalCerdenia, 2),
-            ],
+            'totals' => $finalTotals,
             'details_total' => $detailsTotal,
         ];
     }

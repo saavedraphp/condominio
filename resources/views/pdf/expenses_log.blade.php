@@ -105,6 +105,7 @@
             <a href="{{ route('admin.reports.expenses.pdf', [
             'start_date' => $attributes['start_date'],
             'end_date' => $attributes['end_date'],
+            'types' => $attributes['types'],
             ])
             }}" class="download-button">Descargar PDF
             </a>

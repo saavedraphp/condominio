@@ -42,15 +42,25 @@ async function getHouses() {
 
     try {
         // Construimos los parámetros de la URL
-        const params = new URLSearchParams();
+        const filterParams = {};
+        expenses.value = []; // Limpiamos los gastos antes de cargar nuevos datos
         if (startDate.value) {
-            params.append('start_date', dayjs(startDate.value).format('YYYY-MM-DD'));
+            filterParams.start_date = dayjs(startDate.value).format('YYYY-MM-DD');
         }
         if (endDate.value) {
-            params.append('end_date', dayjs(endDate.value).format('YYYY-MM-DD'));
+            filterParams.end_date = dayjs(endDate.value).format('YYYY-MM-DD');
         }
 
-        const response = await axios.get(`/admin/reports/expenses/index?${params.toString()}`);
+        // Simplemente asigna el array. ¡Axios hará el resto!
+        if (selectedTypes.value && selectedTypes.value.length > 0) {
+            filterParams.types = selectedTypes.value;
+        }
+
+
+        const response = await axios.get('/admin/reports/expenses/index', {
+            params: filterParams
+        });
+
         expenses.value = response.data.data.map(item => ({
             ...item,
             amount_formatted: formattedMoney(item.amount),
@@ -69,6 +79,10 @@ async function getHouses() {
 // Se llama al hacer clic en el botón "Aplicar Filtro"
 const applyDateFilter = () => {
     search.value = '';
+    if(selectedTypes.value.length === 0) {
+        mySnackbar.value.show('Por favor, seleccione al menos un tipo de gasto para filtrar.', 'error');
+        return;
+    }
     getHouses();
 };
 
@@ -76,20 +90,53 @@ const applyDateFilter = () => {
 const clearFilters = () => {
     startDate.value = null;
     endDate.value = null;
+    selectedTypes.value = expenseTypes.value.map(type => type.value);
     search.value = ''; // Opcional: también limpiar el buscador de texto
     getHouses();
 };
 
 const previewReport = () => {
+    const baseUrl = '/admin/reports/expenses/preview';
+    const params = new URLSearchParams();
+
     if (startDate.value === null || endDate.value === null) {
         mySnackbar.value.show('Por favor, seleccione un rango de fecha para previsualizar el reporte.', 'error');
         return;
     }
 
-    const url = `/admin/reports/expenses/preview?start_date=${startDate.value}&end_date=${endDate.value}`;
-    window.open(url, '_blank');
+    if(selectedTypes.value.length === 0) {
+        mySnackbar.value.show('Por favor, seleccione al menos un tipo de gasto para previsualizar el reporte.', 'error');
+        return;
+    }
+
+    params.append('start_date', dayjs(startDate.value).format('YYYY-MM-DD'));
+    params.append('end_date', dayjs(endDate.value).format('YYYY-MM-DD'));
+
+    if (selectedTypes.value && selectedTypes.value.length > 0) {
+        selectedTypes.value.forEach(type => {
+            // Se usa 'types[]' para que el backend de Laravel lo interprete como un array.
+            params.append('types[]', type);
+        });
+    }
+
+    const finalUrl = `${baseUrl}?${params.toString()}`;
+
+    console.log('Abriendo URL en nueva pestaña:', finalUrl);
+
+    // 6. Abre la URL final en una nueva pestaña.
+    window.open(finalUrl, '_blank');
 };
 
+// Modelo para nuestro v-select. ¡Este array será enviado al backend!
+
+// Opciones disponibles para el filtro de tipos
+const expenseTypes = ref([
+    { text: 'Gastos de Asociación', value: 'ASOCIACION' },
+    { text: 'Gastos de Edificio', value: 'EDIFICIO' },
+    { text: 'Gastos de Isla Cerdeña', value: 'ISLA CERDEÑA' },
+]);
+
+const selectedTypes = ref(expenseTypes.value.map(type => type.value));
 
 </script>
 <template>
@@ -112,10 +159,10 @@ const previewReport = () => {
 
             <v-card-text>
                 <!-- Fila de Filtros -->
-                <v-row align="center">
+                <v-row align="center"  class="mt-5">
                     <!-- Filtro por Fechas (Server-Side) -->
                     <v-col cols="12" sm="3">
-                        <v-text-field class="mt-5"
+                        <v-text-field
                                       v-model="startDate"
                                       label="Fecha Inicio"
                                       type="date"
@@ -124,7 +171,7 @@ const previewReport = () => {
                         ></v-text-field>
                     </v-col>
                     <v-col cols="12" sm="3">
-                        <v-text-field class="mt-5"
+                        <v-text-field
                                       v-model="endDate"
                                       label="Fecha Fin"
                                       type="date"
@@ -132,6 +179,22 @@ const previewReport = () => {
                                       variant="outlined"
                         ></v-text-field>
                     </v-col>
+                    <v-col cols="12" sm="6">
+                        <v-select
+                            v-model="selectedTypes"
+                            :items="expenseTypes"
+                            label="Tipos de Gasto"
+                            item-title="text"
+                            item-value="value"
+                            multiple
+                            chips
+                            closable-chips
+                            variant="outlined"
+                            density="compact"
+                        ></v-select>
+                    </v-col>
+                    </v-row>
+                <v-row>
                     <v-col cols="12" sm="6" class="d-flex justify-end align-center flex-wrap ga-2">
                         <v-btn @click="applyDateFilter" color="primary">Aplicar Filtro</v-btn>
                         <v-btn @click="clearFilters" color="grey">Limpiar</v-btn>
@@ -159,6 +222,7 @@ const previewReport = () => {
             <v-data-table v-show="expenses.length"
                           :headers="headers"
                           :items="expenses"
+                          item-value="id"
                           :search="search"
                           :loading="loading"
                           class="elevation-1"
