@@ -105,6 +105,7 @@
             <a href="{{ route('admin.reports.expenses.pdf', [
             'start_date' => $attributes['start_date'],
             'end_date' => $attributes['end_date'],
+            'types' => $attributes['types'],
             ])
             }}" class="download-button">Descargar PDF
             </a>
@@ -112,7 +113,13 @@
         <h1>Bitacora de Gastos</h1>
         <h2>ASOCIACION DE PROPIETARIOS ISLAS DE SAN PEDRO</h2>
         <p>Generado el: {{ now()->format('d/m/Y H:i') }}</p>
-        <p>Período: {{ \Carbon\Carbon::parse($attributes['start_date'])->format('d/m/Y') }} - {{ \Carbon\Carbon::parse($attributes['end_date'])->format('d/m/Y') }}</p>
+        <p>Período: {{ \Carbon\Carbon::parse($attributes['start_date'])->format('d/m/Y') }}
+            - {{ \Carbon\Carbon::parse($attributes['end_date'])->format('d/m/Y') }}</p>
+
+        @foreach($details_total as $detail => $itemDetail)
+            <h3>{{$itemDetail['title']}}: {{number_format($itemDetail['amount'],2)}}</h3>
+        @endforeach
+
         <h1>Total: {{ number_format($totals['total_amount'],2)}}</h1>
     </div>
 
@@ -145,7 +152,19 @@
                     <td>{{ $payment->type ?? 'N/A' }}</td>
                     <td style="text-align: right;">S/ {{ number_format($payment->amount, 2) }}</td>
                 </tr>
+
             @endforeach
+            @if($data['totalsByType']->isNotEmpty())
+                <tr class="total-row-by-type">
+                    <td colspan="4" style="text-align: center; font-weight: bold; padding: 8px 0;">
+                        @foreach($data['totalsByType'] as $type => $total)
+                            <span style="margin: 0 15px;">
+                                {{ \Illuminate\Support\Str::title(strtolower($type)) }}: S/ {{ number_format($total, 2) }}
+                            </span>
+                        @endforeach
+                    </td>
+                </tr>
+            @endif
             <tr class="total-row">
                 <td colspan="3" style="text-align: right;">Total del Mes:</td>
                 <td style="text-align: right;">S/ {{ number_format($data['total'], 2) }}</td>
