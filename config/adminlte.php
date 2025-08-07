@@ -324,7 +324,7 @@ return [
             'can' => 'view_ads',
         ],
         [
-            'text' => 'Usuarios',
+            'text' => 'Propietarios/Inquilinos',
             'url' => 'admin/users/list',
             'icon' => 'fas fa-user',
             'can' => 'view_ads',
@@ -463,6 +463,17 @@ return [
                 [
                     'text' => 'Lista de Gastos',
                     'url' => 'admin/reports/expenses/list',
+                ],
+            ]
+        ],
+        [
+            'text' => 'Usuarios',
+            'icon' => 'fas fa-fw fa-plus-square',
+            'can' => 'view_ads',
+            'submenu' => [
+                [
+                    'text' => 'Seguridad',
+                    'url' => 'admin/securities/list',
                 ],
             ]
         ],

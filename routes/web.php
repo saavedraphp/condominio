@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\OtherExpenseController;
 use App\Http\Controllers\Admin\OtherExpenseDetailsController;
 use App\Http\Controllers\Admin\PaymentReportController;
 use App\Http\Controllers\Admin\PetitionController as AdminPetitionController;
+use App\Http\Controllers\Admin\SecurityController;
 use App\Http\Controllers\Admin\StatisticsController;
 use App\Http\Controllers\Admin\UserController as AdminUserAdsController;
 use App\Http\Controllers\Admin\UserHouseAssignmentController;
@@ -370,6 +371,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/settings', [SettingController::class, 'index'])->name('settings.index');
         Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
         Route::post('/settings/upload', [SettingController::class, 'upload'])->name('settings.upload');
+
+        Route::get('/securities/list', [SecurityController::class, 'showPage'])->name('securities.show-page');
+        Route::get('/securities', [SecurityController::class, 'index'])->name('securities.index');
+        Route::post('/securities', [SecurityController::class, 'store'])->name('securities.store');
+        Route::put('/securities/{security}', [SecurityController::class, 'update'])->name('securities.update');
+        Route::delete('/securities/{security}', [SecurityController::class, 'destroy'])->name('securities.destroy');
 
         // Nueva ruta para generar el token y redirigir
         Route::get('users/impersonate-in-new-tab/{webUser}', [ImpersonateController::class, 'generateTokenAndRedirect'])

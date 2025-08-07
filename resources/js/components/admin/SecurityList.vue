@@ -67,7 +67,7 @@ const deleteSecurity = async () => {
         if (!itemToDelete.value) return;
         const id = itemToDelete.value.id;
 
-        const response = await axios.delete(`/admin/users/${id}`)
+        const response = await axios.delete(`${props.routes.base}/${id}`)
 
         if (response.data && response.data.success) {
             users.value = users.value.filter(element => element.id !== id);
@@ -93,9 +93,6 @@ const openModalEdit = (item) => {
 const openModalAdd = () => {
     selectedElement.value = null;
     showModal.value = true;
-};
-const openSettings = (item) => {
-    window.location.href = `${window.location.origin}/admin/users/${item.id}/settings`;
 };
 
 const closeModal = (() => {
@@ -144,6 +141,7 @@ const closeDeleteModal = () => {
             </v-card-title>
             <v-divider></v-divider>
             <v-text-field
+                v-if="true"
                 v-model="search"
                 density="compact"
                 label="Buscar en los resultados..."
@@ -160,6 +158,7 @@ const closeDeleteModal = () => {
                           :headers="headers"
                           :items="users"
                           :search="search"
+                          :loading="loading"
                           class="elevation-1"
                           dense
             >
@@ -207,7 +206,7 @@ const closeDeleteModal = () => {
                       @edited="reloadWithMessage"
                       @close-modal="closeModal"
                       @refresh-data="getData"
-                      routes="">
+                     >
         </SecurityForm>
         <DeleteConfirmationModal
             v-model:show="dialogDelete"
