@@ -6,6 +6,14 @@ import SecurityForm from "@/components/admin/SecurityForm.vue";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal.vue";
 // --- Props ---
 const props = defineProps({
+    user: {
+        type: Object,
+        required: true,
+    },
+    house: {
+        type: Object,
+        required: true,
+    },
     routes: {
         type: Object,
         required: true,
@@ -16,22 +24,20 @@ const mySnackbar = ref(null);
 
 // --- Estado Reactivo ---
 const headers = ref([        // Definición de las columnas de la tabla
-    {title: 'Nombre', key: 'name', align: 'start', sortable: true},
-    {title: 'Email', key: 'email', sortable: true},
-    {title: 'Teléfono', key: 'phone', sortable: true},
-    {title: 'Estado', key: 'status', sortable: true},
+    {title: 'Title', key: 'name', align: 'start', sortable: true},
+    {title: 'F. Inicio', key: 'starts_at', sortable: true},
+    {title: 'F. Expiración', key: 'expires_at', sortable: true},
+    {title: 'Codigo de Acceso', key: 'access_code', sortable: true},
     {title: 'Acciones', key: 'actions', sortable: false, align: 'end'},
 ]);
 
-const users = ref([]);
+const list = ref([]);
 const loading = ref(true);
 const search = ref('');
 const showModal = ref(false)
 const dialogDelete = ref(false);
 const isDeleting = ref(false);
 const itemToDelete = ref(null);
-const form = ref(null);
-
 const selectedElement = ref(null)
 
 
@@ -41,7 +47,7 @@ onMounted(() => {
 
 const deleteDialogItemName = computed(() => {
     if (!itemToDelete.value) return '';
-    return `${itemToDelete.value.name} ID: ${itemToDelete.value.id}`;
+    return `${itemToDelete.value.title} ID: ${itemToDelete.value.id}`;
 });
 
 async function getData() {
@@ -49,7 +55,7 @@ async function getData() {
 
     try {
         const response = await axios.get(`${props.routes.base}`);
-        users.value = response.data;
+        list.value = response.data;
 
     } catch (error) {
         mySnackbar.value.show('Lo sentimos, hubo un problema obtener la información. Intenta de nuevo, por favor.', 'error');
@@ -62,7 +68,7 @@ const reloadWithMessage = (message) => {
     getData();
 };
 
-const deleteSecurity = async () => {
+const handleDelete = async () => {
     try {
         if (!itemToDelete.value) return;
         const id = itemToDelete.value.id;
@@ -70,7 +76,7 @@ const deleteSecurity = async () => {
         const response = await axios.delete(`${props.routes.base}/${id}`)
 
         if (response.data && response.data.success) {
-            users.value = users.value.filter(element => element.id !== id);
+            list.value = list.value.filter(element => element.id !== id);
             mySnackbar.value.show(response.data.message, 'success');
 
         } else {
@@ -120,7 +126,7 @@ const closeDeleteModal = () => {
             <v-card-title class="d-flex align-center pe-2">
                 <v-icon icon="mdi-account"></v-icon>
                  
-                Gestión de Personal de Seguridad
+                Gestión de Pases de Visita
                 <v-spacer></v-spacer>
                 <v-btn
                     color="primary"
@@ -153,9 +159,9 @@ const closeDeleteModal = () => {
             ></v-text-field>
             <v-divider></v-divider>
 
-            <v-data-table v-show="users.length"
+            <v-data-table v-show="list.length"
                           :headers="headers"
-                          :items="users"
+                          :items="list"
                           :search="search"
                           :loading="loading"
                           class="elevation-1"
@@ -205,13 +211,13 @@ const closeDeleteModal = () => {
                       @edited="reloadWithMessage"
                       @close-modal="closeModal"
                       @refresh-data="getData"
-                     >
+        >
         </SecurityForm>
         <DeleteConfirmationModal
             v-model:show="dialogDelete"
             :item-name="deleteDialogItemName"
             :loading="isDeleting"
-            @confirm="deleteSecurity"
+            @confirm="handleDelete"
             @cancel="closeDeleteModal"
         />
         <Snackbar ref="mySnackbar"/>

@@ -11,7 +11,6 @@ class RoleSeeder extends Seeder
 {
     const ADMIN = 'admin';
     const USER = 'user';
-
     const SECURITY = 'security';
 
     /**
@@ -53,8 +52,6 @@ class RoleSeeder extends Seeder
         $permissionAdmin = [$permissionViewAds, $permissionAddAds, $permissionEditAds, $permissionDeleteAds];
         $permissionUser = [$permissionViewPaymentHistory];
         $permissionSecurity = [$permissionScanVisitorPass];
-
-
         $roleAdmin->syncPermissions($permissionAdmin);
         $roleUser->syncPermissions($permissionUser);
         $rolSecurity->syncPermissions($permissionSecurity);

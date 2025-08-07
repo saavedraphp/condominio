@@ -45,6 +45,7 @@ use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\HouseVehicleController as HouseVehicleUserController;
 use App\Http\Controllers\User\HouseResidentController as HouseResidentUserController;
+use App\Http\Controllers\User\VisitPassController;
 use App\Http\Controllers\WebUserImageController;
 use Illuminate\Support\Facades\Route;
 
@@ -116,7 +117,6 @@ Route::prefix('user')->name('user.')->group(function () {
         /*VEHICLES*/
         Route::get('/houses/{house}/house-vehicles', [HouseVehicleUserController::class, 'index'])->name('house-vehicles.index');
 
-
         Route::get('/houses/{house}/dashboard', [HouseController::class, 'dashboard'])->name('user.house.dashboard');
         Route::get('/houses/show/{house}', [HouseController::class, 'show'])->name('user.house.show');
         /* HOUSE LIST */
@@ -126,6 +126,10 @@ Route::prefix('user')->name('user.')->group(function () {
 
         Route::get('/houses/{house}/payments/list', [PaymentController::class, 'showPage'])->name('user.show-page');
         Route::resource('/house/{house}/payments', PaymentController::class);
+
+        /* LIST VISIT PASSES*/
+        Route::get('/houses/{house}/visit-passes/list', [VisitPassController::class, 'showPage'])->name('house.visit-passes.show-page');
+        Route::get('/houses/{house}/visit-passes', [VisitPassController::class, 'index'])->name('house.visit-passes.index');
 
         /* LISTA DE RECIBOS DE MANTENIENTO*/
         Route::get('/houses/{house}/house-monthly-charges/list', [HouseMonthlyChargeController::class, 'showPageByHouseId'])->name('house.house-monthly-charges.list');

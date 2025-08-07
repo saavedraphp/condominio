@@ -11,12 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
+        Schema::table('web_users', function (Blueprint $table) {
             $table->bigInteger('document_type_id')->nullable()->after('phone');
             $table->string('document_number')->nullable()->after('document_type_id');
-            $table->string('file_path')->nullable()->after('document_number');
-            $table->string('public_access_token')->nullable()->after('file_path');
-            $table->softDeletes();
         });
     }
 
@@ -25,9 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['file_path', 'public_access_token', 'document_type_id', 'document_number']);
-            $table->dropSoftDeletes();
+        Schema::table('web_users', function (Blueprint $table) {
+            $table->dropColumn(['document_type_id', 'document_number']);
         });
     }
 };
