@@ -10,6 +10,10 @@ const emit = defineEmits(['added', 'edited', 'close-modal', 'update:modelValue',
 const props = defineProps({
     modelValue: Boolean,
     element: Object,
+    house: {
+        type: Object,
+        required: true,
+    },
     routes: {
         type: Object,
         required: true,
@@ -24,9 +28,9 @@ const dialog = computed({
 
 // Schema de validación con Yup
 const schema = yup.object({
-    name: yup.string().required().min(2, 'El nombre debe tener al menos 2 caracteres.'),
-    email: yup.string().required().email('Debe ser un correo electrónico válido.'),
-    phone: yup.string().required().matches(/^\d+$/, 'El número de teléfono debe tener al menos 7 dígitos.').min(7),
+    title: yup.string().required().min(5, 'El nombre debe tener al menos 5 caracteres.'),
+    starts_at:  yup.string().required().min(10, 'la fecha de inicio es requerida.'),
+    expires_at: yup.string().required().min(10, 'la fecha de inicio es requerida.'),
 
 });
 
@@ -34,30 +38,35 @@ const schema = yup.object({
 const {handleSubmit, resetForm, setValues} = useForm({
     validationSchema: schema,
     initialValues: {
-        name: '',
-        email: '',
-        phone: '',
-        status: true
+        house_id: null,
+        title: '',
+        details: '',
+        starts_at: new Date().toISOString().substring(0, 10),
+        expires_at: new Date().toISOString().substring(0, 10),
+        access_code: '',
     }
 });
 
-const {value: name, errorMessage: nameError} = useField('name');
-const {value: email, errorMessage: emailError} = useField('email');
-const {value: phone, errorMessage: phoneError} = useField('phone');
-const {value: status, errorMessage: statusError} = useField('status', 'boolean');
-const isLoading = ref(false);
+const {value: title, errorMessage: titleError} = useField('title');
+const {value: details} = useField('details');
+const {value: starts_at, errorMessage: starts_atError} = useField('starts_at');
+const {value: expires_at, errorMessage: expires_atError} = useField('expires_at');
+const {value: access_code} = useField('access_code');
+
+const isSubmit = ref(false);
 const mySnackbar = ref(null);
 
 const isEditing = computed(() => !!props.element?.id);
-const formTitle = computed(() => isEditing.value ? 'Editar Seguridad' : 'Adicionar Seguridad');
+const formTitle = computed(() => isEditing.value ? 'Editar Pase' : 'Adicionar Pase');
 
 watch(() => props.element, (newValue) => {
     if (newValue && newValue.id) {
         setValues({
-            name: newValue.name || "",
-            email: newValue.email || "",
-            phone: newValue.phone || "",
-            status: newValue.status === 'active',
+            title: newValue.title || "",
+            details: newValue.details || "",
+            starts_at: newValue.starts_at.substring(0,10) || "",
+            expires_at: newValue.expires_at.substring(0,10) || "",
+            access_code: newValue.access_code || "",
         });
     } else {
         resetForm();
@@ -67,13 +76,15 @@ watch(() => props.element, (newValue) => {
 const submitForm = handleSubmit(async (values) => {
 
     const formData = new FormData();
-    formData.append('name', values.name);
-    formData.append('email', values.email);
-    formData.append('phone', values.phone);
-    formData.append('status', values.status === true ? 'active' : 'inactive');
+    formData.append('title', values.title);
+    formData.append('details', values.details);
+    formData.append('starts_at', values.starts_at);
+    formData.append('expires_at', values.expires_at);
+    formData.append('access_code', values.access_code);
+    formData.append('house_id', props.house.id);
 
     try {
-        isLoading.value = true;
+        isSubmit.value = true;
         let url = props.routes.base;
         let action = 'added';
         if (isEditing.value) {
@@ -96,11 +107,10 @@ const submitForm = handleSubmit(async (values) => {
         mySnackbar.value.show(error.response?.data?.message || 'Error al grabar el registro.', 'error');
         console.error(error);
     } finally {
-        isLoading.value = false;
+        isSubmit.value = false;
     }
 
 });
-
 
 const selectedElement = ref(null);
 
@@ -122,8 +132,8 @@ const close = () => {
                         <v-row dense>
                             <v-col cols="12">
                                 <v-text-field
-                                    v-model="name"
-                                    :error-messages="nameError"
+                                    v-model="title"
+                                    :error-messages="titleError"
                                     label="Name*"
                                     variant="outlined"
                                     density="compact"
@@ -131,32 +141,45 @@ const close = () => {
                                 ></v-text-field>
                             </v-col>
                             <v-col cols="12">
-                                <v-text-field
-                                    v-model="email"
-                                    :error-messages="emailError"
-                                    label="Email*"
+                                <v-textarea
+                                    v-model="details"
+                                    label="Detalles"
+                                    rows="3"
                                     variant="outlined"
                                     density="compact"
-                                    required
-                                ></v-text-field>
+                                ></v-textarea>
                             </v-col>
                             <v-col cols="12">
                                 <v-text-field
-                                    v-model="phone"
-                                    :error-messages="phoneError"
-                                    label="Teléfono*"
+                                    v-model="access_code"
+                                    :label="isEditing ? 'Código de Acceso (no editable)' : 'Este Código de Acceso se autogenera al crear el pase' "
+                                    variant="outlined"
+                                    density="compact"
+                                    required
+                                    readonly
+                                ></v-text-field>
+                            </v-col>
+                            <v-col cols="12" sm="6">
+                                <v-text-field
+                                    v-model="starts_at"
+                                    :error-messages="starts_atError"
+                                    type="date"
+                                    label="Fecha Inicio*"
                                     variant="outlined"
                                     density="compact"
                                     required
                                 ></v-text-field>
                             </v-col>
                             <v-col cols="12" sm="6">
-                                <v-switch
-                                    v-model="status"
-                                    :label="status ? 'Activo' : 'Inactivo'"
-                                    color="success"
-                                    inset
-                                ></v-switch>
+                                <v-text-field
+                                    v-model="expires_at"
+                                    :error-messages="expires_atError"
+                                    type="date"
+                                    label="Fecha Expiración*"
+                                    variant="outlined"
+                                    density="compact"
+                                    required
+                                ></v-text-field>
                             </v-col>
                         </v-row>
                     </v-container>
@@ -164,8 +187,8 @@ const close = () => {
                         <v-spacer></v-spacer>
                         <v-btn color="grey" variant="flat" @click="close">Cancelar</v-btn>
                         <v-btn color="primary" variant="flat" type="submit"
-                               :loading="isLoading"
-                               :disabled="isLoading">Guardar
+                               :loading="isSubmit"
+                               :disabled="isSubmit">Guardar
                         </v-btn>
                     </v-card-actions>
                 </v-form>

@@ -130,6 +130,13 @@ Route::prefix('user')->name('user.')->group(function () {
         /* LIST VISIT PASSES*/
         Route::get('/houses/{house}/visit-passes/list', [VisitPassController::class, 'showPage'])->name('house.visit-passes.show-page');
         Route::get('/houses/{house}/visit-passes', [VisitPassController::class, 'index'])->name('house.visit-passes.index');
+        Route::post('/houses/{house}/visit-passes', [VisitPassController::class, 'store'])->name('house.visit-passes.store');
+        Route::put('/houses/{house}/visit-passes/{visitPass}', [VisitPassController::class, 'update'])->name('house.visit-passes.update');
+        Route::delete('/houses/{house}/visit-passes/{visitPass}', [VisitPassController::class, 'destroy'])->name('house.visit-passes.destroy');
+        Route::get('visit-passes/{visitPass}/virtual-pass', [VisitPassController::class, 'getVirtualPassData'])
+            ->name('visit-passes.virtual-pass.data');
+        Route::get('visit-passes/{visitPass}/download-pdf', [VisitPassController::class, 'downloadPdf'])
+            ->name('visit-passes.download-pdf');
 
         /* LISTA DE RECIBOS DE MANTENIENTO*/
         Route::get('/houses/{house}/house-monthly-charges/list', [HouseMonthlyChargeController::class, 'showPageByHouseId'])->name('house.house-monthly-charges.list');

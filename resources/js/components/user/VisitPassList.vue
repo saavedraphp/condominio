@@ -2,8 +2,10 @@
 import {ref, reactive, watch, computed, onMounted} from 'vue';
 import axios from "axios";
 import Snackbar from "@/components/Snackbar.vue";
-import SecurityForm from "@/components/admin/SecurityForm.vue";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal.vue";
+import VisitPassForm from "@/components/user/VisitPassForm.vue";
+import {formatDate} from "../../utils/functions.js";
+import VirtualPassModal from "@/components/user/VirtualPassModal.vue";
 // --- Props ---
 const props = defineProps({
     user: {
@@ -24,10 +26,10 @@ const mySnackbar = ref(null);
 
 // --- Estado Reactivo ---
 const headers = ref([        // Definición de las columnas de la tabla
-    {title: 'Title', key: 'name', align: 'start', sortable: true},
-    {title: 'F. Inicio', key: 'starts_at', sortable: true},
-    {title: 'F. Expiración', key: 'expires_at', sortable: true},
-    {title: 'Codigo de Acceso', key: 'access_code', sortable: true},
+    {title: 'Título', key: 'title', align: 'start', sortable: true},
+    { title: 'Vigencia', value: 'validity', sortable: false },
+    {title: 'Código de Acceso', key: 'access_code', sortable: true},
+    {title: 'Estado', key: 'status', sortable: true},
     {title: 'Acciones', key: 'actions', sortable: false, align: 'end'},
 ]);
 
@@ -63,6 +65,7 @@ async function getData() {
         loading.value = false;
     }
 }
+
 const reloadWithMessage = (message) => {
     mySnackbar.value.show(message, 'success');
     getData();
@@ -119,6 +122,29 @@ const closeDeleteModal = () => {
     }, 300);
 };
 
+const getStatus = (pass) => {
+    let now = new Date();
+    now = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // Normalizar a la fecha actual sin hora
+    const start = new Date(pass.starts_at);
+    const end = new Date(pass.expires_at);
+
+    if (now > end) {
+        return {text: 'Vencido', color: 'red-darken-2'};
+    }
+    /*if (now < start) {
+        return {text: 'Próximo', color: 'blue-darken-1'};
+    }*/
+    return {text: 'Activo', color: 'green-darken-1'};
+};
+
+const isModalOpen = ref(false);
+const selectedPassId = ref(null);
+
+const showVirtualPass = (id) => {
+    selectedPassId.value = id;
+    isModalOpen.value = true;
+};
+
 </script>
 <template>
     <v-container fluid>
@@ -168,7 +194,23 @@ const closeDeleteModal = () => {
                           dense
             >
                 <!-- Columna de Acciones Personalizada -->
+                <template v-slot:item.validity="{ item }">
+                    <div>
+                        <strong>Inicio:</strong> {{ formatDate(item.starts_at) }}
+                    </div>
+                    <div>
+                        <strong>Fin:</strong> {{ formatDate(item.expires_at) }}
+                    </div>
+                </template>
+                <template v-slot:item.status="{ item }">
+                    <v-chip :color="getStatus(item).color" variant="elevated" size="small">
+                        {{ getStatus(item).text }}
+                    </v-chip>
+                </template>
                 <template v-slot:item.actions="{ item }">
+                    <v-btn icon small @click="showVirtualPass(item.id)">
+                        <v-icon>mdi-qrcode</v-icon>
+                    </v-btn>
                     <v-tooltip text="Editar">
                         <template v-slot:activator="{ props }">
                             <v-btn
@@ -195,24 +237,25 @@ const closeDeleteModal = () => {
                         </template>
                     </v-tooltip>
                 </template>
-                <template v-slot:item.status="{ value }">
-                    <v-chip :color="value  === 'active' ? 'success' : 'grey'" size="small">
-                        {{ value === 'active' ? 'Activo' : 'Inactivo' }}
-                    </v-chip>
-                </template>
+                <!--                <template v-slot:item.status="{ value }">
+                                    <v-chip :color="value  === 'active' ? 'success' : 'grey'" size="small">
+                                        {{ value === 'active' ? 'Activo' : 'Inactivo' }}
+                                    </v-chip>
+                                </template>-->
 
             </v-data-table>
         </v-card>
-        <SecurityForm v-if="showModal"
-                      v-model="showModal"
-                      :element="selectedElement"
-                      :routes="props.routes"
-                      @added="reloadWithMessage"
-                      @edited="reloadWithMessage"
-                      @close-modal="closeModal"
-                      @refresh-data="getData"
+        <VisitPassForm v-if="showModal"
+                       v-model="showModal"
+                       :element="selectedElement"
+                       :house="props.house"
+                       :routes="props.routes"
+                       @added="reloadWithMessage"
+                       @edited="reloadWithMessage"
+                       @close-modal="closeModal"
+                       @refresh-data="getData"
         >
-        </SecurityForm>
+        </VisitPassForm>
         <DeleteConfirmationModal
             v-model:show="dialogDelete"
             :item-name="deleteDialogItemName"
@@ -220,6 +263,10 @@ const closeDeleteModal = () => {
             @confirm="handleDelete"
             @cancel="closeDeleteModal"
         />
+        <VirtualPassModal
+            v-if="isModalOpen"
+            v-model="isModalOpen"
+            :pass-id="selectedPassId" />
         <Snackbar ref="mySnackbar"/>
     </v-container>
 </template>

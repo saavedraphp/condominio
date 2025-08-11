@@ -64,7 +64,10 @@ class SecurityController extends Controller
 
         } catch (\exception $e) {
             Log::error('Error al adicionar el personal de seguridad' . $e->getMessage());
-            return response()->json(['success' => false, 'message' => 'Ócurrio un error al intentar insertar el registro : ' . $e->getMessage()], 500);
+            return response()->json([
+                'success' => false,
+                'message' => 'Ócurrio un error al intentar insertar el registro : ' . $e->getMessage()
+            ], 500);
         }
     }
 
