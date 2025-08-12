@@ -72,6 +72,7 @@ Route::get('/home', function () {
 
 // web_user Auth Routes
 Route::prefix('user')->name('user.')->group(function () {
+    Route::get('/', [LoginUserController::class, 'showLoginForm'])->name('login');
     Route::get('/login', [LoginUserController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginUserController::class, 'authentication']);
     Route::get('/logout', [LoginUserController::class, 'logout'])->name('logout');
@@ -172,6 +173,7 @@ Route::prefix('user')->name('user.')->group(function () {
 
 /*RUTAS DEL ADMIN*/
 Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [AdminLogin::class, 'showLoginForm'])->name('login');
     Route::get('/login', [AdminLogin::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AdminLogin::class, 'authentication']);
     Route::get('/logout', [AdminLogin::class, 'logout'])->name('logout');
@@ -393,6 +395,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     });
 });
 Route::prefix('security')->name('security.')->group(function () {
+    Route::get('', [AdminLogin::class, 'showLoginForm'])->name('login');
     Route::get('/login', [AdminLogin::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AdminLogin::class, 'authentication']);
     Route::get('/logout', [AdminLogin::class, 'logout'])->name('logout');
