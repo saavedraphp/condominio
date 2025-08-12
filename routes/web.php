@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\OtherExpenseController;
 use App\Http\Controllers\Admin\OtherExpenseDetailsController;
 use App\Http\Controllers\Admin\PaymentReportController;
 use App\Http\Controllers\Admin\PetitionController as AdminPetitionController;
+use App\Http\Controllers\Admin\SecurityController;
 use App\Http\Controllers\Admin\StatisticsController;
 use App\Http\Controllers\Admin\UserController as AdminUserAdsController;
 use App\Http\Controllers\Admin\UserHouseAssignmentController;
@@ -44,6 +45,8 @@ use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\HouseVehicleController as HouseVehicleUserController;
 use App\Http\Controllers\User\HouseResidentController as HouseResidentUserController;
+use App\Http\Controllers\User\VisitPassController;
+use App\Http\Controllers\Admin\VisitPassController as AdminVisitPassController;
 use App\Http\Controllers\WebUserImageController;
 use Illuminate\Support\Facades\Route;
 
@@ -67,11 +70,9 @@ Route::get('/home', function () {
     return view('home');
 });
 
-Route::get('/version', function () {
-    phpinfo();
-})->name('home');
 // web_user Auth Routes
 Route::prefix('user')->name('user.')->group(function () {
+    Route::get('/', [LoginUserController::class, 'showLoginForm'])->name('login');
     Route::get('/login', [LoginUserController::class, 'showLoginForm'])->name('login');
     Route::post('/login', [LoginUserController::class, 'authentication']);
     Route::get('/logout', [LoginUserController::class, 'logout'])->name('logout');
@@ -115,7 +116,6 @@ Route::prefix('user')->name('user.')->group(function () {
         /*VEHICLES*/
         Route::get('/houses/{house}/house-vehicles', [HouseVehicleUserController::class, 'index'])->name('house-vehicles.index');
 
-
         Route::get('/houses/{house}/dashboard', [HouseController::class, 'dashboard'])->name('user.house.dashboard');
         Route::get('/houses/show/{house}', [HouseController::class, 'show'])->name('user.house.show');
         /* HOUSE LIST */
@@ -125,6 +125,17 @@ Route::prefix('user')->name('user.')->group(function () {
 
         Route::get('/houses/{house}/payments/list', [PaymentController::class, 'showPage'])->name('user.show-page');
         Route::resource('/house/{house}/payments', PaymentController::class);
+
+        /* LIST VISIT PASSES*/
+        Route::get('/houses/{house}/visit-passes/list', [VisitPassController::class, 'showPage'])->name('house.visit-passes.show-page');
+        Route::get('/houses/{house}/visit-passes', [VisitPassController::class, 'index'])->name('house.visit-passes.index');
+        Route::post('/houses/{house}/visit-passes', [VisitPassController::class, 'store'])->name('house.visit-passes.store');
+        Route::put('/houses/{house}/visit-passes/{visitPass}', [VisitPassController::class, 'update'])->name('house.visit-passes.update');
+        Route::delete('/houses/{house}/visit-passes/{visitPass}', [VisitPassController::class, 'destroy'])->name('house.visit-passes.destroy');
+        Route::get('visit-passes/{visitPass}/virtual-pass', [VisitPassController::class, 'getVirtualPassData'])
+            ->name('visit-passes.virtual-pass.data');
+        Route::get('visit-passes/{visitPass}/download-pdf', [VisitPassController::class, 'downloadPdf'])
+            ->name('visit-passes.download-pdf');
 
         /* LISTA DE RECIBOS DE MANTENIENTO*/
         Route::get('/houses/{house}/house-monthly-charges/list', [HouseMonthlyChargeController::class, 'showPageByHouseId'])->name('house.house-monthly-charges.list');
@@ -162,11 +173,12 @@ Route::prefix('user')->name('user.')->group(function () {
 
 /*RUTAS DEL ADMIN*/
 Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/', [AdminLogin::class, 'showLoginForm'])->name('login');
     Route::get('/login', [AdminLogin::class, 'showLoginForm'])->name('login');
     Route::post('/login', [AdminLogin::class, 'authentication']);
     Route::get('/logout', [AdminLogin::class, 'logout'])->name('logout');
 
-    Route::middleware(['auth:web'])->group(function () {
+    Route::middleware(['auth:web','role:admin'])->group(function () {
         Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('dashboard');
 
         /* STASTISTICS  DASHBOARD*/
@@ -258,7 +270,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::put('/petitions/{petition}/status', [AdminPetitionController::class, 'updateStatus'])->name('petitions.status.update');
 
         /*PORTERO*/
-        Route::get('/doorman/scanner', [DoormanController::class, 'index'])->name('doorman-scanner');
         Route::get('/doorman/check-access/{userId}', [DoormanController::class, 'checkAccess'])->name('doorman-check-access');
 
         /*PRESUPUESTO PARA ASOCIADOS*/
@@ -326,13 +337,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 
         /*PETTY CASH*/
-        Route::get('/petty-cash/list', [PettyCashFundController::class, 'showListPage'])->name('petty-cash.list');
+/*        Route::get('/petty-cash/list', [PettyCashFundController::class, 'showListPage'])->name('petty-cash.list');
         Route::get('/petty-cash', [PettyCashFundController::class, 'index'])->name('petty-cash.index');
         Route::post('/petty-cash/funds/{fund_id}/transactions', [PettyCashFundController::class, 'show'])->name('petty-cash.details');
+*/
 
         /* PETTY CASH FUNDS DETAILS */
-        Route::get('/petty-cash/funds/{fund_id}/list', [PettyCashTransactionController::class, 'showListPage'])->name('petty-cash-funds-transactions.list');
-        Route::get('/petty-cash/funds/{petty_cash_fund_id}', [PettyCashFundController::class, 'index'])->name('petty-cash.funds.transactions.index');
+       /* Route::get('/petty-cash/funds/{fund_id}/list', [PettyCashTransactionController::class, 'showListPage'])->name('petty-cash-funds-transactions.list');
+        Route::get('/petty-cash/funds/{petty_cash_fund_id}', [PettyCashFundController::class, 'index'])->name('petty-cash.funds.transactions.index');*/
 
         /* HouseMonthlyCharge */
         Route::get('/house-monthly-charges/list', [HouseMonthlyChargeController::class, 'showPage'])->name('house-monthly-charges.show-page');
@@ -371,12 +383,28 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::post('/settings', [SettingController::class, 'update'])->name('settings.update');
         Route::post('/settings/upload', [SettingController::class, 'upload'])->name('settings.upload');
 
+        Route::get('/securities/list', [SecurityController::class, 'showPage'])->name('securities.show-page');
+        Route::get('/securities', [SecurityController::class, 'index'])->name('securities.index');
+        Route::post('/securities', [SecurityController::class, 'store'])->name('securities.store');
+        Route::put('/securities/{security}', [SecurityController::class, 'update'])->name('securities.update');
+        Route::delete('/securities/{security}', [SecurityController::class, 'destroy'])->name('securities.destroy');
+
         // Nueva ruta para generar el token y redirigir
         Route::get('users/impersonate-in-new-tab/{webUser}', [ImpersonateController::class, 'generateTokenAndRedirect'])
             ->name('impersonate.new_tab');
 
     });
-
+});
+Route::prefix('security')->name('security.')->group(function () {
+    Route::get('', [AdminLogin::class, 'showLoginForm'])->name('login');
+    Route::get('/login', [AdminLogin::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [AdminLogin::class, 'authentication']);
+    Route::get('/logout', [AdminLogin::class, 'logout'])->name('logout');
+    Route::middleware(['auth:web','role:security'])->group(function () {
+        Route::get('/scan-pass', [DoormanController::class, 'index'])->name('scan-pass');
+        Route::post('/validate-pass', [AdminVisitPassController::class, 'validatePass'])->name('validate-pass');
+        Route::patch('/access-logs/{log}', [AdminVisitPassController::class, 'updateRemarks'])->name('updateRemarks');
+    });
 });
 
 // --- Ruta pública para iniciar sesión con el token ---

@@ -11,6 +11,7 @@ class RoleSeeder extends Seeder
 {
     const ADMIN = 'admin';
     const USER = 'user';
+    const SECURITY = 'security';
 
     /**
      * Run the database seeds.
@@ -35,11 +36,14 @@ class RoleSeeder extends Seeder
 
         $roleAdmin = Role::create(['name' => self::ADMIN, 'guard_name' => 'web']);
         $roleUser = Role::create(['name' => self::USER, 'guard_name' => 'web_user']);
+        $rolSecurity = Role::create(['name' => self::SECURITY, 'guard_name' => 'web']);
 
         $permissionViewAds = Permission::query()->firstOrCreate(['name' => 'view_ads', 'guard_name' => 'web']);
         $permissionAddAds = Permission::query()->firstOrCreate(['name' => 'add_ads', 'guard_name' => 'web']);
         $permissionEditAds = Permission::query()->firstOrCreate(['name' => 'edit_ads', 'guard_name' => 'web']);
         $permissionDeleteAds = Permission::query()->firstOrCreate(['name' => 'delete_ads', 'guard_name' => 'web']);
+        /*SECURITY*/
+        $permissionScanVisitorPass = Permission::query()->firstOrCreate(['name' => 'scan_visitor_pass', 'guard_name' => 'web']);
 
         $permissionDeleteAds = Permission::query()->firstOrCreate(['name' => 'view_owners', 'guard_name' => 'web']);
 
@@ -47,8 +51,9 @@ class RoleSeeder extends Seeder
 
         $permissionAdmin = [$permissionViewAds, $permissionAddAds, $permissionEditAds, $permissionDeleteAds];
         $permissionUser = [$permissionViewPaymentHistory];
-
+        $permissionSecurity = [$permissionScanVisitorPass];
         $roleAdmin->syncPermissions($permissionAdmin);
         $roleUser->syncPermissions($permissionUser);
+        $rolSecurity->syncPermissions($permissionSecurity);
     }
 }

@@ -63,13 +63,18 @@ class AdminlteMenuServiceProvider extends ServiceProvider
                         'can' => 'view_payment_history',
                     ]);
                     $event->menu->add([
-                        'text' => 'Comsumo de luz',
+                        'text' => 'Comsumo de Luz',
                         'url' => "user/houses/{$selectedHouseId}/electricity-records/list",
                         'can' => 'view_payment_history',
                     ]);
                     $event->menu->add([
-                        'text' => 'Comsumo de agua',
+                        'text' => 'Comsumo de Agua',
                         'url' => "user/houses/{$selectedHouseId}/water-records/list",
+                        'can' => 'view_payment_history',
+                    ]);
+                    $event->menu->add([
+                        'text' => 'Pases de Visita',
+                        'url' => "user/houses/{$selectedHouseId}/visit-passes/list",
                         'can' => 'view_payment_history',
                     ]);
 

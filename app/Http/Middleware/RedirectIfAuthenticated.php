@@ -18,12 +18,18 @@ class RedirectIfAuthenticated
     public function handle(Request $request, Closure $next, string ...$guards): Response
     {
         $guards = empty($guards) ? [null] : $guards;
-
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
+                $user = Auth::guard($guard)->user();
                 // Determinar a dónde redirigir según el guard
-                if ($guard === 'admin') {
+                if ($user->hasRole('admin')) {
                     return redirect()->route('admin.dashboard');
+                }
+                if ($user->hasRole('security')) {
+                    return redirect()->route('security.scan-pass');
+                }
+                if ($guard === 'web_user') {
+                    return redirect()->route('user.dashboard'); // Asumiendo que esta es la ruta para propietarios
                 }
                 if ($guard === 'tenant') {
                     return redirect()->route('tenant.dashboard'); // O usa RouteServiceProvider::TENANT_HOME

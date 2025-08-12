@@ -52,7 +52,7 @@ async function getMembers() {
         const response = await axios.get(`${apiBaseMemberUrl.value}`);
         members.value = response.data;
     } catch (error) {
-        error.value = 'Error al obtener los recidentes';
+        error.value = 'Error al obtener los residentes';
         console.error(error);
     } finally {
         loading.value = false;

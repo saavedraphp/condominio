@@ -56,7 +56,7 @@ class WebUser extends Authenticatable
     public function houses(): BelongsToMany
     {
         return $this->belongsToMany(House::class, 'house_web_user')
-        ->withPivot('is_resident', 'is_owner', 'is_manager')
+            ->withPivot('is_resident', 'is_owner', 'is_manager')
             ->withTimestamps();
     }
 
@@ -128,5 +128,10 @@ class WebUser extends Authenticatable
         // El segundo argumento es el "nombre" de la relación ('imageable'),
         // que coincide con el que usamos en la migración y en el modelo Image.
         return $this->morphMany(Image::class, 'imageable');
+    }
+
+    public function visitPasses(): MorphMany
+    {
+        return $this->morphMany(VisitPass::class, 'creator');
     }
 }
