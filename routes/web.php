@@ -337,13 +337,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 
         /*PETTY CASH*/
-        Route::get('/petty-cash/list', [PettyCashFundController::class, 'showListPage'])->name('petty-cash.list');
+/*        Route::get('/petty-cash/list', [PettyCashFundController::class, 'showListPage'])->name('petty-cash.list');
         Route::get('/petty-cash', [PettyCashFundController::class, 'index'])->name('petty-cash.index');
         Route::post('/petty-cash/funds/{fund_id}/transactions', [PettyCashFundController::class, 'show'])->name('petty-cash.details');
+*/
 
         /* PETTY CASH FUNDS DETAILS */
-        Route::get('/petty-cash/funds/{fund_id}/list', [PettyCashTransactionController::class, 'showListPage'])->name('petty-cash-funds-transactions.list');
-        Route::get('/petty-cash/funds/{petty_cash_fund_id}', [PettyCashFundController::class, 'index'])->name('petty-cash.funds.transactions.index');
+       /* Route::get('/petty-cash/funds/{fund_id}/list', [PettyCashTransactionController::class, 'showListPage'])->name('petty-cash-funds-transactions.list');
+        Route::get('/petty-cash/funds/{petty_cash_fund_id}', [PettyCashFundController::class, 'index'])->name('petty-cash.funds.transactions.index');*/
 
         /* HouseMonthlyCharge */
         Route::get('/house-monthly-charges/list', [HouseMonthlyChargeController::class, 'showPage'])->name('house-monthly-charges.show-page');

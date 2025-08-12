@@ -30,6 +30,13 @@
                 <span class="arrow">→</span>
             </div>
         </a>
+        <a href="{{ url('/security/login') }}" class="option-card">
+            <img src="{{ asset('assets/images/security-person.jpg') }}" alt="Acceso Seguidad">
+            <div class="card-footer">
+                <span>Seguridad</span>
+                <span class="arrow">→</span>
+            </div>
+        </a>
 
     </div>
 </div>
