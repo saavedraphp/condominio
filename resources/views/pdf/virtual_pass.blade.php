@@ -83,6 +83,10 @@
                     <td>{{ $pass->title }}</td>
                 </tr>
                 <tr>
+                    <td class="label">Detalle:</td>
+                    <td>{{ $pass->details }}</td>
+                </tr>
+                <tr>
                     <td class="label">Generado por:</td>
                     <td>{{ $pass->creator->name }}</td>
                 </tr>

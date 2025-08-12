@@ -158,6 +158,7 @@ class VisitPassController extends Controller
         // Devolvemos una respuesta JSON bien estructurada
         return response()->json([
             'title' => $visitPass->title,
+            'details' => $visitPass->details,
             'creator_name' => $visitPass->creator->name, // Nombre del Propietario
             'house_address' => $visitPass->house->address, // Dirección de la casa
             'starts_at' => $visitPass->starts_at->format('d/m/Y'), //'d/m/Y H:i'

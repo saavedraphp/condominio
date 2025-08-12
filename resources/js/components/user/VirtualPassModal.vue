@@ -80,6 +80,10 @@ const close = () => {
                     <v-list-item-subtitle>{{ passData.title }}</v-list-item-subtitle>
                 </v-list-item>
                 <v-list-item>
+                    <v-list-item-title class="font-weight-bold">Detalle</v-list-item-title>
+                    <v-list-item-subtitle>{{ passData.details }}</v-list-item-subtitle>
+                </v-list-item>
+                <v-list-item>
                     <v-list-item-title class="font-weight-bold">Generado por</v-list-item-title>
                     <v-list-item-subtitle>{{ passData.creator_name }}</v-list-item-subtitle>
                 </v-list-item>

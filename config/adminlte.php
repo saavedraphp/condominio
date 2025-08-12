@@ -478,6 +478,12 @@ return [
             ]
         ],
         [
+            'text' => 'Escanear Pase de Ingreso',
+            'route' => 'security.scan-pass',
+            'icon' => 'fas fa-fw fa-qrcode', //<font-awesome-icon :icon="['fas', 'qrcode']" />
+            'can' => 'scan_visitor_pass',
+        ],
+        [
             'text' => 'Configuración',
             'route' => 'admin.settings.show-page',
             'icon' => 'fas fa-fw fa-sliders-h',
