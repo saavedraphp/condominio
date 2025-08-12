@@ -89,9 +89,6 @@ onMounted(() => {
     </v-container>
 </template>
 
-
-
-// Optional: Add some basic styling if needed
 <style scoped>
 .qr-code-image {
     display: block; /* Ensure image behaves like a block element within the card */

@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, computed } from 'vue';
 import { Html5QrcodeScanner, Html5QrcodeSupportedFormats } from 'html5-qrcode';
-import axios from 'axios'; // Asegúrate que axios esté configurado
+import axios from 'axios';
 
 const scanError = ref(null);
 const showResultDialog = ref(false);

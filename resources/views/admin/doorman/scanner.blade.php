@@ -2,7 +2,7 @@
 
 @section('content')
     <div id="doorman-scanner-container">
-        <doorman-scanner></doorman-scanner>
+        <visit-pass-scanner></visit-pass-scanner>
     </div>
 @endsection
-@vite(['resources/js/admin/doorman-scanner.js'])
+@vite(['resources/js/admin/visit-pass-scanner.js'])

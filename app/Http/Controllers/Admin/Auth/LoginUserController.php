@@ -13,9 +13,6 @@ class LoginUserController extends Controller
 {
     public function showLoginForm()
     {
-        if (Auth::guard('web')->check()) {
-            return redirect()->route('admin.dashboard');
-        }
         return view('auth.login');
     }
 
@@ -28,7 +25,20 @@ class LoginUserController extends Controller
 
         if (Auth::guard('web')->attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-            return redirect()->intended(route('admin.dashboard'));
+            $user = Auth::guard('web')->user();
+
+            if ($user->hasRole('admin')) {
+                return redirect()->intended(route('admin.dashboard'));
+            } else if ($user->hasRole('security')) {
+                return redirect()->intended(route('security.scan-pass'));
+            } else {
+                // Si no es ni admin ni vigilante, es mejor desloguearlo por seguridad.
+                Auth::logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+                return redirect('/admin/login')->withErrors(['email' => 'Tu rol no permite el acceso.']);
+            }
+
         }
 
         throw ValidationException::withMessages([
@@ -42,6 +52,6 @@ class LoginUserController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/admin/login');
+        return redirect('/');
     }
 }

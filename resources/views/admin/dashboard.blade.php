@@ -2,7 +2,7 @@
 
 @section('content')
     <div id="dashboard-container">
-        @if($dashboard_visible)
+        @if($dashboard_visible )
             <dashboard>
             </dashboard>
         @endif

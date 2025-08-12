@@ -27,7 +27,7 @@ const headers = ref([
     {title: 'Dirección', key: 'address', sortable: true},
     {title: 'Unit', key: 'property_unit', align: 'start', sortable: true},
     {title: 'Propietario', key: 'pivot.is_owner', sortable: true},
-    {title: 'Recidente', key: 'pivot.is_resident', sortable: true},
+    {title: 'Residente', key: 'pivot.is_resident', sortable: true},
     {title: 'Gestor', key: 'pivot.is_manager', sortable: true},
     {title: 'Acciones', key: 'actions', sortable: false, align: 'end'},
 ]);
