@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\StatisticsController;
 use App\Http\Controllers\Admin\UserController as AdminUserAdsController;
 use App\Http\Controllers\Admin\UserHouseAssignmentController;
 use App\Http\Controllers\Admin\UserSettingPageController;
+use App\Http\Controllers\Admin\VisitPassReportController;
 use App\Http\Controllers\AnnualBudgetController;
 use App\Http\Controllers\BudgetReportController;
 use App\Http\Controllers\BudgetTypeController;
@@ -376,6 +377,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/reports/expenses/preview', [ExpenseReportController::class, 'previewPdf'])->name('reports.expenses.preview-pdf');
         Route::get('/reports/expenses/download-pdf', [ExpenseReportController::class, 'downloadPdf'])->name('reports.expenses.pdf');
 
+        /* REPORT VISIT PASSES*/
+        Route::get('/reports/visit-pass/list', [VisitPassReportController::class, 'showListPage'])->name('reports.visit-passes.list');
+        Route::get('/reports/visit-pass/index', [VisitPassReportController::class, 'index'])->name('reports.visit-passes.index');
 
         // Rutas para gestionar la configuración
         Route::get('/settings/list', [SettingController::class, 'showPage'])->name('settings.show-page');

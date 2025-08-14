@@ -40,6 +40,12 @@ export function formatDateTime(dateString) {
     return new Date(dateString).toLocaleDateString(undefined, options);
 }
 
+export function formatDateForDisplay(dateString) {
+    if (!dateString) return '-';
+    const options = {year: 'numeric', month: 'short', day: 'numeric'};
+    return new Date(dateString).toLocaleDateString(undefined, options);
+}
+
 export function getMegabytes(bytes) {
     if (bytes === undefined || bytes === null || typeof bytes !== 'number' || bytes < 0) {
         return '0.00';

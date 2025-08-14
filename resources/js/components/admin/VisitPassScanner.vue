@@ -8,7 +8,7 @@ const scanError = ref(null);
 let html5QrcodeScanner = null;
 
 // --- State para el Ingreso Manual ---
-const manualCode = ref('FJKD-I1TY-JPXK');
+const manualCode = ref('');
 const isSubmittingManual = ref(false);
 
 // --- State para el Diálogo de Resultado ---
