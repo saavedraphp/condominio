@@ -96,11 +96,11 @@
                 </tr>
                 <tr>
                     <td class="label">Válido desde:</td>
-                    <td>{{ $pass->starts_at->format('d/m/Y') }}</td>
+                    <td>{{ $startDate  }}</td>
                 </tr>
                 <tr>
                     <td class="label">Válido hasta:</td>
-                    <td>{{ $pass->expires_at->format('d/m/Y') }}</td>
+                    <td>{{ $endDate }}</td>
                 </tr>
             </table>
 

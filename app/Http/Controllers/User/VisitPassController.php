@@ -9,6 +9,7 @@ use App\Models\VisitPass;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -37,7 +38,7 @@ class VisitPassController extends Controller
 
             $data = Auth::guard('web_user')->user()->visitPasses()
                 ->with('house', 'members')
-                ->latest()->get();
+                ->orderBy('expires_at','desc')->get();
 
             return response()->json($data);
         } catch (\Exception $e) {
@@ -51,15 +52,19 @@ class VisitPassController extends Controller
     {
         // Usamos una transacción por si falla la creación de integrantes.
 
-            $validated = $request->validated();
+        $validated = $request->validated();
         try {
+            $propertyTimezone = 'America/Lima';
+            $localStartsAt = Carbon::parse($validated['starts_at'], $propertyTimezone)->startOfDay();
+            $localExpiresAt = Carbon::parse($validated['expires_at'], $propertyTimezone)->endOfDay();
+
             // Creamos el pase usando la relación para asignar el creator_id y creator_type automáticamente
             $visitPass = Auth::user()->visitPasses()->create([
                 'title' => $validated['title'],
                 'details' => $validated['details'],
                 'house_id' => $validated['house_id'],
-                'starts_at' => $validated['starts_at'],
-                'expires_at' => $validated['expires_at'],
+                'starts_at' => $localStartsAt->utc(),
+                'expires_at' => $localExpiresAt->utc(),
                 'access_code' => $this->generateUniqueAccessCode(),
             ]);
             // Si se enviaron integrantes, los creamos
@@ -72,7 +77,7 @@ class VisitPassController extends Controller
                 'success' => true,
                 'message' => '¡Excelente! La operación se realizó con éxito.',
                 'data' => $visitPass,
-                ], 201);
+            ], 201);
         } catch (\Exception $e) {
             Log::error('Error al intentar obtener los datos' . $e->getMessage());
 
@@ -86,12 +91,16 @@ class VisitPassController extends Controller
 
         $validated = $request->validated();
         try {
+            $propertyTimezone = 'America/Lima';
+            $localStartsAt = Carbon::parse($validated['starts_at'], $propertyTimezone)->startOfDay();
+            $localExpiresAt = Carbon::parse($validated['expires_at'], $propertyTimezone)->endOfDay();
+
             $visitPass->update([
                 'title' => $validated['title'],
                 'details' => $validated['details'],
                 'house_id' => $validated['house_id'],
-                'starts_at' => $validated['starts_at'],
-                'expires_at' => $validated['expires_at'],
+                'starts_at' => $localStartsAt->utc(),
+                'expires_at' => $localExpiresAt->utc(),
             ]);
             // Si se enviaron integrantes, los creamos
             if (!empty($validated['members'])) {
@@ -105,7 +114,7 @@ class VisitPassController extends Controller
                 'success' => true,
                 'message' => '¡Excelente! La operación se realizó con éxito.',
                 'data' => $visitPass,
-                ], 200);
+            ], 200);
         } catch (\Exception $e) {
             Log::error('Error al intentar obtener los datos' . $e->getMessage());
 
@@ -121,7 +130,7 @@ class VisitPassController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => '¡Excelente! La operación se realizó con éxito.',
-                ], 200);
+            ], 200);
         } catch (\Exception $e) {
             Log::error('Error al intentar eliminar el pase de visita' . $e->getMessage());
 
@@ -148,7 +157,6 @@ class VisitPassController extends Controller
 
         // Cargamos las relaciones necesarias
         $visitPass->load('creator', 'house');
-        //$qrCode = base64_encode(QrCode::format('png')->size(250)->generate($visitPass->access_code));
         $qrCodeImage = QrCode::format('png')
             ->size(250) // Size in pixels
             ->margin(1) // Margin around the QR code
@@ -161,8 +169,8 @@ class VisitPassController extends Controller
             'details' => $visitPass->details,
             'creator_name' => $visitPass->creator->name, // Nombre del Propietario
             'house_address' => $visitPass->house->address, // Dirección de la casa
-            'starts_at' => $visitPass->starts_at->format('d/m/Y'), //'d/m/Y H:i'
-            'expires_at' => $visitPass->expires_at->format('d/m/Y'), //'d/m/Y H:i'
+            'starts_at' => $visitPass->starts_at,
+            'expires_at' => $visitPass->expires_at,
             'access_code' => $visitPass->access_code,
             'qr_code' => $qrCodeBase64,
         ]);
@@ -176,9 +184,13 @@ class VisitPassController extends Controller
         // Generamos el QR como una imagen PNG codificada en Base64 para incrustarla en el PDF
         $qrCode = base64_encode(QrCode::format('png')->size(250)->generate($visitPass->access_code));
         $qrCodeBase64 = 'data:image/png;base64,' . base64_encode($qrCode);
+        $startDateFormatted = $visitPass->starts_at->setTimezone('America/Lima')->format('d/m/Y');
+        $endDateFormatted = $visitPass->expires_at->setTimezone('America/Lima')->format('d/m/Y');
 
         $data = [
             'pass' => $visitPass,
+            'startDate' => $startDateFormatted,
+            'endDate' => $endDateFormatted,
             'qrCode' => $qrCode
         ];
 
@@ -186,7 +198,7 @@ class VisitPassController extends Controller
         $pdf = PDF::loadView('pdf.virtual_pass', $data);
 
         // Descargamos el archivo
-        return $pdf->download('pase-visita-'.$visitPass->access_code.'.pdf');
+        return $pdf->download('pase-visita-' . $visitPass->access_code . '.pdf');
     }
 
 }

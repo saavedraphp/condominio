@@ -95,9 +95,12 @@ class VisitPassController extends Controller
                         'pass' => [
                             'title' => $pass->title,
                             'details' => $pass->details,
-                            'start_date' => Carbon::parse($pass->start_date)->format('d/m/Y H:i'),
-                            'end_date' => Carbon::parse($pass->end_date)->format('d/m/Y H:i'),
+                            'start_date' => $pass->starts_at,
+                            'end_date' => $pass->expires_at,
                             'members' => $pass->members, // Asume que 'members' es una relación
+                        ],
+                        'server' => [
+                            'datetime' => $now->format('Y-m-d H:i:s'),
                         ],
                     ]
                 ]);
