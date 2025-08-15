@@ -1,6 +1,7 @@
 <script setup>
 import {computed, ref, watch} from 'vue';
 import axios from 'axios';
+import {formatDate} from "../../utils/functions.js";
 //import QrcodeVue from 'qrcode.vue'; // Necesitas instalar: npm install qrcode.vue
 
 // Props
@@ -93,7 +94,7 @@ const close = () => {
                 </v-list-item>
                 <v-list-item>
                     <v-list-item-title class="font-weight-bold">Vigencia</v-list-item-title>
-                    <v-list-item-subtitle>{{ passData.starts_at }} - {{ passData.expires_at }}</v-list-item-subtitle>
+                    <v-list-item-subtitle>{{ formatDate(passData.starts_at) }} - {{ formatDate(passData.expires_at) }}</v-list-item-subtitle>
                 </v-list-item>
 <!--                <div class="text-center my-4">
                     &lt;!&ndash; Usaremos una librería de QR para Vue para generarlo en el cliente &ndash;&gt;

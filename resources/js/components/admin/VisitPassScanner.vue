@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
 import { Html5QrcodeScanner, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 import axios from 'axios';
+import {formatDateForDisplay} from "@/utils/functions.js";
 
 // --- State para el Scanner y la UI ---
 const scanError = ref(null);
@@ -215,7 +216,7 @@ const resultIcon = computed(() => isSuccess.value ? 'mdi-check-circle' : 'mdi-al
                                     <v-list-item title="Teléfono" :subtitle="resultData.owner.phone"></v-list-item>
                                     <v-list-item title="Título del Pase" :subtitle="resultData.pass.title"></v-list-item>
                                     <v-list-item title="Detalle" :subtitle="resultData.pass.details"></v-list-item>
-                                    <v-list-item title="Vigencia" :subtitle="`${resultData.pass.start_date} - ${resultData.pass.end_date}`"></v-list-item>
+                                    <v-list-item title="Vigencia" :subtitle="`${formatDateForDisplay(resultData.pass.start_date)} - ${formatDateForDisplay(resultData.pass.end_date)}`"></v-list-item>
                                 </v-list>
 
                                 <div v-if="resultData.pass.members && resultData.pass.members.length > 0">

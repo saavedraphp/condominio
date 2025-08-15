@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AccessLog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
@@ -50,12 +51,16 @@ class VisitPassReportController extends Controller
             'end_date' => 'nullable|date_format:Y-m-d|after_or_equal:start_date',
         ]);
 
+        $propertyTimezone = 'America/Lima';
+        $localStartsAt = Carbon::parse($validated['start_date'], $propertyTimezone)->startOfDay()->utc();
+        $localExpiresAt = Carbon::parse($validated['end_date'], $propertyTimezone)->endOfDay()->utc();
+
         $query = AccessLog::with(['user','visitPass.house','visitPass.creator'])
-            ->when($request->filled('start_date'), function ($query) use ($validated) {
-                $query->whereDate('created_at', '>=', $validated['start_date']);
+            ->when($request->filled('start_date'), function ($query) use ($localStartsAt, $validated) {
+                $query->where('created_at', '>=', $localStartsAt);
             })
-            ->when($request->filled('end_date'), function ($query) use ($validated) {
-                $query->whereDate('created_at', '<=', $validated['end_date']);
+            ->when($request->filled('end_date'), function ($query) use ($localExpiresAt, $validated) {
+                $query->where('created_at', '<=', $localExpiresAt);
             })
         ->when($request->filled('security_id'), function ($query) use ($request) {
                 $query->where('user_id', $request->input('security_id'));
@@ -74,8 +79,8 @@ class VisitPassReportController extends Controller
                     ],
                     'pass' => [
                         'title' => $log->visitPass ? $log->visitPass->title : 'No especificada',
-                        'starts_at' => $log->visitPass ? $log->visitPass->starts_at->format('Y-m-d') : 'No especificada',
-                        'expires_at' => $log->visitPass ? $log->visitPass->expires_at->format('Y-m-d') : 'No especificada',
+                        'starts_at' => $log->visitPass ? $log->visitPass->starts_at : 'No especificada',
+                        'expires_at' => $log->visitPass ? $log->visitPass->expires_at : 'No especificada',
                     ],
                     'property' => [
                         'address' => $log->visitPass->house->address ?? 'No especificada',
@@ -85,7 +90,7 @@ class VisitPassReportController extends Controller
                     'event_type' => $log->event_type,
                     'status' => $log->status,
                     'remarks' => $log->remarks,
-                    'created_at' => $log->created_at->format('Y-m-d H:i:s'),
+                    'created_at' => $log->created_at,
                 ];
             });
 

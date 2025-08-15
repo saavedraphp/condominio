@@ -5,6 +5,7 @@ import Snackbar from "@/components/Snackbar.vue";
 import dayjs from "dayjs";
 import AccessLogDetailDialog from "@/components/admin/AccessLogDetailDialog.vue";
 import {formatLogStatus} from "@/utils/statusFormatter.js";
+import {formatDate, formatDateCustom, formatDateTime} from "../../utils/functions.js";
 
 const props = defineProps({
     routes: {
@@ -205,6 +206,9 @@ const selectedSecurity = ref(null);
                 class="elevation-1"
                 dense
             >
+                <template v-slot:item.created_at="{ value }">
+                    <span>{{ formatDateCustom(value) }}</span>
+                </template>
                 <template v-slot:item.status="{ value }">
                     <v-chip
                         :color="formatLogStatus(value).color"

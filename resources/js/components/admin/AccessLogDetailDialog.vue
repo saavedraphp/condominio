@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue';
-import {formatDateForDisplay, formatDateTime} from "../../utils/functions.js";
+import {formatDateCustom, formatDateForDisplay, formatDateTime} from "../../utils/functions.js";
 
 // Props:
 // modelValue: para controlar la visibilidad con v-model
@@ -78,7 +78,7 @@ const headerTitle = computed(() => `Detalle de Registro - ${statusInfo.value.tex
                 <div v-if="log">
                     <!-- Sección: Datos del Registro de Acceso -->
                     <p class="text-overline">Detalles del Registro</p>
-                    <v-list lines="two" density="compact">
+                    <v-list lines="one" density="compact">
                         <v-list-item title="Vigilante" :subtitle="log.security?.name || 'No disponible'"></v-list-item>
                         <v-list-item title="Fecha y Hora del Escaneo">
                             <v-list-item-subtitle>{{ formatDateTime(log.created_at) }}</v-list-item-subtitle>
@@ -97,10 +97,11 @@ const headerTitle = computed(() => `Detalle de Registro - ${statusInfo.value.tex
 
                     <!-- Sección: Datos del Pase de Visita -->
                     <p class="text-overline">Información del Pase</p>
-                    <v-list lines="two" density="compact">
+                    <v-list lines="one" density="compact">
                         <v-list-item title="Propiedad" :subtitle="log.property?.address || 'No disponible'"></v-list-item>
                         <v-list-item title="Generado por" :subtitle="log.creator?.name || 'No disponible'"></v-list-item>
                         <v-list-item title="Título del Pase" :subtitle="log.pass.title || 'Sin título'"></v-list-item>
+                        <v-list-item title="Código del Pase" :subtitle="log.code_entered || 'Sin Código'"></v-list-item>
                         <v-list-item title="Vigencia del Pase">
                             <v-list-item-subtitle>
                                 {{ formatDateForDisplay(log.pass?.starts_at) }} - {{ formatDateForDisplay(log.pass?.expires_at) }}
