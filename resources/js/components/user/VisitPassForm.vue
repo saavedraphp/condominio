@@ -4,6 +4,7 @@ import {useField, useForm} from "vee-validate";
 import * as yup from 'yup';
 import Snackbar from "@/components/Snackbar.vue";
 import axios from "axios";
+import {formatDate, formatDateCustom} from "@/utils/functions.js";
 
 const emit = defineEmits(['added', 'edited', 'close-modal', 'update:modelValue', 'refresh-data']);
 
@@ -64,8 +65,8 @@ watch(() => props.element, (newValue) => {
         setValues({
             title: newValue.title || "",
             details: newValue.details || "",
-            starts_at: newValue.starts_at.substring(0,10) || "",
-            expires_at: newValue.expires_at.substring(0,10) || "",
+            starts_at: formatDateCustom(newValue.starts_at, 'YYYY-MM-DD') || "",
+            expires_at: formatDateCustom(newValue.expires_at, 'YYYY-MM-DD') || "",
             access_code: newValue.access_code || "",
         });
     } else {

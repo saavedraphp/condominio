@@ -1,3 +1,8 @@
+import dayjs from 'dayjs';
+// Opcional: para formatos en español (ej. "agosto" en lugar de "August")
+import 'dayjs/locale/es';
+dayjs.locale('es'); // Configura el idioma globalmente
+
 /**
  * Muestra una alerta simple.
  * @param {string} message El mensaje a mostrar.
@@ -27,16 +32,33 @@ export function formatDate(dateString) {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
-        timeZone: 'UTC'
     };
 
     const date = new Date(dateString);
     return date.toLocaleDateString('es-ES', options);
 }
 
+export function formatDateCustom(dateString, formatString= 'YYYY-MM-DD HH:mm') {
+    if (!dateString || !formatString) return '-';
+
+    const date = dayjs(dateString);
+    if (!date.isValid()) {
+        console.error("Fecha inválida:", dateString);
+        return '-';
+    }
+
+    return date.format(formatString);
+}
+
 export function formatDateTime(dateString) {
     if (!dateString) return '-';
     const options = {year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'};
+    return new Date(dateString).toLocaleDateString(undefined, options);
+}
+
+export function formatDateForDisplay(dateString) {
+    if (!dateString) return '-';
+    const options = {year: 'numeric', month: 'short', day: 'numeric'};
     return new Date(dateString).toLocaleDateString(undefined, options);
 }
 
@@ -75,7 +97,7 @@ export function getDate() {
     const month = String(today.getMonth() + 1).padStart(2, '0'); // Los meses son 0-indexados (0 para Enero)
     const day = String(today.getDate()).padStart(2, '0');
 
-    const formattedDate = `${year}-${month}-${day}`;
+    return `${year}-${month}-${day}`;
 }
 
 export function getStructureTypes(type) {

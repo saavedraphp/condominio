@@ -464,6 +464,10 @@ return [
                     'text' => 'Lista de Gastos',
                     'url' => 'admin/reports/expenses/list',
                 ],
+                [
+                    'text' => 'Pases de Visitas',
+                    'url' => 'admin/reports/visit-pass/list',
+                ],
             ]
         ],
         [

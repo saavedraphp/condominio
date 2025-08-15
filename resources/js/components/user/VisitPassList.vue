@@ -57,7 +57,11 @@ async function getData() {
 
     try {
         const response = await axios.get(`${props.routes.base}`);
-        list.value = response.data;
+        list.value = response.data.map(item => ({
+            ...item,
+            starts_at_format: item.starts_at ? formatDate(item.starts_at) : 'N/A',
+            expires_at_format: item.expires_at ? formatDate(item.expires_at) : 'N/A',
+        }));
 
     } catch (error) {
         mySnackbar.value.show('Lo sentimos, hubo un problema obtener la información. Intenta de nuevo, por favor.', 'error');
@@ -196,10 +200,10 @@ const showVirtualPass = (id) => {
                 <!-- Columna de Acciones Personalizada -->
                 <template v-slot:item.validity="{ item }">
                     <div>
-                        <strong>Inicio:</strong> {{ formatDate(item.starts_at) }}
+                        <strong>Inicio:</strong> {{ item.starts_at_format }}
                     </div>
                     <div>
-                        <strong>Fin:</strong> {{ formatDate(item.expires_at) }}
+                        <strong>Fin:</strong> {{ item.expires_at_format }}
                     </div>
                 </template>
                 <template v-slot:item.status="{ item }">
