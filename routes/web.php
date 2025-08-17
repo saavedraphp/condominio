@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\OtherExpenseController;
 use App\Http\Controllers\Admin\OtherExpenseDetailsController;
 use App\Http\Controllers\Admin\PaymentReportController;
 use App\Http\Controllers\Admin\PetitionController as AdminPetitionController;
+use App\Http\Controllers\Admin\QrCodeController;
 use App\Http\Controllers\Admin\SecurityController;
 use App\Http\Controllers\Admin\StatisticsController;
 use App\Http\Controllers\Admin\UserController as AdminUserAdsController;
@@ -396,6 +397,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Nueva ruta para generar el token y redirigir
         Route::get('users/impersonate-in-new-tab/{webUser}', [ImpersonateController::class, 'generateTokenAndRedirect'])
             ->name('impersonate.new_tab');
+
+        /* CODES QR*/
+        Route::get('/qr-codes/list', [QrCodeController::class, 'showListPage'])->name('qr-codes.list');
+        Route::get('/qr-codes', [QrCodeController::class, 'index'])->name('qr-codes.index');
+        Route::post('/qr-codes', [QrCodeController::class, 'store'])->name('qr-codes.store');
+        Route::put('/qr-codes/{qrCode}', [QrCodeController::class, 'update'])->name('qr-codes.update');
+        Route::delete('/qr-codes/{qrCode}', [QrCodeController::class, 'destroy'])->name('qr-codes.destroy');
 
     });
 });

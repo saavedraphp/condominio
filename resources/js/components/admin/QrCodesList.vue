@@ -16,14 +16,13 @@ const mySnackbar = ref(null);
 
 // --- Estado Reactivo ---
 const headers = ref([        // Definición de las columnas de la tabla
-    {title: 'Nombre', key: 'name', align: 'start', sortable: true},
-    {title: 'Email', key: 'email', sortable: true},
-    {title: 'Teléfono', key: 'phone', sortable: true},
-    {title: 'Estado', key: 'status', sortable: true},
+    {title: 'Titulo', key: 'title', align: 'start', sortable: true},
+    {title: 'Detalle', key: 'description', sortable: true},
+    {title: 'Código', key: 'code', sortable: true},
     {title: 'Acciones', key: 'actions', sortable: false, align: 'end'},
 ]);
 
-const users = ref([]);
+const codes = ref([]);
 const loading = ref(true);
 const search = ref('');
 const showModal = ref(false)
@@ -40,7 +39,7 @@ onMounted(() => {
 
 const deleteDialogItemName = computed(() => {
     if (!itemToDelete.value) return '';
-    return `${itemToDelete.value.name} ID: ${itemToDelete.value.id}`;
+    return `${itemToDelete.value.title} ID: ${itemToDelete.value.id}`;
 });
 
 async function getData() {
@@ -48,20 +47,21 @@ async function getData() {
 
     try {
         const response = await axios.get(`${props.routes.base}`);
-        users.value = response.data;
+        codes.value = response.data;
 
     } catch (error) {
-        mySnackbar.value.show('Lo sentimos, hubo un problema obtener la información. Intenta de nuevo, por favor.', 'error');
+        mySnackbar.value.show(error.response?.data?.message || 'Lo sentimos, hubo un problema obtener la información. Intenta de nuevo, por favor.', 'error');
     } finally {
         loading.value = false;
     }
 }
+
 const reloadWithMessage = (message) => {
     mySnackbar.value.show(message, 'success');
     getData();
 };
 
-const deleteSecurity = async () => {
+const handleDelete = async () => {
     try {
         if (!itemToDelete.value) return;
         const id = itemToDelete.value.id;
@@ -69,7 +69,7 @@ const deleteSecurity = async () => {
         const response = await axios.delete(`${props.routes.base}/${id}`)
 
         if (response.data && response.data.success) {
-            users.value = users.value.filter(element => element.id !== id);
+            codes.value = codes.value.filter(element => element.id !== id);
             mySnackbar.value.show(response.data.message, 'success');
 
         } else {
@@ -117,9 +117,9 @@ const closeDeleteModal = () => {
     <v-container fluid>
         <v-card>
             <v-card-title class="d-flex align-center pe-2">
-                <v-icon icon="mdi-account"></v-icon>
+                <v-icon icon="mdi mdi-qrcode"></v-icon>
                  
-                Gestión de Personal de Seguridad
+                Gestión de Codigos QR del Sistema
                 <v-spacer></v-spacer>
                 <v-btn
                     color="primary"
@@ -140,6 +140,7 @@ const closeDeleteModal = () => {
             </v-card-title>
             <v-divider></v-divider>
             <v-text-field
+                v-if="false"
                 v-model="search"
                 density="compact"
                 label="Buscar en los resultados..."
@@ -152,13 +153,13 @@ const closeDeleteModal = () => {
             ></v-text-field>
             <v-divider></v-divider>
 
-            <v-data-table v-show="users.length"
-                          :headers="headers"
-                          :items="users"
-                          :search="search"
-                          :loading="loading"
-                          class="elevation-1"
-                          dense
+            <v-data-table
+                :headers="headers"
+                :items="codes"
+                :search="search"
+                class="elevation-1"
+                dense
+                no-data-text="No hay resultados para mostrar"
             >
                 <!-- Columna de Acciones Personalizada -->
                 <template v-slot:item.actions="{ item }">
@@ -204,13 +205,13 @@ const closeDeleteModal = () => {
                       @edited="reloadWithMessage"
                       @close-modal="closeModal"
                       @refresh-data="getData"
-                     >
+        >
         </SecurityForm>
         <DeleteConfirmationModal
             v-model:show="dialogDelete"
             :item-name="deleteDialogItemName"
             :loading="isDeleting"
-            @confirm="deleteSecurity"
+            @confirm="handleDelete"
             @cancel="closeDeleteModal"
         />
         <Snackbar ref="mySnackbar"/>

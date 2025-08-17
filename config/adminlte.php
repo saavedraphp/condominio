@@ -471,6 +471,12 @@ return [
             ]
         ],
         [
+            'text' => 'QR Codes',
+            'route' => 'admin.qr-codes.list',
+            'icon' => 'fas fa-fw fa-qrcode',
+            'can' => 'view_ads',
+        ],
+        [
             'text' => 'Usuarios',
             'icon' => 'fas fa-fw fa-plus-square',
             'can' => 'view_ads',
