@@ -96,11 +96,11 @@
                 </tr>
                 <tr>
                     <td class="label">Válido desde:</td>
-                    <td>{{ $startDate  }}</td>
+                    <td>{{ \Carbon\Carbon::parse($startDate)->format('d/m/Y')  }}</td>
                 </tr>
                 <tr>
                     <td class="label">Válido hasta:</td>
-                    <td>{{ $endDate }}</td>
+                    <td>{{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }}</td>
                 </tr>
             </table>
 

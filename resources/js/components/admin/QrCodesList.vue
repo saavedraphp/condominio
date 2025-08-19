@@ -4,6 +4,8 @@ import axios from "axios";
 import Snackbar from "@/components/Snackbar.vue";
 import SecurityForm from "@/components/admin/SecurityForm.vue";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal.vue";
+import QrCodeForm from "@/components/admin/QrCodeForm.vue";
+import QrModal from "@/components/user/QrModal.vue";
 // --- Props ---
 const props = defineProps({
     routes: {
@@ -47,7 +49,7 @@ async function getData() {
 
     try {
         const response = await axios.get(`${props.routes.base}`);
-        codes.value = response.data;
+        codes.value = response.data.data;
 
     } catch (error) {
         mySnackbar.value.show(error.response?.data?.message || 'Lo sentimos, hubo un problema obtener la información. Intenta de nuevo, por favor.', 'error');
@@ -87,6 +89,14 @@ const handleDelete = async () => {
 const openModalEdit = (item) => {
     selectedElement.value = {...item};
     showModal.value = true;
+};
+
+const isModalOpen = ref(false);
+const elementQr = ref(null);
+
+const showQR = (element) => {
+    elementQr.value = element;
+    isModalOpen.value = true;
 };
 
 const openModalAdd = () => {
@@ -163,6 +173,9 @@ const closeDeleteModal = () => {
             >
                 <!-- Columna de Acciones Personalizada -->
                 <template v-slot:item.actions="{ item }">
+                    <v-btn icon small @click="showQR(item)">
+                        <v-icon>mdi-qrcode</v-icon>
+                    </v-btn>
                     <v-tooltip text="Editar">
                         <template v-slot:activator="{ props }">
                             <v-btn
@@ -197,7 +210,7 @@ const closeDeleteModal = () => {
 
             </v-data-table>
         </v-card>
-        <SecurityForm v-if="showModal"
+        <QrCodeForm v-if="showModal"
                       v-model="showModal"
                       :element="selectedElement"
                       :routes="props.routes"
@@ -206,7 +219,11 @@ const closeDeleteModal = () => {
                       @close-modal="closeModal"
                       @refresh-data="getData"
         >
-        </SecurityForm>
+        </QrCodeForm>
+        <QrModal
+            v-if="isModalOpen"
+            v-model="isModalOpen"
+            :element="elementQr" />
         <DeleteConfirmationModal
             v-model:show="dialogDelete"
             :item-name="deleteDialogItemName"

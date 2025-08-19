@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->text('description')->nullable();
-            $table->string('code')->unique();
+            $table->string('code');
             $table->string('type');
             $table->string('file_path')->nullable();
             $table->integer('order')->default(0);
@@ -23,6 +23,8 @@ return new class extends Migration
             $table->bigInteger('white_label_id')->nullable();
             $table->timestamps();
             $table->softDeletes();
+
+            $table->unique(['code', 'white_label_id']);
         });
     }
 

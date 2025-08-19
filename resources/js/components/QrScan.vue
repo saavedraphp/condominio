@@ -1,25 +1,32 @@
 <!-- src/components/QrScanner.vue -->
 <template>
-    <div class="qr-scanner-container">
-        <div v-if="!scanResult">
-            <p>{{ message }}</p>
-            <div :id="qrReaderId" width="100%"></div>
-        </div>
-        <div v-if="scanError">
-            <p class="error-text">Error: {{ scanError }}</p>
-        </div>
-    </div>
+    <v-container>
+        <v-row justify="center">
+            <v-col cols="12" md="8" lg="6">
+                <v-card class="pa-4">
+                    <v-card-title class="text-center text-h5">{{ message }}</v-card-title>
+                    <v-card-text>
+                        <p class="text-center mb-4">Apunte la cámara al código QR del visitante.</p>
+                        <div id="qr-reader"></div>
+                        <v-alert v-if="scanError" type="error" dense outlined class="mt-4">
+                            {{ scanError }}
+                        </v-alert>
+                    </v-card-text>
+                </v-card>
+            </v-col>
+        </v-row>
+    </v-container>
 </template>
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
-import { Html5QrcodeScanner } from 'html5-qrcode';
+import { Html5QrcodeScanner, Html5QrcodeSupportedFormats } from 'html5-qrcode';
 
 // Props para hacerlo más personalizable
 const props = defineProps({
     message: {
         type: String,
-        default: 'Apunta la cámara al código QR.',
+        default: 'Marcación de Vigilancia',
     },
     qrboxSize: {
         type: Number,
@@ -30,7 +37,6 @@ const props = defineProps({
 // Emits para comunicar con el componente padre
 const emit = defineEmits(['scan-success', 'scan-error']);
 
-const qrReaderId = 'qr-reader';
 let html5QrcodeScanner = null;
 const scanResult = ref(null);
 const scanError = ref(null);
@@ -52,28 +58,41 @@ function onScanFailure(error) {
     // console.warn(`Code scan error = ${error}`);
 }
 
-onMounted(() => {
-    html5QrcodeScanner = new Html5QrcodeScanner(
-        qrReaderId,
-        {
-            fps: 10,
-            qrbox: { width: props.qrboxSize, height: props.qrboxSize },
-            // Solo soporta códigos QR para mejorar el rendimiento
-            supportedScanTypes: [Html5QrcodeSupportedFormats.QR_CODE]
-        },
-        /* verbose= */ false
-    );
-    html5QrcodeScanner.render(onScanSuccess, onScanFailure);
-});
-
-onBeforeUnmount(() => {
-    if (html5QrcodeScanner) {
-        // Es muy importante limpiar el scanner para liberar la cámara
-        html5QrcodeScanner.clear().catch(error => {
-            console.error("Fallo al limpiar el scanner.", error);
-        });
+const startScanner = () => {
+    scanError.value = null;
+    try {
+        if (!html5QrcodeScanner || html5QrcodeScanner.getState() === 3 /* STOPPED */) {
+            html5QrcodeScanner = new Html5QrcodeScanner(
+                "qr-reader",
+                {
+                    fps: 10,
+                    qrbox: { width: 250, height: 250 },
+                    supportedScanTypes: [],
+                    formatsToSupport: [Html5QrcodeSupportedFormats.QR_CODE]
+                },
+                false
+            );
+        }
+        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+    } catch (err) {
+        scanError.value = "No se pudo iniciar el scanner. Revise los permisos de la cámara.";
     }
-});
+};
+
+onMounted(startScanner);
+const stopScanner = async () => {
+    try {
+        if (html5QrcodeScanner && html5QrcodeScanner.getState() !== 3 /* STOPPED */) {
+            await html5QrcodeScanner.clear();
+        }
+    } catch (err) {
+        console.error("Error al detener el scanner:", err);
+    }
+};
+
+onBeforeUnmount(stopScanner);
+
+
 </script>
 
 <style scoped>
@@ -83,5 +102,13 @@ onBeforeUnmount(() => {
 }
 .error-text {
     color: red;
+}
+</style>
+
+<style scoped>
+#qr-reader {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #f9f9f9;
 }
 </style>

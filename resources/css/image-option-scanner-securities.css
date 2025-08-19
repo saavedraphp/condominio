@@ -8,7 +8,6 @@ body {
     background-color: #f4f6f9; /* Color de fondo similar a AdminLTE */
     font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; /* Fuente AdminLTE */
     margin: 0;
-    padding: 20px; /* Añade algo de espacio alrededor */
 }
 
 .home-container {
@@ -18,6 +17,16 @@ body {
     width: 100%;
 }
 
+.main-container {
+    display: flex; /* 1. Activa Flexbox */
+    flex-direction: column; /* 2. Apila los elementos uno sobre otro (verticalmente) */
+    align-items: center; /* 3. Centra los elementos horizontalmente */
+    justify-content: center; /* (Opcional) Centra verticalmente si el contenedor tiene una altura definida */
+    gap: 2rem; /* 4. Añade un espacio entre el título y las tarjetas */
+    text-align: center; /* 5. Asegura que el texto del h1 también esté centrado */
+    width: 100%; /* Ocupa todo el ancho disponible */
+}
+
 .options-wrapper {
     display: flex;
     flex-wrap: wrap; /* Permite que las tarjetas se apilen en pantallas pequeñas */
@@ -25,6 +34,7 @@ body {
     gap: 30px; /* Espacio entre las tarjetas */
     max-width: 800px; /* Ancho máximo para el contenedor de las tarjetas */
     width: 100%; /* Ocupa el ancho disponible hasta el max-width */
+    padding-top: 20px; /* Espacio superior para separar del borde superior */
 }
 
 .option-card {

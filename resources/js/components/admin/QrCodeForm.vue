@@ -24,40 +24,35 @@ const dialog = computed({
 
 // Schema de validación con Yup
 const schema = yup.object({
-    name: yup.string().required().min(2, 'El nombre debe tener al menos 2 caracteres.'),
-    email: yup.string().required().email('Debe ser un correo electrónico válido.'),
-    phone: yup.string().required().matches(/^\d+$/, 'El número de teléfono debe tener al menos 7 dígitos.').min(7),
-
+    title: yup.string().required().min(2, 'El titulo debe tener al menos 5 caracteres.'),
+    code: yup.string().required().min(2, 'El codigo  debe tener al menos 5 caracteres.'),
 });
 
 // Configuración de vee-validate
 const {handleSubmit, resetForm, setValues} = useForm({
     validationSchema: schema,
     initialValues: {
-        name: '',
-        email: '',
-        phone: '',
-        status: true
+        title: '',
+        description: '',
+        code: '',
     }
 });
 
-const {value: name, errorMessage: nameError} = useField('name');
-const {value: email, errorMessage: emailError} = useField('email');
-const {value: phone, errorMessage: phoneError} = useField('phone');
-const {value: status, errorMessage: statusError} = useField('status', 'boolean');
+const {value: title, errorMessage: titleError} = useField('title');
+const {value: description, errorMessage: descriptionError} = useField('description');
+const {value: code, errorMessage: codeError} = useField('code');
 const isLoading = ref(false);
 const mySnackbar = ref(null);
 
 const isEditing = computed(() => !!props.element?.id);
-const formTitle = computed(() => isEditing.value ? 'Editar Seguridad' : 'Adicionar Seguridad');
+const formTitle = computed(() => isEditing.value ? 'Editar Código QR' : 'Adicionar Código QR');
 
 watch(() => props.element, (newValue) => {
     if (newValue && newValue.id) {
         setValues({
-            name: newValue.name || "",
-            email: newValue.email || "",
-            phone: newValue.phone || "",
-            status: newValue.status === 'active',
+            title: newValue.title || "",
+            description: newValue.description || "",
+            code: newValue.code || "",
         });
     } else {
         resetForm();
@@ -67,10 +62,10 @@ watch(() => props.element, (newValue) => {
 const submitForm = handleSubmit(async (values) => {
 
     const formData = new FormData();
-    formData.append('name', values.name);
-    formData.append('email', values.email);
-    formData.append('phone', values.phone);
-    formData.append('status', values.status === true ? 'active' : 'inactive');
+    formData.append('title', values.title);
+    formData.append('description', values.description);
+    formData.append('code', values.code);
+    formData.append('type','PATROL_CHECKPOINT')
 
     try {
         isLoading.value = true;
@@ -101,7 +96,6 @@ const submitForm = handleSubmit(async (values) => {
 
 });
 
-
 const selectedElement = ref(null);
 
 const close = () => {
@@ -110,7 +104,7 @@ const close = () => {
 
 </script>
 <template>
-    <v-dialog :model-value="dialog" @update:model-value="close" persistent max-width="800px" scrollable>
+    <v-dialog :model-value="dialog" persistent max-width="800px" scrollable>
         <v-card>
             <v-card-title>
                 <span class="text-h5">{{ formTitle }}</span>
@@ -122,41 +116,36 @@ const close = () => {
                         <v-row dense>
                             <v-col cols="12">
                                 <v-text-field
-                                    v-model="name"
-                                    :error-messages="nameError"
-                                    label="Name*"
+                                    v-model="title"
+                                    :error-messages="titleError"
+                                    label="Título*"
                                     variant="outlined"
                                     density="compact"
                                     required
                                 ></v-text-field>
                             </v-col>
                             <v-col cols="12">
-                                <v-text-field
-                                    v-model="email"
-                                    :error-messages="emailError"
-                                    label="Email*"
+                                <v-textarea
+                                    v-model="description"
+                                    :error-messages="descriptionError"
+                                    label="Descipción"
                                     variant="outlined"
+                                    rows="4"
                                     density="compact"
-                                    required
-                                ></v-text-field>
+                                ></v-textarea>
                             </v-col>
                             <v-col cols="12">
                                 <v-text-field
-                                    v-model="phone"
-                                    :error-messages="phoneError"
-                                    label="Teléfono*"
+                                    v-model="code"
+                                    :error-messages="codeError"
+                                    label="Código*"
+                                    placeholder="Ejemplo: PUERTA-01"
                                     variant="outlined"
                                     density="compact"
                                     required
+                                    @input="code = code.toUpperCase()"
+                                    :maxlength="14"
                                 ></v-text-field>
-                            </v-col>
-                            <v-col cols="12" sm="6">
-                                <v-switch
-                                    v-model="status"
-                                    :label="status ? 'Activo' : 'Inactivo'"
-                                    color="success"
-                                    inset
-                                ></v-switch>
                             </v-col>
                         </v-row>
                     </v-container>

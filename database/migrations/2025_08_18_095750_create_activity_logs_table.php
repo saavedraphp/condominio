@@ -17,22 +17,12 @@ return new class extends Migration
         // El nombre de la tabla ahora es 'activity_logs'
         Schema::create('activity_logs', function (Blueprint $table) {
             $table->id();
-
-            // Quién realizó la actividad (guardia, limpiador, etc.)
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
-
-            // Dónde se realizó la actividad (el QR escaneado)
             $table->foreignId('qr_code_id')->nullable()->constrained('qr_codes')->nullOnDelete();
-
-            // Snapshot del código del QR en el momento del escaneo
             $table->string('code');
-
-            // El estado de la actividad (OK, Incidente, etc.)
             $table->string('status')->default(ActivityStatus::OK->value);
-
             $table->text('remarks')->nullable();
             $table->string('file_path')->nullable();
-
             $table->timestamps();
         });
     }

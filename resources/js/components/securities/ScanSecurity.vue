@@ -5,8 +5,12 @@ import axios from 'axios';
 
 // --- Componentes de Resultado (Cargados de forma asíncrona) ---
 // Esto mejora el rendimiento, ya que solo se carga el componente que se necesita.
+/*
 const VisitorPassResult = defineAsyncComponent(() => import('@/components/results/VisitorPassResult.vue'));
-const PatrolCheckpointResult = defineAsyncComponent(() => import('@/components/results/PatrolCheckpointResult.vue'));
+*/
+
+const ActivityLogResult = defineAsyncComponent(() => import('@/components/ActivityLogResult.vue'));
+
 // Añade más componentes de resultado aquí...
 
 // --- Lógica del componente ---
@@ -16,10 +20,13 @@ const resultData = ref(null);
 
 // El "cerebro" que decide qué hacer
 const handleScan = async (qrContent) => {
+    console.log('Contenido del QR escaneado:', qrContent);
+
     try {
         const data = JSON.parse(qrContent);
+        console.log('Datos parseados del QR:', data);
         // Hacemos una llamada a un único endpoint en el backend que maneje la lógica
-        const response = await axios.post('/api/qr-handler', data);
+        const response = await axios.post('/security/qr-handler', data);
 
         // Despachador en el Frontend
         switch (data.type) {
@@ -28,8 +35,8 @@ const handleScan = async (qrContent) => {
                 resultComponent.value = VisitorPassResult;
                 break;
             case 'PATROL_CHECKPOINT':
-                resultData.value = response.data;
-                resultComponent.value = PatrolCheckpointResult;
+                resultData.value = response.data.data;
+                resultComponent.value = ActivityLogResult;
                 break;
             default:
                 console.error('Tipo de QR desconocido:', data.type);
@@ -64,11 +71,6 @@ const resetScanner = () => {
 </script>
 <template>
     <v-container>
-        <v-card class="mx-auto" max-width="600">
-            <v-card-title class="text-h5">
-                Escaner Universal
-            </v-card-title>
-            <v-card-text>
                 <!-- Componente reutilizable para escanear -->
                 <QrScan v-if="!resultComponent" @scan-success="handleScan" />
 
@@ -79,7 +81,7 @@ const resetScanner = () => {
                 </div>
 
                 <!-- Opción para ingreso manual -->
-                <div v-if="!resultComponent" class="mt-4">
+                <div v-if="false" class="mt-4">
                     <p class="text-center">O INGRESE EL CÓDIGO MANUALMENTE</p>
                     <v-text-field
                         v-model="manualCode"
@@ -88,7 +90,5 @@ const resetScanner = () => {
                     ></v-text-field>
                     <v-btn block color="primary" @click="handleManualInput">Verificar Código</v-btn>
                 </div>
-            </v-card-text>
-        </v-card>
     </v-container>
 </template>

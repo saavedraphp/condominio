@@ -7,11 +7,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use SimpleSoftwareIO\QrCode\Facades\QrCode as QrCodeGenerator;
 
 class QrCode extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
 
     protected $fillable = [
@@ -25,7 +26,7 @@ class QrCode extends Model
         'white_label_id',
     ];
 
-    protected $appends = ['qr_content', 'qr_svg'];
+    protected $appends = ['qr_content', 'qr_payload'];
 
 
     /**
@@ -45,14 +46,15 @@ class QrCode extends Model
         );
     }
 
-    /**
-     * Generate the QR code image as an SVG string.
-     * This is also an accessor: $qrCode->qr_svg
-     */
-    protected function qrSvg(): Attribute
+    protected function qrPayload(): Attribute
     {
         return Attribute::make(
-            get: fn () => QrCodeGenerator::size(250)->generate($this->qr_content),
+            get: fn () => [
+                'type' => $this->type,
+                'payload' => [
+                    'zone_id' => $this->code,
+                ]
+            ],
         );
     }
 

@@ -2,7 +2,7 @@
 
 namespace App\Enums;
 
-enum PatrolStatus: string
+enum ActivityStatus: string
 {
     case OK = 'ok';
     case INCIDENT = 'incident';

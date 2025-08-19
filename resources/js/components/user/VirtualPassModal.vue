@@ -24,7 +24,6 @@ const loading = ref(false);
 const passData = ref(null);
 
 const fetchPassData = async (id) => {
-    console.log("Cargando datos del pase con ID:", id);
     loading.value = true;
     passData.value = null;
     try {
