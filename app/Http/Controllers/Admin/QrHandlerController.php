@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 //use App\Services\VisitorPassService; // Servicio para la lógica de pases
@@ -48,5 +50,25 @@ class QrHandlerController extends Controller
                     'message' => 'Tipo de operación no reconocida.'
                 ], 400); // Bad Request
         }
+    }
+
+    public function updateRemarks(Request $request, ActivityLog $log): JsonResponse
+    {
+        // Opcional: Añadir una política de autorización para verificar
+        // si el vigilante actual puede modificar este log.
+        // Por ejemplo: $this->authorize('update', $log);
+
+        $validated = $request->validate([
+            'remarks' => 'nullable|string|max:200',
+        ]);
+
+        $log->update([
+            'remarks' => $validated['remarks'] ?? null,
+        ]);
+
+        return response()->json([
+            'message' => 'Observaciones guardadas correctamente.',
+            'data' => $log,
+        ]);
     }
 }

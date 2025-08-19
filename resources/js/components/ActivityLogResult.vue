@@ -64,17 +64,20 @@
                 @click="submitRemarks"
                 color="primary"
                 variant="flat"
-                :disabled="!remarks.trim()"
+                :disabled="!remarks.trim() || isLoading"
                 :loading="isLoading"
             >
                 Add Comment
             </v-btn>
         </v-card-actions>
+        <Snackbar ref="mySnackbar"/>
     </v-card>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
+import axios from "axios";
+import Snackbar from "@/components/Snackbar.vue";
 
 // PROPS: The component receives the successful log data from its parent.
 // This data should come directly from your Laravel API response.
@@ -95,11 +98,11 @@ const props = defineProps({
 
 // EMITS: The component communicates actions back to the parent.
 const emit = defineEmits(['reset', 'add-comment']);
-
+const mySnackbar = ref(null);
 // --- Component State ---
 const remarks = ref('');
 const isLoading = ref(false);
-const remarksSubmitted = true;//ref(props.data.remarks !== null);
+const remarksSubmitted = ref(props.data.remarks !== null);
 
 // --- Computed Properties ---
 const formattedTimestamp = computed(() => {
@@ -110,26 +113,30 @@ const formattedTimestamp = computed(() => {
     });
 });
 
-// --- Methods ---
-const submitRemarks = () => {
-    if (!remarks.value.trim()) return;
+const submitRemarks = async () => {
+
+    let  logId = props.data.log_id;
+
+    if (!logId) return;
 
     isLoading.value = true;
+    try {
+        // Endpoint para actualizar solo las observaciones del registro ya creado
+        await axios.patch(`/security/qr-handler/${logId}`, {
+            remarks: remarks.value
+        });
+        mySnackbar.value.show('Observación añadido exitosamente.', 'success');
+        setTimeout(() => {
+            emit('reset');
+        }, 2000);
 
-    // Emit an event to the parent component, sending the log ID and the remarks.
-    // The parent component is responsible for making the API call.
-    emit('add-comment', {
-        logId: props.data.id,
-        remarks: remarks.value,
-    });
-
-    // For immediate UI feedback, we can assume success.
-    // The parent should handle API errors.
-    // We stop the loading and show the confirmation message.
-    setTimeout(() => {
-        isLoading.value = false;
-        remarksSubmitted.value = true;
-    }, 500); // A small delay to feel more responsive
+    } catch (error) {
+        mySnackbar.value.show('Ocurrio un error al registrar la Observación.', 'error');
+        console.error("Error guardando observaciones:", error);
+        // Opcional: mostrar un snackbar de error
+    } finally {
+        isLoading.value = true;
+    }
 };
 </script>
 

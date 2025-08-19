@@ -20,11 +20,9 @@ const resultData = ref(null);
 
 // El "cerebro" que decide qué hacer
 const handleScan = async (qrContent) => {
-    console.log('Contenido del QR escaneado:', qrContent);
 
     try {
         const data = JSON.parse(qrContent);
-        console.log('Datos parseados del QR:', data);
         // Hacemos una llamada a un único endpoint en el backend que maneje la lógica
         const response = await axios.post('/security/qr-handler', data);
 

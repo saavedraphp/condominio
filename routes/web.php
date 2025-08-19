@@ -435,6 +435,9 @@ Route::prefix('security')->name('security.')->group(function () {
         /*MARACACION DE ZONAS DE SEGURIDAD*/
         Route::get('/scan-qr', [QrScanController::class, 'ShowScanner'])->name('scan-qr');
         Route::post('/qr-handler/', [QrHandlerController::class, 'handle'])->name('qr-codes.handle');
+
+        Route::patch('/qr-handler/{log}', [QrHandlerController::class, 'updateRemarks'])->name('log-updateRemarks');
+
     });
 });
 
