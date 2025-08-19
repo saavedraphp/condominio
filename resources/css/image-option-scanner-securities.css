@@ -1,0 +1,89 @@
+/* Estilos generales para centrar el contenido si es necesario */
+body {
+    /* Puedes quitar esto si tu layout principal ya centra */
+    /* display: flex; */
+    /* justify-content: center; */
+    /* align-items: center; */
+    /* min-height: 90vh; */
+    background-color: #f4f6f9; /* Color de fondo similar a AdminLTE */
+    font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol'; /* Fuente AdminLTE */
+    margin: 0;
+    padding: 20px; /* Añade algo de espacio alrededor */
+}
+
+.home-container {
+    display: flex;
+    justify-content: center; /* Centra el wrapper horizontalmente */
+    align-items: center; /* Centra el wrapper verticalmente si body tiene altura */
+    width: 100%;
+}
+
+.options-wrapper {
+    display: flex;
+    flex-wrap: wrap; /* Permite que las tarjetas se apilen en pantallas pequeñas */
+    justify-content: center; /* Centra las tarjetas dentro del wrapper */
+    gap: 30px; /* Espacio entre las tarjetas */
+    max-width: 800px; /* Ancho máximo para el contenedor de las tarjetas */
+    width: 100%; /* Ocupa el ancho disponible hasta el max-width */
+}
+
+.option-card {
+    display: block; /* Para que el ancho y margen funcionen bien */
+    width: 300px; /* Ancho fijo para cada tarjeta, ajusta si es necesario */
+    max-width: 100%; /* Asegura que no se desborde en pantallas muy pequeñas */
+    text-decoration: none; /* Quita el subrayado del enlace */
+    color: inherit; /* Hereda el color de texto por defecto */
+    background-color: #ffffff; /* Fondo blanco para la tarjeta */
+    border-radius: 15px; /* Bordes redondeados como en la imagen */
+    overflow: hidden; /* Asegura que la imagen no se salga de los bordes redondeados */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Sombra suave */
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    cursor: pointer;
+}
+
+.option-card:hover {
+    transform: translateY(-5px); /* Efecto de elevación al pasar el ratón */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15); /* Sombra más pronunciada */
+}
+
+.option-card img {
+    display: block; /* Elimina espacio extra debajo de la imagen */
+    width: 100%; /* La imagen ocupa todo el ancho de la tarjeta */
+    height: 220px; /* Altura fija para la imagen, ajusta según tus imágenes */
+    object-fit: cover; /* Asegura que la imagen cubra el área sin distorsionarse */
+}
+
+.option-card .card-footer {
+    background-color: #17a2b8; /* Color azul/verde azulado (info de AdminLTE) - AJUSTA ESTE COLOR AL DE TU IMAGEN */
+    color: #ffffff; /* Texto blanco */
+    padding: 18px 25px; /* Espaciado interno */
+    display: flex; /* Para alinear el texto y la flecha */
+    justify-content: space-between; /* Empuja el texto y la flecha a los extremos */
+    align-items: center; /* Centra verticalmente el texto y la flecha */
+    font-size: 1.15em; /* Tamaño del texto */
+    font-weight: 500; /* Peso de la fuente */
+}
+
+.option-card .arrow {
+    font-size: 1.4em; /* Tamaño de la flecha */
+    font-weight: bold; /* Flecha en negrita */
+    transition: transform 0.2s ease;
+}
+
+.option-card:hover .arrow {
+    transform: translateX(5px); /* Mueve la flecha ligeramente a la derecha al pasar el ratón */
+}
+
+/* Media Query para pantallas más pequeñas (ej. móviles) */
+@media (max-width: 680px) {
+    .options-wrapper {
+        gap: 20px; /* Reduce el espacio entre tarjetas */
+        flex-direction: column; /* Apila las tarjetas verticalmente */
+        align-items: center; /* Centra las tarjetas apiladas */
+        max-width: 350px; /* Ajusta el ancho máximo para modo columna */
+    }
+
+    .option-card {
+        width: 100%; /* Las tarjetas ocupan todo el ancho disponible */
+    }
+}
