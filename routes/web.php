@@ -15,7 +15,11 @@ use App\Http\Controllers\Admin\OtherExpenseController;
 use App\Http\Controllers\Admin\OtherExpenseDetailsController;
 use App\Http\Controllers\Admin\PaymentReportController;
 use App\Http\Controllers\Admin\PetitionController as AdminPetitionController;
+use App\Http\Controllers\Admin\QrCodeController;
+use App\Http\Controllers\Admin\QrHandlerController;
+use App\Http\Controllers\Admin\QrScanController;
 use App\Http\Controllers\Admin\SecurityController;
+use App\Http\Controllers\Admin\SecurtyDashboardController;
 use App\Http\Controllers\Admin\StatisticsController;
 use App\Http\Controllers\Admin\UserController as AdminUserAdsController;
 use App\Http\Controllers\Admin\UserHouseAssignmentController;
@@ -397,6 +401,22 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('users/impersonate-in-new-tab/{webUser}', [ImpersonateController::class, 'generateTokenAndRedirect'])
             ->name('impersonate.new_tab');
 
+        /* CODES QR*/
+        Route::get('/qr-codes/list', [QrCodeController::class, 'showListPage'])->name('qr-codes.list');
+        Route::get('/qr-codes', [QrCodeController::class, 'index'])->name('qr-codes.index');
+        Route::post('/qr-codes', [QrCodeController::class, 'store'])->name('qr-codes.store');
+        Route::put('/qr-codes/{qrCode}', [QrCodeController::class, 'update'])->name('qr-codes.update');
+        Route::delete('/qr-codes/{qrCode}', [QrCodeController::class, 'destroy'])->name('qr-codes.destroy');
+
+        Route::get('qr-codes/{qrCode}/qr', [QrCodeController::class, 'getQr'])
+            ->name('qr-codes.qr');
+        Route::get('qr-codes/{qrCode}/download-pdf', [QrCodeController::class, 'downloadPdf'])
+            ->name('qr-codes.download-pdf');
+
+        Route::get('/qr-codes/{qrCode}/download-image', [QrCodeController::class, 'downloadImage'])->name('qr-codes.download-image');
+
+
+
     });
 });
 Route::prefix('security')->name('security.')->group(function () {
@@ -405,9 +425,19 @@ Route::prefix('security')->name('security.')->group(function () {
     Route::post('/login', [AdminLogin::class, 'authentication']);
     Route::get('/logout', [AdminLogin::class, 'logout'])->name('logout');
     Route::middleware(['auth:web','role:security'])->group(function () {
+        Route::get('/dashboard', [SecurtyDashboardController::class, 'index'])->name('dashboard');
+
+        /*ESCANEAR PASES DE VISITA*/
         Route::get('/scan-pass', [DoormanController::class, 'index'])->name('scan-pass');
         Route::post('/validate-pass', [AdminVisitPassController::class, 'validatePass'])->name('validate-pass');
         Route::patch('/access-logs/{log}', [AdminVisitPassController::class, 'updateRemarks'])->name('updateRemarks');
+
+        /*MARACACION DE ZONAS DE SEGURIDAD*/
+        Route::get('/scan-qr', [QrScanController::class, 'ShowScanner'])->name('scan-qr');
+        Route::post('/qr-handler/', [QrHandlerController::class, 'handle'])->name('qr-codes.handle');
+
+        Route::patch('/qr-handler/{log}', [QrHandlerController::class, 'updateRemarks'])->name('log-updateRemarks');
+
     });
 });
 

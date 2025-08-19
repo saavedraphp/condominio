@@ -115,3 +115,16 @@ export function formattedMoney(value) {
         currency: 'PEN',
     }).format(value);
 }
+
+export function formatDateSplit(dateString) { // ej: dateString = "2025-08-19 23:59:59"
+    if (!dateString) return '-';
+
+    // 1. Tomamos solo la parte de la fecha del string (antes del espacio)
+    const datePart = dateString.split(' ')[0]; // Esto nos da "2025-08-19"
+
+    // 2. Separamos el año, mes y día
+    const [year, month, day] = datePart.split('-');
+
+    // 3. Reconstruimos en el formato que queremos (DD/MM/YYYY)
+    return `${day}/${month}/${year}`;
+}

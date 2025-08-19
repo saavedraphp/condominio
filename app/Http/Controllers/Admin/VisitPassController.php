@@ -70,6 +70,9 @@ class VisitPassController extends Controller
                     return response()->json([
                         'status'  => 'FAILED_EXPIRED',
                         'message' => 'Este pase de visita ha caducado.',
+                        'server' => [
+                            'datetime' => $now->format('Y-m-d H:i:s'),
+                        ],
                     ], 422); // Unprocessable Entity
                 }
 

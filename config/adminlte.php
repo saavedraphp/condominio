@@ -471,6 +471,12 @@ return [
             ]
         ],
         [
+            'text' => 'QR Codes',
+            'route' => 'admin.qr-codes.list',
+            'icon' => 'fas fa-fw fa-qrcode',
+            'can' => 'view_ads',
+        ],
+        [
             'text' => 'Usuarios',
             'icon' => 'fas fa-fw fa-plus-square',
             'can' => 'view_ads',
@@ -482,10 +488,23 @@ return [
             ]
         ],
         [
-            'text' => 'Escanear Pase de Ingreso',
-            'route' => 'security.scan-pass',
-            'icon' => 'fas fa-fw fa-qrcode', //<font-awesome-icon :icon="['fas', 'qrcode']" />
+            'text' => 'Scanear QR',
+            'icon' => 'fas fa-fw fa-plus-square',
             'can' => 'scan_visitor_pass',
+            'submenu' => [
+                [
+                    'text' => 'Pase de Ingreso',
+                    'route' => 'security.scan-pass',
+                    'icon' => 'fas fa-fw fa-qrcode',
+                    'can' => 'scan_visitor_pass',
+                ],
+                [
+                    'text' => 'Marcación de Vigilancia',
+                    'route' => 'security.scan-qr',
+                    'icon' => 'fas fa-fw fa-qrcode',
+                    'can' => 'scan_visitor_pass',
+                ],
+            ]
         ],
         [
             'text' => 'Configuración',
