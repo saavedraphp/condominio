@@ -154,7 +154,6 @@ const resultIcon = computed(() => isSuccess.value ? 'mdi-check-circle' : 'mdi-al
     background: #f9f9f9;
 }
 </style>
-
 <template>
     <v-container>
         <v-row justify="center">

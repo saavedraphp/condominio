@@ -30,7 +30,7 @@ class LoginUserController extends Controller
             if ($user->hasRole('admin')) {
                 return redirect()->intended(route('admin.dashboard'));
             } else if ($user->hasRole('security')) {
-                return redirect()->intended(route('security.scan-pass'));
+                return redirect()->intended(route('security.dashboard'));
             } else {
                 // Si no es ni admin ni vigilante, es mejor desloguearlo por seguridad.
                 Auth::logout();

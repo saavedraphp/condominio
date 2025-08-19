@@ -74,33 +74,21 @@
     <tr>
         <td style="padding: 25px; text-align: center;">
             <!-- Título -->
-            <h1>Pase de Visita Virtual</h1>
+            <h1>Codigo QR</h1>
 
             <!-- Tabla de Detalles (Anidada) -->
             <table class="details-table">
                 <tr>
                     <td class="label">Título:</td>
-                    <td>{{ $pass->title }}</td>
+                    <td>{{ $data->title }}</td>
                 </tr>
                 <tr>
                     <td class="label">Detalle:</td>
-                    <td>{{ $pass->details }}</td>
+                    <td>{{ $data->description }}</td>
                 </tr>
                 <tr>
-                    <td class="label">Generado por:</td>
-                    <td>{{ $pass->creator->name }}</td>
-                </tr>
-                <tr>
-                    <td class="label">Dirección:</td>
-                    <td>{{ $pass->house->address }}</td>
-                </tr>
-                <tr>
-                    <td class="label">Válido desde:</td>
-                    <td>{{ \Carbon\Carbon::parse($startDate)->format('d/m/Y')  }}</td>
-                </tr>
-                <tr>
-                    <td class="label">Válido hasta:</td>
-                    <td>{{ \Carbon\Carbon::parse($endDate)->format('d/m/Y') }}</td>
+                    <td class="label">Código:</td>
+                    <td>{{ $data->code }}</td>
                 </tr>
             </table>
 
@@ -110,8 +98,8 @@
             </div>
 
             <!-- Celda para el Código de Acceso -->
-            <div class="code-cell">
-                <span class="access-code">{{ $pass->access_code }}</span>
+            <div class="code-cell" style="display: none">
+                <span class="access-code">{{ $data->code }}</span>
             </div>
         </td>
     </tr>
