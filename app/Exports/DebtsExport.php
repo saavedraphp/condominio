@@ -70,7 +70,8 @@ class DebtsExport implements FromCollection, WithHeadings, ShouldAutoSize, WithM
     {
         // La letra de la columna debe coincidir con el orden de tus headings/map
         return [
-            'D' => NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1, // Formato: #,##0.00
+            //'D' => NumberFormat::FORMAT_NUMBER_COMMA_SEPARATED1, // Formato: #,##0.00
+            'D' => '[Red]#,##0.00;[Red]-#,##0.00;"0.00"',
         ];
     }
 }
