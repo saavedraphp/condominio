@@ -3,7 +3,7 @@ import {ref, onMounted} from 'vue';
 import axios from "axios";
 import Snackbar from "@/components/Snackbar.vue";
 import {getStructureTypes} from "@/utils/functions.js";
-import {formattedMoney} from "../../utils/functions.js";
+import {formattedMoney, getDate} from "../../utils/functions.js";
 
 const mySnackbar = ref(null);
 
@@ -47,6 +47,42 @@ async function getHouses() {
         loading.value = false;
     }
 }
+
+const isDownloading =  ref(false);
+
+async function downloadExcel() {
+    isDownloading.value = true;
+    try {
+        // Hacemos la petición a la ruta de Laravel
+        const response = await axios.get('/admin/debts/export/excel', {
+            responseType: 'blob', // ¡MUY IMPORTANTE! Esto le dice a axios que espere datos binarios
+        });
+
+        // Crear una URL temporal para el archivo 'blob'
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+
+        // Crear un enlace <a> temporal para iniciar la descarga
+        const link = document.createElement('a');
+        link.href = url;
+        const toDate = getDate();
+        const fileName = `debts-list-${toDate}.xlsx`; // Nombre por defecto
+        link.setAttribute('download', fileName);
+
+        // Añadir el enlace al DOM, hacer clic y luego removerlo
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        // Liberar la URL del objeto blob para limpiar memoria
+        window.URL.revokeObjectURL(url);
+
+    } catch (error) {
+        console.error('Error al descargar el archivo Excel:', error);
+        mySnackbar.value.show('Ocurrió un error al generar el archivo.','error');
+    } finally {
+        isDownloading.value = false;
+    }
+}
 </script>
 <template>
     <v-container fluid>
@@ -56,6 +92,15 @@ async function getHouses() {
                  
                 Reporte de Casas con Deuda a la fecha: {{ dateMow }}
                 <v-spacer></v-spacer>
+                <v-btn
+                    color="primary"
+                    prepend-icon="mdi-file-excel"
+                    :loading="isDownloading"
+                    @click="downloadExcel"
+                    class="mr-4"
+                >
+                    Exportar
+                </v-btn>
                 <v-chip
                     color="primary"
                     variant="elevated"
@@ -78,8 +123,8 @@ async function getHouses() {
                     <span style="color: darkred">{{ formattedMoney(value) }}</span>
                 </template>
                 <template v-slot:item.has_payment_arrangement="{ value }">
-                    <v-chip :color="value  === true ? 'success' : 'grey'" size="small">
-                        {{ value === true ? 'Si' : 'No' }}
+                    <v-chip :color="value === 'Sí' ? 'success' : 'grey'" size="small">
+                        {{ value }}
                     </v-chip>
                 </template>
             </v-data-table>
