@@ -67,7 +67,7 @@
                 :disabled="!remarks.trim() || isLoading"
                 :loading="isLoading"
             >
-                Add Comment
+                Agregar Comentario
             </v-btn>
         </v-card-actions>
         <Snackbar ref="mySnackbar"/>
