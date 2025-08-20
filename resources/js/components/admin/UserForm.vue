@@ -7,6 +7,7 @@ import UploadFormModal from "@/components/UploadFormModal.vue";
 import PreviewImageDialog from "@/components/user/PreviewImageDialog.vue";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal.vue";
 import axios from "axios";
+import ConfirmationModal from "@/components/ConfirmationModal.vue";
 
 const emit = defineEmits(['added', 'edit', 'close-modal', 'update:modelValue', 'refresh-data']);
 
@@ -177,12 +178,26 @@ const previewFile = (item) => {
     urlPreviewFile.value = templateUrl.replace('PLACEHOLDER', item.id);
 };
 
+const resetPassword = () => {
+    isLoading.value = true;
+
+    axios.post(`/admin/reset-user-password/user/${props.user.id}`).then((response) => {
+        if (response.data.success) {
+            mySnackbar.value.show('¡Contraseña se a reaseteado con éxito!', 'success');
+        }
+    }).catch((error) => {
+        mySnackbar.value.show(error.response.data.message, 'error');
+    }).finally(() => {
+        isLoading.value = false;
+        confirmModal.value = false;
+    });
+
+};
 function confirmDeleteDetail(item, index) {
     elementToDelete.value = item;
     elementIndexToDelete.value = index;
     deleteDialog.value = true;
 }
-
 
 
 const deleteElementName = computed(() => {
@@ -229,6 +244,12 @@ const close = () => {
         emit('refresh-data');
     }
 }
+
+const openConfirmResetPasswordModal = () => {
+    confirmModal.value = true;
+};
+
+const confirmModal = ref(false);
 
 const activeKey = ref(TABS_KEYS.DATA);
 </script>
@@ -311,8 +332,13 @@ const activeKey = ref(TABS_KEYS.DATA);
                             </blockquote>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
+                                <v-btn color="secondary" @click="openConfirmResetPasswordModal" variant="flat"
+                                       prepend-icon="mdi mdi-lock-reset">
+                                    Resetear Password
+                                </v-btn>
                                 <v-btn color="grey" variant="flat" @click="close">Cancelar</v-btn>
                                 <v-btn color="primary" variant="flat" type="submit">Guardar</v-btn>
+
                             </v-card-actions>
                         </v-form>
                     </v-window-item>
@@ -341,7 +367,8 @@ const activeKey = ref(TABS_KEYS.DATA);
                                             }}
                                         </v-list-item-title>
                                         <v-list-item-subtitle>
-                                            {{ item.date_document || 'Fecha no especificada' }} {{item.is_visible ? '(Visible)' : '(No visible)'}}
+                                            {{ item.date_document || 'Fecha no especificada' }}
+                                            {{ item.is_visible ? '(Visible)' : '(No visible)' }}
                                         </v-list-item-subtitle>
 
                                         <template v-slot:append>
@@ -397,6 +424,15 @@ const activeKey = ref(TABS_KEYS.DATA);
             :loading="isLoading"
             @confirm="deleteFileConfirmed"
             @cancel="closeDeleteModal"
+        />
+        <ConfirmationModal
+            v-model:show="confirmModal"
+            title="Confirmar Reseteo de Password"
+            message='¿Estás seguro de que deseas Resetear el password?'
+            titleButtonConfirm="Resetear"
+            :loading="isLoading"
+            @confirm="resetPassword"
+            @cancel="confirmModal=false"
         />
         <Snackbar ref="mySnackbar"/>
     </v-dialog>
