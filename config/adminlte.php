@@ -375,12 +375,6 @@ return [
             'can' => 'view_adsss',
         ],
         [
-            'text' => 'change_password',
-            'url' => 'admin/settings',
-            'icon' => 'fas fa-fw fa-lock',
-            'can' => 'view_adss',
-        ],
-        [
             'text' => 'Gestión de Luz / Agua',
             'icon' => 'fas fa-fw fa-plus-square',
             'can' => 'view_ads',
@@ -512,7 +506,12 @@ return [
             'icon' => 'fas fa-fw fa-sliders-h',
             'can' => 'view_ads',
         ],
-
+        [
+            'text' => 'change_password',
+            'url' => 'admin/settings',
+            'icon' => 'fas fa-fw fa-lock',
+            'can' => 'view_adss',
+        ],
         /*        [
                     'text' => 'Caja Chica',
                     'route' => 'admin.petty-cash.list',

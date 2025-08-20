@@ -132,6 +132,13 @@ class AdminlteMenuServiceProvider extends ServiceProvider
                         'icon' => 'fas fa-fw fa-envelope',
                         'can' => 'view_payment_history',
                     ]);
+                    $event->menu->add([
+                        'text' => 'change_password',
+                        'route' => 'user.form-change-password',
+                        'icon' => 'fas fa-fw fa-lock',
+                        'can' => 'view_payment_history',
+                    ]);
+
 /*                    $event->menu->add([
                         'text' => 'Reservar Espacio',
                         'url' => '#',

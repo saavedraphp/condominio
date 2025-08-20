@@ -172,6 +172,10 @@ Route::prefix('user')->name('user.')->group(function () {
         Route::get('/budgets-vs-expenses/search', [BudgetReportController::class, 'showPage'])->name('budgets-vs-expenses.show-page');
         Route::get('/reports/budget-summary-data', [BudgetReportController::class, 'generateReportData'])->name('reports.budget.data');
         Route::get('/reports/budget-summary/download', [BudgetReportController::class, 'downloadPdfReport'])->name('reports.budget.pdf');
+
+        Route::get('/change-password', [ProfileController::class, 'showChangePassword'])->name('form-change-password');
+        Route::post('/change-password', [ProfileController::class, 'changePassword'])->name('change-password');
+
     });
 
 });
@@ -415,8 +419,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
             ->name('qr-codes.download-pdf');
 
         Route::get('/qr-codes/{qrCode}/download-image', [QrCodeController::class, 'downloadImage'])->name('qr-codes.download-image');
-
-
 
     });
 });
