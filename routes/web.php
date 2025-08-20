@@ -420,6 +420,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::get('/qr-codes/{qrCode}/download-image', [QrCodeController::class, 'downloadImage'])->name('qr-codes.download-image');
 
+        /*RESETEAR PASSWORD*/
+        Route::post('/reset-user-password/user/{webUser}', [AdminUserAdsController::class, 'resetUserPassword'])->name('reset-user-password');
+
+
     });
 });
 Route::prefix('security')->name('security.')->group(function () {

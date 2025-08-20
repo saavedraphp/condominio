@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -154,5 +155,23 @@ class UserController extends Controller
             Log::error('Error eliminando el registro ID ' . $user->id . ': ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'Error al intentar eliminar el registro.'], 500);
         }
+    }
+
+    public function resetUserPassword(WebUser $webUser): JsonResponse
+    {
+        try {
+            $webUser->password = Hash::make('123456');
+            $webUser->save();
+
+            return response()->json(['success' => true]);
+
+        } catch (\Exception $e) {
+            Log::error('Error reseteando el password el registro ID ' . $webUser->id . ': ' . $e->getMessage());
+
+            return response()->json(['success' => false,
+                'message' => 'Ocurrio un error inesperado al intentar resetear el password',
+            ], 500);
+        }
+
     }
 }
