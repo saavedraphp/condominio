@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ChangePasswordRequest;
 use App\Models\House;
 use App\Models\User;
 use App\Models\WebUser;
@@ -11,7 +12,11 @@ use App\Traits\ManagesHouseSession;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rules\Password;
+use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
@@ -33,22 +38,6 @@ class ProfileController extends Controller
             return response()->json(['message' => 'Usuario no encontrado'], 404);
         }
         return response()->json($user, 200);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
     }
 
     /**
@@ -145,5 +134,25 @@ class ProfileController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function showChangePassword(): View
+    {
+        $routes = [
+            'base' => route('user.change-password'),
+        ];
+
+        return view('user.change_password.index', compact('routes'));
+    }
+    public function changePassword(ChangePasswordRequest  $request): JsonResponse
+    {
+        $user = $request->user();
+
+        // 3. Actualizar la contraseña
+        $user->password = Hash::make($request->new_password);
+        $user->save();
+
+        // 4. Retornar una respuesta exitosa
+        return response()->json(['success' => true]);
     }
 }
