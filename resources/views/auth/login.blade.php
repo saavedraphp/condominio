@@ -63,7 +63,7 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col">
+                        <div class="col" style="visibility: hidden">
                             <a class="link-style">Olvide mi Contraseña</a>
                         </div>
                     </div>
