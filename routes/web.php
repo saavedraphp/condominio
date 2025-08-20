@@ -367,6 +367,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         /* REPORTS BALANCE*/
         Route::get('/reports/balance-due/list', [ReportBalanceDueController::class, 'showListPage'])->name('reports.balance-due.list');
         Route::get('/reports/balance-due/index', [ReportBalanceDueController::class, 'index'])->name('reports.balance-due.index');
+        Route::get('/debts/export/excel', [ReportBalanceDueController::class, 'exportExcel'])->name('debts.export.excel');
 
         /* REPORTS PAYMENT*/
         Route::get('/reports/payments/list', [PaymentReportController::class, 'showListPage'])->name('reports.payments.list');
