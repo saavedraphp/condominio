@@ -104,7 +104,9 @@ class ReportBalanceDueController extends Controller
                 'opening_balance' => $house->opening_balance, // No formatear aquí para el Excel
                 'has_payment_arrangement' => optional($owner)->has_payment_arrangement ? 'Sí' : 'No',
             ];
-        });
+        })
+            ->sortByDesc('amount_due')
+            ->values();
     }
 
     public function exportExcel(Request $request)
