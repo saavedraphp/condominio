@@ -15,6 +15,17 @@
     text-overflow: ellipsis; /* Muestra "..." al final del texto truncado */
 }
 
+.line-clamp-2 {
+    /* Propiedades estándar para el truncado multi-línea */
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* El número de líneas que quieres mostrar */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+
+    /* La propiedad clave que nos faltaba, para romper palabras largas */
+    word-break: break-all;
+}
+
 /*
 .v-data-table .v-data-table-footer {
     display: none !important;

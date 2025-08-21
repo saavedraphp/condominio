@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\QrCodeController;
 use App\Http\Controllers\Admin\QrHandlerController;
 use App\Http\Controllers\Admin\QrScanController;
 use App\Http\Controllers\Admin\SecurityController;
+use App\Http\Controllers\Admin\SecurityRoundReportController;
 use App\Http\Controllers\Admin\SecurtyDashboardController;
 use App\Http\Controllers\Admin\StatisticsController;
 use App\Http\Controllers\Admin\UserController as AdminUserAdsController;
@@ -389,6 +390,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         /* REPORT VISIT PASSES*/
         Route::get('/reports/visit-pass/list', [VisitPassReportController::class, 'showListPage'])->name('reports.visit-passes.list');
         Route::get('/reports/visit-pass/index', [VisitPassReportController::class, 'index'])->name('reports.visit-passes.index');
+
+        /*REPORT SECURITY ROUND*/
+        Route::get('/reports/security-round/list', [SecurityRoundReportController::class, 'showListPage'])->name('reports.security-round.list');
+        Route::get('/reports/security-round/index', [SecurityRoundReportController::class, 'index'])->name('reports.security-round.index');
 
         // Rutas para gestionar la configuración
         Route::get('/settings/list', [SettingController::class, 'showPage'])->name('settings.show-page');

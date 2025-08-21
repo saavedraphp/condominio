@@ -462,6 +462,10 @@ return [
                     'text' => 'Pases de Visitas',
                     'url' => 'admin/reports/visit-pass/list',
                 ],
+                [
+                    'text' => 'Ronda de Vigilancia',
+                    'route' => 'admin.reports.security-round.list',
+                ],
             ]
         ],
         [
