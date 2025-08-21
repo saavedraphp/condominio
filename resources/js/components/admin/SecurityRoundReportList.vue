@@ -17,12 +17,13 @@ const props = defineProps({
 const mySnackbar = ref(null);
 
 const headers = ref([
-    {title: 'Fecha y Hora', key: 'created_at', sortable: true},
-    {title: 'Zona', key: 'qr_code.title', align: 'start', sortable: true},
-    {title: 'Personal', key: 'user.name', sortable: true},
-    {title: 'Observaciónes', key: 'remarks', sortable: true},
-    {title: 'Acciones', key: 'actions', sortable: false, align: 'end'},
-
+    {title: 'Fecha y Hora', key: 'created_at'},
+    {title: 'Zona', key: 'qr_code.title'},
+    {title: 'Personal', key: 'user.name'},
+    // Dale más espacio a esta columna
+    {title: 'Observaciónes', key: 'remarks', width: '25%'},
+    // Y menos a las acciones, que suelen ser solo iconos
+    {title: 'Acciones', key: 'actions', align: 'end', width: '15%'},
 ]);
 
 const data = ref([]);
@@ -205,6 +206,16 @@ const selectedSecurity = ref(null);
                 class="elevation-1"
                 dense
             >
+                <template v-slot:item.remarks="{ item }">
+                    <v-tooltip :text="item.remarks" location="bottom">
+                        <template v-slot:activator="{ props }">
+                            <div v-bind="props" class="line-clamp-2">
+                                {{ item.remarks }}
+                            </div>
+                        </template>
+                    </v-tooltip>
+                </template>
+
                 <template v-slot:item.created_at="{ value }">
                     <span>{{ formatDateCustom(value) }}</span>
                 </template>
@@ -254,3 +265,6 @@ const selectedSecurity = ref(null);
         </v-dialog>
     </v-container>
 </template>
+<style scoped>
+
+</style>

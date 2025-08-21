@@ -3,7 +3,6 @@ import { ref, computed } from 'vue';
 import axios from "axios";
 import Snackbar from "@/components/Snackbar.vue";
 
-
 // PROPS: The component receives the successful log data from its parent.
 // This data should come directly from your Laravel API response.
 const props = defineProps({
@@ -34,7 +33,7 @@ const computedIsReadOnly = computed(() => {
 const emit = defineEmits(['reset', 'add-comment']);
 const mySnackbar = ref(null);
 // --- Component State ---
-const remarks = ref('');
+const remarks = ref(props.data.remarks);
 const isLoading = ref(false);
 // --- Computed Properties ---
 const formattedTimestamp = computed(() => {
@@ -51,6 +50,16 @@ const submitRemarks = async () => {
 
     if (!logId) return;
 
+    if(!remarks.value || !remarks.value.trim()) {
+        mySnackbar.value.show('Ingrese un comentario','error');
+        return;
+    }
+
+    if(remarks.value.length > 200) {
+        mySnackbar.value.show('El comentario no puede ser mayor 200 caracteres','error');
+        return;
+    }
+
     isLoading.value = true;
     try {
         // Endpoint para actualizar solo las observaciones del registro ya creado
@@ -63,11 +72,11 @@ const submitRemarks = async () => {
         }, 2000);
 
     } catch (error) {
-        mySnackbar.value.show('Ocurrio un error al registrar la Observación.', 'error');
+        mySnackbar.value.show(error.response.data.message || 'Ocurrio un error al registrar la Observación.', 'error');
         console.error("Error guardando observaciones:", error);
         // Opcional: mostrar un snackbar de error
     } finally {
-        isLoading.value = true;
+        isLoading.value = false;
     }
 };
 </script>
@@ -105,7 +114,7 @@ const submitRemarks = async () => {
             <!-- Show this form only if no remarks have been submitted yet -->
             <div>
                 <v-textarea
-                    v-model="data.remarks"
+                    v-model="remarks"
                     label="Añadir comentarios opcionales o informar un incidente"
                     rows="3"
                     variant="outlined"
@@ -128,7 +137,7 @@ const submitRemarks = async () => {
                 @click="submitRemarks"
                 color="primary"
                 variant="flat"
-                :disabled="!remarks.trim() || isLoading"
+                :disabled="isLoading"
                 :loading="isLoading"
             >
                 Agregar Comentario
