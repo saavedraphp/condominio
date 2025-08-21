@@ -4,21 +4,22 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\AccessLog;
+use App\Models\ActivityLog;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 
-class VisitPassReportController extends Controller
+class SecurityRoundReportController extends Controller
 {
     public function showListPage(): View
     {
         $routes = [
-            'base' => route('admin.reports.visit-passes.index'),
+            'base' => route('admin.reports.security-round.index'),
             'securities' => route('admin.securities.index'),
         ];
-        return view('admin.reports.visit_pass.index', [
+        return view('admin.reports.security_round.index', [
             'routes' => $routes,
         ]);
     }
@@ -54,14 +55,14 @@ class VisitPassReportController extends Controller
         $startOfDay = Carbon::parse($validated['start_date'])->startOfDay();
         $endOfDay = Carbon::parse($validated['end_date'])->endOfDay();
 
-        $query = AccessLog::with(['user','visitPass.house','visitPass.creator'])
+        $query = ActivityLog::with(['user','qrCode'])
             ->when($request->filled('start_date'), function ($query) use ($startOfDay, $validated) {
                 $query->where('created_at', '>=', $startOfDay);
             })
             ->when($request->filled('end_date'), function ($query) use ($endOfDay, $validated) {
                 $query->where('created_at', '<=', $endOfDay);
             })
-        ->when($request->filled('security_id'), function ($query) use ($request) {
+            ->when($request->filled('security_id'), function ($query) use ($request) {
                 $query->where('user_id', $request->input('security_id'));
             });
         $totalItem = $query->count();
@@ -70,24 +71,12 @@ class VisitPassReportController extends Controller
             ->map(function ($log) {
                 return [
                     'id' => $log->id,
-                    'creator' => [
-                      'name' => $log->visitPass && $log->visitPass->creator ? $log->visitPass->creator->name : 'Desconocido',
-                    ],
-                    'security' => [
+                    'user' => [
                         'name' => $log->user ? $log->user->name : 'Desconocido',
                     ],
-                    'pass' => [
-                        'title' => $log->visitPass ? $log->visitPass->title : 'No especificada',
-                        'starts_at' => $log->visitPass ? $log->visitPass->starts_at : 'No especificada',
-                        'expires_at' => $log->visitPass ? $log->visitPass->expires_at : 'No especificada',
+                    'qr_code' => [
+                        'title' => $log->qrCode ? $log->qrCode->title : 'No especificada',
                     ],
-                    'property' => [
-                        'address' => $log->visitPass->house->address ?? 'No especificada',
-                    ],
-                    'visit_pass_id' => $log->visit_pass_id,
-                    'code_entered' => $log->code_entered,
-                    'event_type' => $log->event_type,
-                    'status' => $log->status,
                     'remarks' => $log->remarks,
                     'created_at' => $log->created_at,
                 ];
@@ -98,4 +87,5 @@ class VisitPassReportController extends Controller
             'total_items' => $totalItem,
         ];
     }
+
 }
