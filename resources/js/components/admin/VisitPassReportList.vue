@@ -19,6 +19,7 @@ const mySnackbar = ref(null);
 const headers = ref([
     {title: 'Fecha y Hora', key: 'created_at', sortable: true},
     {title: 'Título del Pase', key: 'pass.title', align: 'start', sortable: true},
+    {title: 'Código de Pase', key: 'code_entered', align: 'start', sortable: true},
     {title: 'Estado', key: 'status', sortable: true},
     {title: 'Personal', key: 'security.name', sortable: true},
     {title: 'Dirección', key: 'property.address', sortable: true, align: 'start'},

@@ -66,7 +66,7 @@ const headerTitle = computed(() => `Detalle de Registro - ${statusInfo.value.tex
 
 </script>
 <template>
-    <v-dialog :model-value="modelValue" max-width="550px" persistent @update:model-value="closeDialog">
+    <v-dialog :model-value="modelValue" max-width="550px" @update:model-value="closeDialog">
         <v-card>
             <!-- Título Dinámico -->
             <v-card-title class="d-flex align-center" :class="headerClass">
@@ -118,7 +118,7 @@ const headerTitle = computed(() => `Detalle de Registro - ${statusInfo.value.tex
 
             <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn text @click="closeDialog">
+                <v-btn variant="flat" color="grey" @click="closeDialog">
                     Cerrar
                 </v-btn>
             </v-card-actions>
