@@ -19,7 +19,7 @@ class AdsController extends Controller
     {
         try {
             $ads = Ad::query()
-                ->orderBy('created_at', 'desc')
+                ->orderBy('start_day', 'desc')
                 ->get();
 
             return response()->json($ads);

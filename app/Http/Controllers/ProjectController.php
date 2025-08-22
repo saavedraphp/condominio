@@ -36,7 +36,7 @@ class ProjectController extends Controller
     {
         try {
             $projects = Project::with(['quotations', 'chosenQuotation'])
-                ->orderBy('created_at', 'desc')
+                ->orderBy('start_date', 'desc')
                 ->get();
 
             return response()->json(['data' => $projects]);

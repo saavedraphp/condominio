@@ -4,7 +4,7 @@ import axios from "axios";
 import Snackbar from "@/components/Snackbar.vue";
 import AdForm from "@/components/admin/AdForm.vue";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal.vue";
-import {formatDate} from "@/utils/functions.js";
+import {formatDate, formatDateSplit} from "@/utils/functions.js";
 
 const mySnackbar = ref(null);
 
@@ -170,10 +170,10 @@ const closeDeleteModal = () => {
                 <!-- Puedes añadir slots para formatear otras columnas si es necesario -->
                 <!-- Ejemplo para formatear fecha -->
                 <template v-slot:item.start_day="{ value }">
-                    {{ formatDate(value) }}
+                    {{ formatDateSplit(value) }}
                 </template>
                 <template v-slot:item.end_day="{ value }">
-                    {{ formatDate(value) }}
+                    {{ formatDateSplit(value) }}
                 </template>
                 <template v-slot:item.active="{ value }">
                     <v-chip :color="value  ? 'success' : 'grey'" size="small">
