@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 // Opcional: para formatos en español (ej. "agosto" en lugar de "August")
 import 'dayjs/locale/es';
+
 dayjs.locale('es'); // Configura el idioma globalmente
 
 /**
@@ -34,11 +35,30 @@ export function formatDate(dateString) {
         day: '2-digit',
     };
 
+    //CUANDO USAS NEW DATE => CONVIERTE LA HORA A LA ZONA HORARIA
+    //Cuando JavaScript ve new Date('2025-01-29') LO INTEPRETA COMO (UTC). Es decir, 2025-01-29T00:00:00.000Z.
+    //Luego, el navegador convierte esa hora UTC a la zona horaria local del usuario.
+    //GMT-5 (Colombia/Perú), esa hora se convierte a las 7 PM del día anterior (2025-01-28).
+
     const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', options);
+    console.log(dateString, '---', date);
+    // --- A partir de aquí hacemos el cambio ---
+
+    // 1. Obtenemos las partes de la fecha del objeto 'date'
+    const year = date.getFullYear(); // Obtiene el año (ej: 2025)
+
+    // getMonth() devuelve 0-11 (Enero=0). Sumamos 1 para tener 1-12.
+    // padStart(2, '0') asegura que tenga dos dígitos (ej: '01' en vez de '1')
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+
+    // getDate() devuelve el día del mes. También le aplicamos padStart.
+    const day = String(date.getDate()).padStart(2, '0');
+
+    // 2. Unimos las partes en el formato deseado con barras
+    return `${year}/${month}/${day}`;
 }
 
-export function formatDateCustom(dateString, formatString= 'YYYY-MM-DD HH:mm') {
+export function formatDateCustom(dateString, formatString = 'YYYY-MM-DD HH:mm') {
     if (!dateString || !formatString) return '-';
 
     const date = dayjs(dateString);
@@ -101,11 +121,11 @@ export function getDate() {
 }
 
 export function getStructureTypes(type) {
-     return {
-         'owners_board': 'JP Isla cerdeña',
-         'association_only': 'Asociación I.S.P',
-         'owners_board_with_association': 'Junta y Asociación'
-     };
+    return {
+        'owners_board': 'JP Isla cerdeña',
+        'association_only': 'Asociación I.S.P',
+        'owners_board_with_association': 'Junta y Asociación'
+    };
 
 }
 
@@ -114,6 +134,7 @@ export function formattedMoney(value) {
         style: 'currency',
         currency: 'PEN',
     }).format(value);
+    //return `S/${parseFloat(value).toFixed(2)}`;
 }
 
 export function formatDateSplit(dateString) { // ej: dateString = "2025-08-19 23:59:59"
@@ -126,5 +147,5 @@ export function formatDateSplit(dateString) { // ej: dateString = "2025-08-19 23
     const [year, month, day] = datePart.split('-');
 
     // 3. Reconstruimos en el formato que queremos (DD/MM/YYYY)
-    return `${day}/${month}/${year}`;
+    return `${year}/${month}/${day}`;
 }

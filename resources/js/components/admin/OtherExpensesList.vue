@@ -20,8 +20,8 @@ const mySnackbar = ref(null);
 const headers = ref([
     {title: 'Gasto', key: 'title', align: 'start', sortable: true},
     {title: 'Detalle', key: 'description', sortable: true},
+    {title: 'Total', key: 'amount', sortable: true},
     {title: 'Fecha', key: 'date_format', sortable: true},
-    {title: 'Total', key: 'amount_format', sortable: true},
     {title: 'Acciones', key: 'actions', sortable: false, align: 'end'},
 ]);
 
@@ -50,7 +50,6 @@ async function getOtherExpenses() {
         annualBudgets.value = response.data.map(item => ({
             ...item,
             date_format: item.date ? formatDate(item.date) : null, // Aseguramos que la fecha sea un objeto Date
-            amount_format: item.amount ? formattedMoney(item.amount) : 0
         }));
 
     } catch (error) {

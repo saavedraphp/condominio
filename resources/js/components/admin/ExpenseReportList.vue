@@ -13,7 +13,7 @@ const headers = ref([
     {title: 'Título', key: 'title', align: 'start', sortable: true},
     {title: 'Detalle', key: 'detail_limited', sortable: true},
     {title: 'Tipo', key: 'type', sortable: true},
-    {title: 'Monto', key: 'amount_formatted', sortable: true, align: 'end'},
+    {title: 'Monto', key: 'amount', sortable: true, align: 'end'},
 ]);
 
 const dateMow = new Date().toLocaleDateString('es-ES', {
@@ -62,7 +62,6 @@ async function getHouses() {
 
         expenses.value = response.data.data.map(item => ({
             ...item,
-            amount_formatted: formattedMoney(item.amount),
             detail_limited: item.description.length > 30 ? item.description.substring(0, 30) + '...' : item.description,
         }));
         totalAmount.value = formattedMoney(response.data.totals.total_amount);
@@ -220,8 +219,8 @@ const selectedTypes = ref(expenseTypes.value.map(type => type.value));
                           class="elevation-1"
                           dense
             >
-                <template v-slot:item.amount_due="{ value }">
-                    <span style="color: darkred">{{ formattedMoney(value) }}</span>
+                <template v-slot:item.amount="{ value }">
+                    <span>{{ formattedMoney(value) }}</span>
                 </template>
                 <template #item.detail_limited="{ item }">
                     <v-tooltip location="top">
