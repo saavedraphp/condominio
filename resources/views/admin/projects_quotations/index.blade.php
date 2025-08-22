@@ -3,7 +3,8 @@
 @section('content')
 <div id="projects-container">
     <project-list
-        :url-base="'{{ route('admin.projects.index') }}'"
+        :routes='@json($routes)'
+        :is-admin="@json($isAdmin)"
     >
     </project-list>
 </div>
