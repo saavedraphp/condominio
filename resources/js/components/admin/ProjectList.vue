@@ -9,8 +9,8 @@ import DeleteConfirmationModal from "@/components/DeleteConfirmationModal.vue"; 
 // Props (si necesitas, como isAdmin, etc. similar a tu otro componente de lista)
 const props = defineProps({
     isAdmin: Boolean,
-    urlBase: {
-        type: String,
+    routes: {
+        type: Object,
         require: true
     }
 });
@@ -39,10 +39,17 @@ onMounted(() => {
     getProjects();
 });
 
+const formTitle = computed(() => {
+    if (props.isAdmin)
+        return 'Gestión de Proyectos';
+    else {
+        return 'Lista de Proyectos';
+    }
+});
 async function getProjects() {
     loadingProjects.value = true;
     try {
-        const response = await axios.get(`${props.urlBase}`);
+        const response = await axios.get(`${props.routes.base}`);
         projects.value = response.data.data.map(project => ({
             ...project,
             start_date_format: formatDate(project.start_date),
@@ -98,6 +105,22 @@ const deleteProjectModalItemName = computed(() => {
     return `Proyecto: ${projectToDelete.value.name} (ID: ${projectToDelete.value.id})`;
 });
 
+const componentConfig = computed(() => {
+    if (props.isAdmin) {
+        return {
+            canViewManagementButtons: true,
+            editButtonIcon: 'mdi-pencil',
+            editButtonText: 'Edit Project'
+        }
+
+    }else {
+        return {
+            canViewManagementButtons: false,
+            editButtonIcon: 'mdi-eye',
+            editButtonText: 'Ver Proyecto'
+        }
+    }
+});
 const closeDeleteProjectModal = () => {
     showDeleteProjectModal.value = false;
     setTimeout(() => {
@@ -110,7 +133,7 @@ const deleteProjectConfirmed = async () => {
     if (!projectToDelete.value) return;
     isDeletingProject.value = true;
     try {
-        const response = await axios.delete(`${props.urlBase}/${projectToDelete.value.id}`);
+        const response = await axios.delete(`${props.routes.base}/${projectToDelete.value.id}`);
         if (response.data && response.data.success) {
             mySnackbar.value.show(response.data.message || 'Project deleted successfully.', 'success');
             getProjects(); // Recarga la lista
@@ -132,27 +155,27 @@ const deleteProjectConfirmed = async () => {
         <v-card>
             <v-card-title class="d-flex align-center pe-2">
                 <v-icon icon="mdi-briefcase-check-outline"></v-icon>
-                  Gestión de Proyectos
+                  {{ formTitle }}
                 <v-spacer></v-spacer>
-                <v-btn
-                    color="primary"
-                    prepend-icon="mdi-plus"
-                    @click="openAddProjectModal"
+                <v-btn v-if="componentConfig.canViewManagementButtons"
+                       color="primary"
+                       prepend-icon="mdi-plus"
+                       @click="openAddProjectModal"
                 >
                     Agregar Proyecto
                 </v-btn>
             </v-card-title>
 
             <v-text-field v-if="false"
-                v-model="search"
-                density="compact"
-                label="Search Projects..."
-                prepend-inner-icon="mdi-magnify"
-                variant="solo-filled"
-                flat
-                hide-details
-                single-line
-                class="pa-2"
+                          v-model="search"
+                          density="compact"
+                          label="Search Projects..."
+                          prepend-inner-icon="mdi-magnify"
+                          variant="solo-filled"
+                          flat
+                          hide-details
+                          single-line
+                          class="pa-2"
             ></v-text-field>
             <v-divider></v-divider>
 
@@ -177,11 +200,11 @@ const deleteProjectConfirmed = async () => {
                     <span>{{ formatCurrency(item.additional_expenses) }}</span>
                 </template>
                 <template v-slot:item.actions="{ item }">
-                    <v-tooltip text="Edit Project">
+                    <v-tooltip :text="componentConfig.editButtonText">
                         <template v-slot:activator="{ props: tooltipProps }">
                             <v-btn
                                 v-bind="tooltipProps"
-                                icon="mdi-pencil"
+                                :icon="componentConfig.editButtonIcon"
                                 variant="text"
                                 color="primary"
                                 size="small"
@@ -190,7 +213,7 @@ const deleteProjectConfirmed = async () => {
                             ></v-btn>
                         </template>
                     </v-tooltip>
-                    <v-tooltip text="Delete Project">
+                    <v-tooltip text="Delete Project" v-if="componentConfig.canViewManagementButtons">
                         <template v-slot:activator="{ props: tooltipProps }">
                             <v-btn
                                 v-bind="tooltipProps"
@@ -215,7 +238,8 @@ const deleteProjectConfirmed = async () => {
         <ProjectForm
             v-model="showProjectFormModal"
             :project-data-prop="selectedProject"
-            :url-base="props.urlBase"
+            :routes="props.routes"
+            :is-admin="props.isAdmin"
             @project-saved="handleProjectSaved"
         />
 

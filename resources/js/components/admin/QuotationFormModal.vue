@@ -35,8 +35,8 @@ const { handleSubmit: handleQuotationSubmit, resetForm: resetQuotationForm, setV
     validationSchema: quotationSchema,
     initialValues: {
         id: null,
-        company_name: 'Company Name',
-        amount: 100.00,
+        company_name: '',
+        amount: 0,
         file_object: null, // v-file-input usa un array
         file_path: null, // Para mostrar el nombre del archivo existente
     }

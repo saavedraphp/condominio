@@ -51,6 +51,7 @@ use App\Http\Controllers\User\PaymentController;
 use App\Http\Controllers\User\ProfileController;
 use App\Http\Controllers\User\HouseVehicleController as HouseVehicleUserController;
 use App\Http\Controllers\User\HouseResidentController as HouseResidentUserController;
+use App\Http\Controllers\User\ProjectController as UserProjectController;
 use App\Http\Controllers\User\VisitPassController;
 use App\Http\Controllers\Admin\VisitPassController as AdminVisitPassController;
 use App\Http\Controllers\WebUserImageController;
@@ -101,7 +102,7 @@ Route::prefix('user')->name('user.')->group(function () {
         Route::get('/files/preview-image/{image}', [WebUserImageController::class, 'previewImage'])
             ->name('users.files.preview-image');
 
-        /* INICIO rutas documentos*/
+        /* DOCUMENT OF CONDOMINIO*/
         Route::get('/documents/list', [DocumentController::class, 'showPage'])->name('documents.show-page');
         Route::get('/documents', [DocumentController::class, 'index'])->name('documents.index');
         Route::get('/documents/{document}', [DocumentController::class, 'show'])
@@ -114,7 +115,15 @@ Route::prefix('user')->name('user.')->group(function () {
         Route::get('/documents/{document}/download', [DocumentController::class, 'download'])
             ->name('documents.download') // Nombre de la ruta usado en el Modelo
             ->where('document', '[0-9]+');
-        /* FIN rutas documentos*/
+
+        /*COTIZACIONES*/
+        Route::get('/projects/list', [UserProjectController::class, 'showPage'])->name('projects.show-page');
+        Route::get('/projects/index', [UserProjectController::class, 'index'])->name('projects.index');
+
+        /*COTIZACION IMAGEN PREVIEW*/
+        Route::get('/projects/quotation/{quotation}/preview-image', [ProjectQuotationController::class, 'previewImage'])
+            ->name('quotation.preview-image')
+            ->where('quotation', '[0-9]+');
 
         /* RESIDENTES DE LA CASA */
         Route::get('/houses/{house}/house-residents', [HouseResidentUserController::class, 'index'])->name('members.index');
@@ -262,6 +271,9 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/documents/{document}/download', [DocumentController::class, 'download'])
             ->name('documents.download')
             ->where('document', '[0-9]+');
+        Route::get('/documents/{document}/preview-image', [DocumentController::class, 'previewImage'])
+            ->name('documents.preview-image')
+            ->where('document', '[0-9]+');
 
         /* GESTION DE CONSUMO DE AGUA / LUZ*/
         Route::get('/electricity-records/list-all', [PaymentServiceController::class, 'showPageAll'])->name('electricity-history.show-page-all');
@@ -344,6 +356,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
             ->name('projects.quotations.update');
         Route::delete('/projects/{project}/quotations/{quotation}', [ProjectQuotationController::class, 'destroy'])
             ->name('projects.quotations.destroy');
+
+        Route::get('/projects/quotation/{quotation}/preview-image', [ProjectQuotationController::class, 'previewImage'])
+            ->name('quotation.preview-image')
+            ->where('quotation', '[0-9]+');
 
 
         /*PETTY CASH*/
