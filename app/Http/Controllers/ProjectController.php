@@ -17,7 +17,19 @@ class ProjectController extends Controller
 {
     public function showListPage(): View
     {
-        return view('admin.projects_quotations.index');
+
+        $routes = [
+            'base' => route('admin.projects.index'),
+            'preview_quotation' => route('admin.quotation.preview-image', [
+                'quotation' => 'PLACEHOLDER_1'
+            ]),
+        ];
+
+        return view('admin.projects_quotations.index',
+            [
+                'routes' => $routes,
+                'isAdmin' => true,
+            ]);
     }
 
     public function index(Request $request): JsonResponse
@@ -196,6 +208,5 @@ class ProjectController extends Controller
             return response()->json(['success' => false, 'message' => 'Failed to set chosen quotation.'], 500);
         }
     }
-
 
 }

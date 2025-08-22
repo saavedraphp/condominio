@@ -6,7 +6,8 @@ import axios from "axios";
 import dayjs from 'dayjs';
 import Snackbar from "@/components/Snackbar.vue"; // Asegúrate que la ruta sea correcta
 import QuotationFormModal from './QuotationFormModal.vue';
-import DeleteConfirmationModal from "@/components/DeleteConfirmationModal.vue"; // Componente que crearemos
+import DeleteConfirmationModal from "@/components/DeleteConfirmationModal.vue";
+import PreviewImageDialog from "@/components/user/PreviewImageDialog.vue"; // Componente que crearemos
 
 const props = defineProps({
     modelValue: Boolean, // Para v-model en el diálogo
@@ -14,17 +15,35 @@ const props = defineProps({
         type: Object,
         default: null
     },
-    urlBase: {
-        type: String,
+    routes: {
+        type: Object,
         required: true
+    },
+    isAdmin: {
+        type: Boolean,
+        default: false,
     }
 
 });
 const emit = defineEmits(['update:modelValue', 'project-saved']);
-
 const dialog = computed({
     get: () => props.modelValue,
     set: (value) => emit('update:modelValue', value),
+});
+
+const componentConfig = computed(() => {
+    if (props.isAdmin) {
+        return {
+            canViewManagementButtons: true,
+            isReadOnly: false,
+        }
+
+    } else {
+        return {
+            canViewManagementButtons: false,
+            isReadOnly: true,
+        }
+    }
 });
 
 const mySnackbar = ref(null);
@@ -34,7 +53,13 @@ const isLoading = ref(false);
 
 // --- Project Form ---
 const isEditingProject = computed(() => !!(localProjectData.value && localProjectData.value.id));
-const formTitle = computed(() => isEditingProject.value ? 'Editar Proyecto' : 'Adicionar Proyecto');
+const formTitle = computed(() => {
+    if (props.isAdmin)
+        return isEditingProject.value ? 'Editar Proyecto' : 'Adicionar Proyecto';
+    else {
+        return 'Datos del Proyecto';
+    }
+});
 
 const deleteQuotationName = computed(() => {
     if (!quotationToDelete.value) return '';
@@ -207,11 +232,11 @@ const submitProject = handleProjectSubmit(async (values) => {
             // Para PUT, no se envían las cotizaciones como array, se gestionan por separado.
             // Y _method: 'PUT' para Laravel si no usas axios.put directamente con FormData
             formData.append('_method', 'PUT');
-            response = await axios.post(`${props.urlBase}/${localProjectData.value.id}`, formData, {
+            response = await axios.post(`${props.routes.base}/${localProjectData.value.id}`, formData, {
                 headers: {'Content-Type': 'multipart/form-data'}
             });
         } else {
-            response = await axios.post(props.urlBase, formData, {
+            response = await axios.post(props.routes.base, formData, {
                 headers: {'Content-Type': 'multipart/form-data'}
             });
         }
@@ -286,7 +311,7 @@ async function handleQuotationSaved(quotationData) {
             quotationFormData.append('file', fileToUpload, fileToUpload.name);
         }
 
-        let url = `${props.urlBase}/${localProjectData.value.id}/quotations`;
+        let url = `${props.routes.base}/${localProjectData.value.id}/quotations`;
         let method = 'post';
 
         if (isEditingQuotation.value && newQuotation.id) { // Editando cotización existente
@@ -344,7 +369,7 @@ async function deleteQuotationConfirmed() {
     if (isEditingProject.value && localProjectData.value.id && quotationToDelete.value.id && !String(quotationToDelete.value.id).startsWith('temp-')) {
         // Proyecto existente y cotización con ID real: Eliminar vía API
         try {
-            const response = await axios.delete(`${props.urlBase}/${localProjectData.value.id}/quotations/${quotationToDelete.value.id}`);
+            const response = await axios.delete(`${props.routes.base}/${localProjectData.value.id}/quotations/${quotationToDelete.value.id}`);
             if (response.data.success) {
                 localProjectData.value.quotations.splice(quotationIndexToDelete.value, 1);
                 if (localProjectData.value.chosen_quotation_id === quotationToDelete.value.id) {
@@ -376,7 +401,7 @@ async function setChosenQuotation(quotationId) {
     if (localProjectData.value.id) { // Solo si el proyecto ya existe y tiene ID
         isLoading.value = true;
         try {
-            const response = await axios.patch(`${props.urlBase}/${localProjectData.value.id}/choose-quotation`, {
+            const response = await axios.patch(`${props.routes.base}/${localProjectData.value.id}/choose-quotation`, {
                 chosen_quotation_id: quotationId
             });
             if (response.data.success) {
@@ -435,13 +460,32 @@ const closeDeleteQuotationModal = () => {
         isLoading.value = false;
     }, 300);
 };
+
+const selectElement = ref(null);
+const showPreviewFileModal = ref(false);
+const routeImage = ref(null);
+const handleShowPreviewFile = (item) => {
+    selectElement.value = item.id;
+    showPreviewFileModal.value = true;
+    const urlTemplate = props.routes.preview_quotation;
+    const urlToPreview = urlTemplate
+        .replace('PLACEHOLDER_1', item.id)
+
+    routeImage.value = `${urlToPreview}`;
+};
+const handleClosePreviewFileModal = () => {
+    selectElement.value = null;
+    showPreviewFileModal.value = false
+}
 </script>
 
 <template>
     <v-dialog :model-value="dialog" @update:model-value="closeDialog" persistent max-width="800px" scrollable>
         <v-card :loading="isLoading">
-            <v-card-title class="pa-4">
+            <v-card-title class="d-flex align-center py-3">
                 <span class="text-h5">{{ formTitle }}</span>
+                <v-spacer></v-spacer>
+                <v-btn icon="mdi-close" variant="text" @click="closeDialog"></v-btn>
             </v-card-title>
 
             <v-tabs v-model="activeTab" color="primary" grow class="mb-0">
@@ -463,6 +507,7 @@ const closeDeleteQuotationModal = () => {
                                         label="Proyecto*"
                                         variant="outlined"
                                         density="compact"
+                                        :readonly="componentConfig.isReadOnly"
                                     ></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="6">
@@ -473,6 +518,7 @@ const closeDeleteQuotationModal = () => {
                                         type="date"
                                         variant="outlined"
                                         density="compact"
+                                        :readonly="componentConfig.isReadOnly"
                                     ></v-text-field>
                                 </v-col>
                                 <v-col cols="12" sm="6">
@@ -483,6 +529,7 @@ const closeDeleteQuotationModal = () => {
                                         type="date"
                                         variant="outlined"
                                         density="compact"
+                                        :readonly="componentConfig.isReadOnly"
                                     ></v-text-field>
                                 </v-col>
                                 <v-col cols="12">
@@ -494,6 +541,7 @@ const closeDeleteQuotationModal = () => {
                                         prefix="S/"
                                         variant="outlined"
                                         density="compact"
+                                        :readonly="componentConfig.isReadOnly"
                                     ></v-text-field>
                                 </v-col>
                                 <v-col cols="12">
@@ -504,9 +552,10 @@ const closeDeleteQuotationModal = () => {
                                         variant="outlined"
                                         rows="4"
                                         density="compact"
+                                        :readonly="componentConfig.isReadOnly"
                                     ></v-textarea>
                                 </v-col>
-                                <v-col cols="12">
+                                <v-col cols="12" v-show="componentConfig.canViewManagementButtons">
                                     <v-file-input
                                         v-model="documentFile"
                                         :error-messages="documentFileError"
@@ -517,7 +566,8 @@ const closeDeleteQuotationModal = () => {
                                         show-size
                                         clearable
                                     ></v-file-input>
-                                    <v-img v-if="existingImageUrl" :src="existingImageUrl" class="mt-2" max-height="200px"></v-img>
+                                    <v-img v-if="existingImageUrl" :src="existingImageUrl" class="mt-2"
+                                           max-height="200px"></v-img>
                                 </v-col>
                             </v-row>
                         </v-form>
@@ -525,7 +575,7 @@ const closeDeleteQuotationModal = () => {
 
                     <!-- Quotations Tab -->
                     <v-window-item value="quotations" class="pa-1">
-                        <div class="d-flex justify-end pa-2">
+                        <div class="d-flex justify-end pa-2" v-if="componentConfig.canViewManagementButtons">
                             <v-btn color="secondary" @click="openAddQuotationModal" prepend-icon="mdi-plus"
                                    :disabled="isLoading || localProjectData.quotations?.length > 2">
                                 Agregar Cotización
@@ -545,7 +595,7 @@ const closeDeleteQuotationModal = () => {
                                 :key="quotation.id || `new-${index}`"
                                 class="mb-2 elevation-1"
                             >
-                                <template v-slot:prepend>
+                                <template v-slot:prepend v-if="componentConfig.canViewManagementButtons">
                                     <v-icon
                                         :color="localProjectData.chosen_quotation_id === quotation.id ? 'success' : 'grey-lighten-1'"
                                         @click="localProjectData.chosen_quotation_id === quotation.id ? unsetChosenQuotation() : setChosenQuotation(quotation.id)"
@@ -567,35 +617,48 @@ const closeDeleteQuotationModal = () => {
                                 </v-list-item-subtitle>
 
                                 <template v-slot:append>
-                                    <v-tooltip text="Download File"
-                                               v-if="quotation.file_path || (quotation.file_object && quotation.file_object[0])">
+                                    <v-tooltip text="Ver"
+                                               v-if="quotation.file_path">
                                         <template v-slot:activator="{ props: tooltipProps }">
-                                            <v-btn v-bind="tooltipProps" icon="mdi-download" variant="text" color="info"
-                                                   size="small" @click="downloadQuotationFile(quotation)"
-                                                   :disabled="isLoading"></v-btn>
+                                            <v-btn v-bind="tooltipProps" icon="mdi-eye" variant="text"
+                                                   color="info"
+                                                   size="small" @click="handleShowPreviewFile(quotation)"
+                                            ></v-btn>
                                         </template>
                                     </v-tooltip>
-                                    <v-tooltip text="Edit Quotation">
-                                        <template v-slot:activator="{ props: tooltipProps }">
-                                            <v-btn v-bind="tooltipProps"
-                                                   icon="mdi-pencil"
-                                                   variant="text"
-                                                   color="primary"
-                                                   size="small"
-                                                   @click="openEditQuotationModal(quotation, index)"
-                                                   :disabled="isLoading"
-                                            >
-                                            </v-btn>
-                                        </template>
-                                    </v-tooltip>
-                                    <v-tooltip text="Delete Quotation">
-                                        <template v-slot:activator="{ props: tooltipProps }">
-                                            <v-btn v-bind="tooltipProps" icon="mdi-delete" variant="text" color="error"
-                                                   size="small"
-                                                   @click="confirmDeleteQuotation(quotation, index)"
-                                                   :disabled="isLoading"></v-btn>
-                                        </template>
-                                    </v-tooltip>
+                                    <div v-if="componentConfig.canViewManagementButtons">
+                                        <v-tooltip text="Download File"
+                                                   v-if="quotation.file_path || (quotation.file_object && quotation.file_object[0])">
+                                            <template v-slot:activator="{ props: tooltipProps }">
+                                                <v-btn v-bind="tooltipProps" icon="mdi-download" variant="text"
+                                                       color="info"
+                                                       size="small" @click="downloadQuotationFile(quotation)"
+                                                       :disabled="isLoading"></v-btn>
+                                            </template>
+                                        </v-tooltip>
+                                        <v-tooltip text="Edit Quotation">
+                                            <template v-slot:activator="{ props: tooltipProps }">
+                                                <v-btn v-bind="tooltipProps"
+                                                       icon="mdi-pencil"
+                                                       variant="text"
+                                                       color="primary"
+                                                       size="small"
+                                                       @click="openEditQuotationModal(quotation, index)"
+                                                       :disabled="isLoading"
+                                                >
+                                                </v-btn>
+                                            </template>
+                                        </v-tooltip>
+                                        <v-tooltip text="Delete Quotation">
+                                            <template v-slot:activator="{ props: tooltipProps }">
+                                                <v-btn v-bind="tooltipProps" icon="mdi-delete" variant="text"
+                                                       color="error"
+                                                       size="small"
+                                                       @click="confirmDeleteQuotation(quotation, index)"
+                                                       :disabled="isLoading"></v-btn>
+                                            </template>
+                                        </v-tooltip>
+                                    </div>
                                 </template>
                             </v-list-item>
                         </v-list>
@@ -607,7 +670,7 @@ const closeDeleteQuotationModal = () => {
             </v-card-text>
 
             <v-divider></v-divider>
-            <v-card-actions class="pa-4">
+            <v-card-actions class="pa-4" v-if="componentConfig.canViewManagementButtons">
                 <v-spacer></v-spacer>
                 <v-btn color="grey" variant="flat" @click="closeDialog" :disabled="isLoading">Cancel</v-btn>
                 <v-btn color="primary" variant="flat" @click="submitProject" :loading="isLoading">
@@ -628,6 +691,12 @@ const closeDeleteQuotationModal = () => {
             :loading="isLoading"
             @confirm="deleteQuotationConfirmed"
             @cancel="closeDeleteQuotationModal"
+        />
+        <PreviewImageDialog
+            v-model="showPreviewFileModal"
+            :api-base-url="routeImage"
+            :id="selectElement"
+            @close="handleClosePreviewFileModal"
         />
         <Snackbar ref="mySnackbar"/>
     </v-dialog>

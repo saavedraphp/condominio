@@ -123,7 +123,7 @@ class AdminlteMenuServiceProvider extends ServiceProvider
                     ]);
                     $event->menu->add([
                         'text' => 'Cotizaciones Presentadas',
-                        'url' => 'admin/blog',
+                        'route' => 'user.projects.show-page',
                         'can' => 'view_payment_history',
                     ]);
                     $event->menu->add([

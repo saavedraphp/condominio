@@ -58,11 +58,12 @@ const fetchDocumentDetails = async (documentId) => {
             throw new Error('La respuesta de la API no contiene los datos del documento.');
         }
     } catch (err) {
-        console.error(`Error fetching document ${documentId}:`, err);
-        if (err.response) {
+        console.error(`Error no se pudo obtener el archivo Id ${documentId}:`, err);
+        console.log(err.response.data);
+        if (err.response.data) {
             switch (err.response.status) {
                 case 404:
-                    error.value = 'Documento no encontrado o no tienes permiso para verlo.';
+                    error.value = err.response.data.message || 'El archivo no fue encontrado.';
                     break;
                 case 401:
                     error.value = 'No tienes autorización para ver este documento.';
@@ -229,7 +230,7 @@ watch(() => [props.id, props.modelValue], ([newId, isVisible]) => {
 
             <v-card-actions class="pa-3">
                 <v-spacer></v-spacer>
-                <v-btn color="grey-darken-1" variant="text" @click="closeDialog">
+                <v-btn color="grey" variant="flat" @click="closeDialog">
                     Cerrar
                 </v-btn>
                 <v-btn v-if="false"

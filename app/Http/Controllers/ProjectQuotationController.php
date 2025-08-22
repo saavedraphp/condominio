@@ -105,4 +105,37 @@ class ProjectQuotationController extends Controller
             return response()->json(['success' => false, 'message' => 'Ocurrió un error al intentar eliminar la Cotización.'], 500);
         }
     }
+
+    public function previewImage(Project $project, Quotation $quotation): JsonResponse
+    {
+        // 1. Validar que la ruta del archivo no esté vacía en la base de datos
+        if (empty($quotation->file_path)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'El registro no tiene un archivo asociado.',
+            ], 404);
+        }
+
+        // 2. Verificar que el archivo exista físicamente en el disco
+        if (!Storage::exists($quotation->file_path)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'El archivo no fue encontrado en el servidor. Puede que haya sido eliminado.',
+            ], 404); // HTTP 404: Not Found es el código semánticamente correcto
+        }
+        $url =  Storage::url($quotation->file_path);
+        $mimeType = Storage::mimeType($quotation->file_path);
+
+        return response()->json([
+            'success' => true,
+            'message' => '¡Excelente! El documento fue encontrado exitosamente.',
+            'data' => [
+                'title' => $quotation->title,
+                'url' => $url,
+                'original_filename' => $quotation->original_filename,
+                'mime_type' => $mimeType,
+            ],
+        ]);
+
+    }
 }
