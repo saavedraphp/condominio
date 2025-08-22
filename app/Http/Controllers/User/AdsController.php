@@ -16,7 +16,7 @@ class AdsController extends Controller
             $ads = Ad::query()
                 ->where('active', true)
                 ->orderBy('start_day', 'desc')
-                ->limit(5)
+                ->limit(7)
                 ->get();
 
             return response()->json($ads);

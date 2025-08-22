@@ -12,7 +12,7 @@ const headers = ref([
     {title: 'Fecha', key: 'payment_date', sortable: true},
     {title: 'Dirección', key: 'address', align: 'start', sortable: true},
     {title: 'Código de transacción', key: 'transaction_code', sortable: true},
-    {title: 'Monto', key: 'amount_formatted', sortable: true, align: 'end'},
+    {title: 'Monto', key: 'amount', sortable: true, align: 'end'},
 ]);
 
 const dateMow = new Date().toLocaleDateString('es-ES', {
@@ -50,10 +50,7 @@ async function getHouses() {
         }
 
         const response = await axios.get(`/admin/reports/payments/index?${params.toString()}`);
-        houses.value = response.data.data.map(item => ({
-            ...item,
-            amount_formatted: formattedMoney(item.amount),
-        }));
+        houses.value = response.data.data;
         totalAmountDue.value = formattedMoney(response.data.total_amount);
 
     } catch (error) {
@@ -161,8 +158,8 @@ const previewReport = () => {
                           class="elevation-1"
                           dense
             >
-                <template v-slot:item.amount_due="{ value }">
-                    <span style="color: darkred">{{ formattedMoney(value) }}</span>
+                <template v-slot:item.amount="{ value }">
+                    <span>{{ formattedMoney(value) }}</span>
                 </template>
             </v-data-table>
         </v-card>
