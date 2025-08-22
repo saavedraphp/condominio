@@ -12,6 +12,7 @@ const mySnackbar = ref(null);
 // --- Estado Reactivo ---
 const headers = ref([        // Definición de las columnas de la tabla
     {title: 'Nombre', key: 'name', align: 'start', sortable: true},
+    {title: 'Email', key: 'email', sortable: true},
     {title: 'Teléfono', key: 'phone', sortable: true},
     {title: 'Arreglo de pago', key: 'has_payment_arrangement', align: 'center', sortable: true},
     {title: 'Asociado', key: 'is_associated', align: 'center', sortable: true},
