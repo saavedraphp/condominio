@@ -52,7 +52,7 @@ const fetchReportData = async () => {
 
         const response = await axios.get('/user/reports/budget-summary-data', { params });
         reportData.value = response.data;
-        reportData.value.report_owner = "Propietarios de Islas Cerdeñas"; // Añadido para UI
+        reportData.value.report_owner = "Reporte en progreso y Preliminar - No es Oficial"; // Añadido para UI
     } catch (err) {
         console.error("Error fetching report data:", err);
         error.value = "Error al cargar el reporte. " + (err.response?.data?.message || err.message);
