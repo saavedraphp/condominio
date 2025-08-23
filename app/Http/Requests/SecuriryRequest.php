@@ -24,7 +24,7 @@ class SecuriryRequest extends FormRequest
     {
         $securityId = $this->route('security') ? $this->route('security')->id : null;
 
-        return [
+        $rules =  [
             'name' => 'required|string|min:2|max:50',
             'email' => [
                 'required',
@@ -36,6 +36,14 @@ class SecuriryRequest extends FormRequest
             'phone' => 'required|numeric|min:9',
             'status' => 'required',
         ];
+        if ($this->isMethod('post')) {
+            $rules['file_path'] = 'nullable|file|mimes:jpg,jpeg,png|max:10240';
+        }
+        elseif ($this->isMethod('put') || $this->isMethod('patch')) {
+            $rules['file_path'] = 'sometimes|nullable|file|mimes:jpg,jpeg,png|max:10240'; // Ajusta mimes y max
+        }
+
+        return $rules;
     }
 
     public function messages(): array
@@ -50,6 +58,8 @@ class SecuriryRequest extends FormRequest
             'phone.required' => 'El teléfono es obligatorio',
             'phone.numeric' => 'El teléfono es tiene que ser númerico',
             'phone.min' => 'El teléfono tiene que tener minimo :min números',
+            'file_path.file' => 'El archivo debe ser un archivo válido.',
+            'file_path.mimes' => 'El formato del archivo es incorrecto. Debe ser jpg, jpeg o png.',
         ];
     }
 }

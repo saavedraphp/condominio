@@ -9,14 +9,6 @@ const props = defineProps({
     data: {
         type: Object,
         required: true,
-        // Example structure of the 'data' prop
-        // {
-        //   id: 1,
-        //   user: { name: 'John Doe' },
-        //   qr_code: { title: 'Lobby Entrance' },
-        //   created_at: '2023-10-28T10:30:00.000000Z',
-        //   remarks: null
-        // }
     },
     isReadOnly: {
         type: Boolean,

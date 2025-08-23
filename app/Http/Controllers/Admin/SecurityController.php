@@ -7,7 +7,9 @@ use App\Http\Requests\SecuriryRequest;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -47,6 +49,20 @@ class SecurityController extends Controller
                     'password' => bcrypt('123456'),
                 ]);
 
+            $filePath = null;
+            if ($request->hasFile('file_path') && $request->file('file_path')->isValid()) {
+                $file = $request->file('file_path');
+                $filePath = $file->store('file_paths/profile');
+
+
+                if (!$filePath) {
+                    return response()->json(['error' => 'No se pudo guardar el archivo.'], JsonResponse::HTTP_INTERNAL_SERVER_ERROR);
+                }
+            }/* else {
+                return response()->json(['error' => 'Archivo  inválido o no encontrado.'], JsonResponse::HTTP_BAD_REQUEST);
+            }*/
+
+            $dataToCreate['file_path'] = $filePath;
             $user = User::create($dataToCreate);
 
             $user->assignRole('security');
@@ -74,6 +90,19 @@ class SecurityController extends Controller
     public function update(SecuriryRequest $request, User $security): JsonResponse
     {
         $validatedData = $request->validated();
+
+        if ($request->hasFile('file_path') && $request->file('file_path')->isValid()) {
+
+            if ($security->file_path && Storage::exists($security->file_path)) {
+                Storage::delete($security->file_path);
+            }
+
+            $file = $request->file('file_path');
+            $filePath = $file->store('file_paths/profile');
+
+            $validatedData['file_path'] = $filePath;
+        }
+
         try {
             $security->update($validatedData);
 
@@ -90,8 +119,14 @@ class SecurityController extends Controller
 
     public function destroy(User $security): JsonResponse
     {
+        $filePath = $security->file_path;
         try {
-            $security->delete();
+            DB::transaction(function () use ($security, $filePath) {
+                if ($filePath && Storage::exists($filePath)) {
+                    Storage::delete($filePath);
+                }
+                $security->delete();
+            });
 
             return response()->json([
                 'success' => true,

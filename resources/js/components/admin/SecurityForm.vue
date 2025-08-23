@@ -37,13 +37,17 @@ const {handleSubmit, resetForm, setValues} = useForm({
         name: '',
         email: '',
         phone: '',
-        status: true
+        status: true,
+        documentFile: null,
     }
 });
+const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+const existingImageUrl = ref(null);
 
 const {value: name, errorMessage: nameError} = useField('name');
 const {value: email, errorMessage: emailError} = useField('email');
 const {value: phone, errorMessage: phoneError} = useField('phone');
+const {value: documentFile, errorMessage: documentFileError} = useField('documentFile');
 const {value: status, errorMessage: statusError} = useField('status', 'boolean');
 const isLoading = ref(false);
 const mySnackbar = ref(null);
@@ -59,8 +63,10 @@ watch(() => props.element, (newValue) => {
             phone: newValue.phone || "",
             status: newValue.status === 'active',
         });
+        existingImageUrl.value = newValue.file_path_url || null;
     } else {
         resetForm();
+        existingImageUrl.value = null;
     }
 }, {immediate: true});
 
@@ -71,6 +77,24 @@ const submitForm = handleSubmit(async (values) => {
     formData.append('email', values.email);
     formData.append('phone', values.phone);
     formData.append('status', values.status === true ? 'active' : 'inactive');
+
+    let fileToUpload = null;
+    const proofValue = values.documentFile;
+
+    if (Array.isArray(proofValue) && proofValue.length > 0) {
+        fileToUpload = proofValue[0];
+    } else if (proofValue instanceof File) {
+        fileToUpload = proofValue;
+    }
+/*    // Doble chequeo por si acaso, aunque yup debería haberlo atrapado
+    if (!fileToUpload && !props.element?.file_path) {
+        mySnackbar.value.show('Por favor, seleccione una imagen para subir.', 'error');
+        return;
+    }*/
+
+    if (fileToUpload instanceof File) {
+        formData.append('file_path', fileToUpload, fileToUpload.name);
+    }
 
     try {
         isLoading.value = true;
@@ -112,8 +136,9 @@ const close = () => {
 <template>
     <v-dialog :model-value="dialog" @update:model-value="close" persistent max-width="800px" scrollable>
         <v-card>
-            <v-card-title>
+            <v-card-title class="d-flex align-center justify-space-between">
                 <span class="text-h5">{{ formTitle }}</span>
+                <v-btn icon="mdi-close" variant="text" @click="close"></v-btn>
             </v-card-title>
             <v-divider></v-divider>
             <v-card-text>
@@ -149,6 +174,27 @@ const close = () => {
                                     density="compact"
                                     required
                                 ></v-text-field>
+                            </v-col>
+                            <v-col cols="12">
+                                <v-file-input
+                                    v-model="documentFile"
+                                    :error-messages="documentFileError"
+                                    label="Selecciono una (Imagen) maximo 2MB"
+                                    variant="outlined"
+                                    :accept="ACCEPTED_IMAGE_TYPES.join(',')"
+                                    prepend-icon=""
+                                    show-size
+                                    clearable
+                                ></v-file-input>
+                            </v-col>
+                            <v-col cols="12" v-if="existingImageUrl" class="mb-3">
+                                <v-img
+                                    :src="existingImageUrl"
+                                    max-height="150"
+                                    contain
+                                    alt="Imagen actual"
+                                    class="mb-2"
+                                ></v-img>
                             </v-col>
                             <v-col cols="12" sm="6">
                                 <v-switch
