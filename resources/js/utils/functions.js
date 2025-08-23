@@ -41,7 +41,6 @@ export function formatDate(dateString) {
     //GMT-5 (Colombia/Perú), esa hora se convierte a las 7 PM del día anterior (2025-01-28).
 
     const date = new Date(dateString);
-    console.log(dateString, '---', date);
     // --- A partir de aquí hacemos el cambio ---
 
     // 1. Obtenemos las partes de la fecha del objeto 'date'
@@ -134,7 +133,6 @@ export function formattedMoney(value) {
         style: 'currency',
         currency: 'PEN',
     }).format(value);
-    //return `S/${parseFloat(value).toFixed(2)}`;
 }
 
 export function formatDateSplit(dateString) { // ej: dateString = "2025-08-19 23:59:59"
