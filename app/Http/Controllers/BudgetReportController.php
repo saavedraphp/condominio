@@ -118,7 +118,7 @@ class BudgetReportController extends Controller
         }*/
 
         $data = $this->getReportData($request);
-        $data['report_owner'] = "Propietarios de Islas Cerdeñas"; // Ejemplo de la imagen
+        $data['report_owner'] = "Reporte en progreso y Preliminar - No es Oficial"; // Ejemplo de la imagen
 
         $pdf = Pdf::loadView('pdf.budget_summary_pdf', $data);
 
