@@ -140,6 +140,9 @@ onMounted(() => {
                           class="elevation-1"
                           dense
             >
+                <template v-slot:item.amount="{ value }">
+                    <span>{{ formattedMoney(value) }}</span>
+                </template>
                 <!-- Columna de Acciones Personalizada -->
                 <template v-slot:item.actions="{ item }">
                     <v-tooltip text="Editar">

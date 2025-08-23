@@ -5,6 +5,7 @@ import axios from "axios";
 import AnnualBudgetForm from "@/components/admin/AnnualBudgetForm.vue";
 import Snackbar from "@/components/Snackbar.vue";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal.vue";
+import {formattedMoney} from "@/utils/functions.js";
 
 const pros = defineProps({
     urlBase: {
@@ -141,6 +142,12 @@ onMounted(() => {
                           class="elevation-1"
                           dense
             >
+                <template v-slot:item.amount="{ value }">
+                    <span>{{ formattedMoney(value) }}</span>
+                </template>
+                <template v-slot:item.remaining_amount="{ value }">
+                    <span>{{ formattedMoney(value) }}</span>
+                </template>
                 <!-- Columna de Acciones Personalizada -->
                 <template v-slot:item.actions="{ item }">
                     <v-tooltip text="Editar">

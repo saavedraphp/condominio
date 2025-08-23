@@ -4,7 +4,8 @@ import axios from "axios";
 import Snackbar from "@/components/Snackbar.vue";
 import {formatDate} from "@/utils/functions.js";
 import HouseMonthlyChargeForm from "@/components/admin/HouseMonthlyChargeForm.vue";
-import DeleteConfirmationModal from "@/components/DeleteConfirmationModal.vue"; // Reutilizas el tuyo
+import DeleteConfirmationModal from "@/components/DeleteConfirmationModal.vue";
+import {formattedMoney} from "../../utils/functions.js"; // Reutilizas el tuyo
 
 // Props (si necesitas, como isAdmin, etc. similar a tu otro componente de lista)
 const props = defineProps({
@@ -279,6 +280,9 @@ const getFileName = (fullPath) => {
                 class="elevation-1"
                 item-value="id"
             >
+                <template v-slot:item.total_amount="{ value }">
+                    <span>{{ formattedMoney(value) }}</span>
+                </template>
                 <template v-slot:item.start_date="{ item }">
                     <span>{{ item.start_date_format }}</span>
                 </template>
