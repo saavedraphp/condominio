@@ -256,8 +256,9 @@ const activeKey = ref(TABS_KEYS.DATA);
 <template>
     <v-dialog :model-value="dialog" @update:model-value="close" persistent max-width="800px" scrollable>
         <v-card>
-            <v-card-title>
+            <v-card-title class="d-flex justify-space-between align-center">
                 <span class="text-h5">{{ formTitle }}</span>
+                <v-btn icon="mdi-close" variant="text" @click="close"></v-btn>
             </v-card-title>
             <v-divider></v-divider>
             <v-tabs v-model="activeKey">
