@@ -127,7 +127,7 @@ async function getUserData() {
     try {
         const response = await axios.get('/user/get-user-data');
         user.value = response.data;
-        totalDebt.value = response.data.debt || 0;
+        totalDebt.value = response.data.debt;
 
     } catch (error) {
         error.value = 'Error al obtener los datos del usuario';
@@ -195,11 +195,17 @@ export default {
 
                     <!-- Card/Alert Deuda -->
                     <v-col cols="12">
-                        <DebtStatusAlert
+                        <DebtStatusAlert  v-if="totalDebt !== null"
                             :total-debt="totalDebt"
                             :has-payment-arrangement="user.has_payment_arrangement"
                             :show-pay-button="false"
                         />
+                        <v-alert v-else
+                            density="compact"
+                            type="info"
+                            title="Cuenta Pendiente de Activación"
+                            text="Tu cuenta ha sido creada, pero aún falta que un administrador asocie tu propiedad. Por favor, ponte en contacto con soporte para finalizar la configuración."
+                        ></v-alert>
                     </v-col>
 
                     <!-- Card Anuncios -->
