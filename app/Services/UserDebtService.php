@@ -14,7 +14,7 @@ class UserDebtService
      * @param WebUser $user
      * @return float
      */
-    public function calculateTotalDebt(WebUser $user): float
+    public function calculateTotalDebt(WebUser $user): ?float
     {
         // 1. Obtenemos las casas del usuario donde es propietario.
         // 2. MUY IMPORTANTE: Usamos `with()` para evitar el problema N+1.
@@ -27,6 +27,10 @@ class UserDebtService
             $ownedHouses = $user->houses()
                 ->with('payments', 'monthlyCharges')
                 ->get();
+
+            if($ownedHouses->isEmpty()) {
+                return null;
+            }
 
             return $ownedHouses->sum(function (House $house) {
                 return $house->calculateBalance()['amount_due'];

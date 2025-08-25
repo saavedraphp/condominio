@@ -45,7 +45,7 @@ class PublicStatusController extends Controller
         ]);
     }
 
-    public function checkUserDebtStatus(int $userId, UserDebtService $debtService): array // <-- Inyecta el servicio
+    public function checkUserDebtStatus(int $userId, UserDebtService $debtService): array
     {
         $user = WebUser::findOrFail($userId);
 
