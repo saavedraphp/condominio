@@ -90,11 +90,15 @@ class House extends Model
             ->where('due_date', '<=', Carbon::today())
             ->sum('total_amount');
 
+        $subtotal = bcadd($this->opening_balance, $charges, 2);
+        $amountDue = bcsub($subtotal, $payments, 2);
+
         return [
             'house_id' => $this->id,
             'amount_paid' => $payments,
             'opening_balance' => $this->opening_balance,
-            'amount_due' => ($this->opening_balance + $charges) - $payments,
+            'charges' => $charges,
+            'amount_due' => (float)$amountDue,
         ];
     }
 
