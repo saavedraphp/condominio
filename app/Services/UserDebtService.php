@@ -22,8 +22,8 @@ class UserDebtService
         //    que el método `calculateBalance` va a necesitar. Esto es clave para el rendimiento.
         $cacheKey = "user.{$user->id}.total_debt";
 
+        // 60 segundos
        return Cache::remember($cacheKey, 60, function () use ($user) {
-
             $ownedHouses = $user->houses()
                 ->with('payments', 'monthlyCharges')
                 ->get();
