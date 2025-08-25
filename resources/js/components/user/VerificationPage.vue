@@ -11,8 +11,8 @@ const props = defineProps({
         default: () => ({})
     },
     debt: {
-        type: Number,
-        default: 0.00
+        type: [Number, Object],
+        default: null
     },
     status: {
         type: Boolean,
@@ -35,7 +35,7 @@ const statusMessage = computed(() =>
 );
 const userData = computed(() => ({
     name: props.user.name || 'Desconocido',
-    debtFormatted: props.debt.toFixed(2),
+    debtFormatted: props.debt ? props.debt.toFixed(2) : null,
 }));
 
 // Estado de verificación del usuario (esto también vendría de tu API)
@@ -54,6 +54,7 @@ const userVerified = ref(false); // Por defecto no verificado hasta que la API r
 
                     <!-- Datos del Usuario -->
                     <v-card-text>
+                        <div v-if="props.debt !== null">
                         <div class="info-usuario">
                             <!-- Primera línea: Nombre -->
                             <p class="nombre">
@@ -61,7 +62,7 @@ const userVerified = ref(false); // Por defecto no verificado hasta que la API r
                             </p>
                             <!-- Segunda línea: Dirección (Casa) -->
                             <p class="direccion">
-                                {{ attributes.houses.address || 'Dirección no disponible' }}
+                                {{ attributes?.houses?.address || 'Dirección no disponible' }}
                             </p>
                         </div>
 
@@ -90,25 +91,25 @@ const userVerified = ref(false); // Por defecto no verificado hasta que la API r
                                 ></v-alert>
                             </v-card-text>
                         </div>
-                        <div class="mb-4 d-flex align-center" v-if="false">
-                            <p class="text-subtitle-1 mb-0 mr-2">
-                                <strong>Adeuda:</strong>
-                            </p>
-                            <v-chip
-                                :color="debtColor"
-                                label
-                                text-color="white"
-                                class="font-weight-bold"
-                            >
-                                S/ {{ userData.debt.toFixed(2) }}
-                            </v-chip>
                         </div>
+                        <div v-else>
+                            <!-- Primera línea: Nombre -->
+                            <p class="nombre">
+                                <strong>Nombre:</strong> {{ userData.name }}
+                            </p>
+                            <v-divider></v-divider>
+                            <v-alert
+                                     density="compact"
+                                     type="info"
+                                     title="Cuenta Pendiente de Activación"
+                                     text="Tu cuenta ha sido creada, pero aún falta que un administrador asocie tu propiedad. Por favor, ponte en contacto con soporte para finalizar la configuración."
+                            ></v-alert>
+                        </div>
+
                     </v-card-text>
-
                     <v-divider class="my-3"></v-divider>
-
                     <!-- Estado de Verificación -->
-                    <div class="text-center my-4">
+                    <div class="text-center my-4" v-if="props.debt !== null">
                         <v-icon
                             size="80"
                             :color="isEnabled  ?  'success': 'red'"
@@ -123,15 +124,6 @@ const userVerified = ref(false); // Por defecto no verificado hasta que la API r
                             {{ statusMessage }}
                         </p>
                     </div>
-                    <v-alert
-                        v-if="false"
-                        type="info"
-                        class="mt-4"
-                        border="left"
-                        prominent>
-                        <v-icon left>mdi-information</v-icon>
-                        TIENE ARREGLO DE PAGO
-                    </v-alert>
                 </v-card>
             </v-container>
         </v-main>
