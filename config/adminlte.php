@@ -451,6 +451,11 @@ return [
                     'url' => 'admin/reports/balance-due/list',
                 ],
                 [
+                    'text' => 'Balance de Asociados',
+                    'route' => 'admin.reports.associates.balance.list',
+                ],
+
+                [
                     'text' => 'Lista de Pagos',
                     'url' => 'admin/reports/payments/list',
                 ],

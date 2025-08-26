@@ -55,6 +55,7 @@ use App\Http\Controllers\User\ProjectController as UserProjectController;
 use App\Http\Controllers\User\VisitPassController;
 use App\Http\Controllers\Admin\VisitPassController as AdminVisitPassController;
 use App\Http\Controllers\WebUserImageController;
+use App\Http\Controllers\Report\AssociateBalanceReportController;
 use Illuminate\Support\Facades\Route;
 
 
@@ -389,6 +390,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/reports/balance-due/list', [ReportBalanceDueController::class, 'showListPage'])->name('reports.balance-due.list');
         Route::get('/reports/balance-due/index', [ReportBalanceDueController::class, 'index'])->name('reports.balance-due.index');
         Route::get('/debts/export/excel', [ReportBalanceDueController::class, 'exportExcel'])->name('debts.export.excel');
+
+        /*REPORTE DE BALANCE POR ASOCIADO*/
+        Route::get('/reports/associates/list', [AssociateBalanceReportController::class, 'showListPage'])->name('reports.associates.balance.list');
+        Route::get('/reports/associates/index', [AssociateBalanceReportController::class, 'index'])->name('reports.associates.balance.index');
+        Route::get('/balance-associates/export/excel', [AssociateBalanceReportController::class, 'exportExcel'])->name('balance-associates.export.excel');
 
         /* REPORTS PAYMENT*/
         Route::get('/reports/payments/list', [PaymentReportController::class, 'showListPage'])->name('reports.payments.list');
