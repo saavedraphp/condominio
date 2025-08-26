@@ -9,11 +9,10 @@ use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithMapping;
+use Maatwebsite\Excel\Concerns\WithStrictNullComparison;
 use PhpOffice\PhpSpreadsheet\Style\NumberFormat;
 
-// ¡Extra! Para que las columnas se ajusten solas
-
-class DebtsExport implements FromCollection, WithHeadings, ShouldAutoSize, WithMapping, WithColumnFormatting
+class DebtsExport implements FromCollection, WithHeadings, ShouldAutoSize, WithMapping, WithColumnFormatting, WithStrictNullComparison
 {
     use Exportable;
 
