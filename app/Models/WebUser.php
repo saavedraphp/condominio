@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\OwnershipStructure;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -133,5 +134,22 @@ class WebUser extends Authenticatable
     public function visitPasses(): MorphMany
     {
         return $this->morphMany(VisitPass::class, 'creator');
+    }
+
+    public function getHouseCount(): int
+    {
+        if (!$this->is_associated) {
+            return 1;
+        }
+
+        $validStructures = [
+            OwnershipStructure::ASSOCIATION_ONLY,
+            OwnershipStructure::OWNERS_BOARD_WITH_ASSOCIATION
+        ];
+
+        return $this->ownedHouses()
+            ->whereIn(
+                'houses.ownership_structure', $validStructures)
+            ->count();
     }
 }
