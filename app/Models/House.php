@@ -47,6 +47,17 @@ class House extends Model
         return $this->webUsers()->wherePivot('is_owner', true);
     }
 
+    public static function findOwner(int $houseId): ?WebUser
+    {
+        $house = self::find($houseId);
+
+        if (!$house) {
+            return null;
+        }
+
+        return $house->owners()->first();
+    }
+
     public function owners(): BelongsToMany
     {
         return $this->webUsers()->wherePivot('is_owner', true);

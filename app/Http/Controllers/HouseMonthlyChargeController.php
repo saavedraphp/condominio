@@ -35,11 +35,13 @@ class HouseMonthlyChargeController extends Controller
     const PRICE_BY_KWH = 0.625;
 
     private $statisticsService;
+    private int $houseId = 1;
 
     public function __construct()
     {
         $this->serviceStatistics = app(StatisticsService::class);
     }
+
     public function showPage(): View
     {
         $routes = [
@@ -197,6 +199,7 @@ class HouseMonthlyChargeController extends Controller
             ->where('id', $house_id)
             ->with('owner')
             ->firstOrFail();
+        $this->houseId = $house_id;
         $houseArray = $house->toArray();
         $typeHouse = $house->ownership_structure;
         $balanceHouse = $house->calculateBalance();
@@ -380,6 +383,12 @@ LOTE ACUMULADO C-39A',
 
     }
 
+    private function getCountHouses(int $houseId): int
+    {
+        $owner = House::findOwner($houseId);
+        return $owner->getHouseCount();
+    }
+
     public function getDetails(string $type, array $house): array
     {
         if ($this::TYPE_HOUSE_BOARD === $type) {
@@ -489,6 +498,8 @@ LOTE ACUMULADO C-39A',
             return [];
         }
 
+        $numberHouses = $this->getCountHouses($this->houseId);
+
         $annualBudgets = AnnualBudget::query()
             ->whereHas('budgetType', function ($query) {
                 $query->where('budget_scope', BudgetScope::ASSOCIATION->value);
@@ -497,10 +508,10 @@ LOTE ACUMULADO C-39A',
             ->where('year', Carbon::now()->year)
             ->get();
 
-        return $annualBudgets->map(function ($budget) use ($associatedUsersCount) {
+        return $annualBudgets->map(function ($budget) use ($associatedUsersCount, $numberHouses) {
             return [
                 'title' => $budget->budgetType->name,
-                'amount' => ($budget->amount / 12) / $associatedUsersCount,
+                'amount' => ($budget->amount / 12) / $associatedUsersCount / $numberHouses,
             ];
         })->toArray();
 
