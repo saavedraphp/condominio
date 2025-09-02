@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Setting;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -45,24 +47,35 @@ class SettingController extends Controller
         $newSettings = $validatedData['settings'];
         $oldSettings = Setting::where('group', $group)->pluck('value', 'key');
         //$settings = $validatedData['settings'];
+        try {
+            DB::transaction(function () use ($newSettings, $group, $oldSettings) {
+                foreach ($newSettings as $key => $newValue) {
+                    $oldValue = $oldSettings->get($key);
 
-        foreach ($newSettings as $key => $newValue) {
-            $oldValue = $oldSettings->get($key);
+                    // Lógica para eliminar el archivo antiguo
+                    // Verificamos si el valor ha cambiado y si el valor antiguo era una ruta de archivo.
+                    if ($oldValue !== $newValue && $this->isStorageFile($oldValue)) {
+                        $this->deleteStorageFile($oldValue);
+                    }
 
-            // Lógica para eliminar el archivo antiguo
-            // Verificamos si el valor ha cambiado y si el valor antiguo era una ruta de archivo.
-            if ($oldValue !== $newValue && $this->isStorageFile($oldValue)) {
-                $this->deleteStorageFile($oldValue);
-            }
+                    // Actualizamos o creamos la configuración en la base de datos
+                    Setting::updateOrCreate(
+                        ['key' => $key, 'group' => $group],
+                        ['value' => $newValue ?? '']
+                    );
+                }
+            });
 
-            // Actualizamos o creamos la configuración en la base de datos
-            Setting::updateOrCreate(
-                ['key' => $key, 'group' => $group],
-                ['value' => $newValue ?? '']
-            );
+            return response()->json(['message' => 'Configuraciones actualizadas correctamente.']);
+        } catch (\Exception $e) {
+            // Es una buena práctica registrar el error para poder depurarlo
+            Log::error('Error al actualizar configuraciones: ' . $e->getMessage());
+
+            // Devolvemos una respuesta de error al cliente
+            return response()->json([
+                'message' => 'Ocurrió un error al actualizar las configuraciones. Ningún cambio fue guardado.'
+            ], 500); // Usamos el código de estado HTTP 500 (Error interno del servidor)
         }
-
-        return response()->json(['message' => 'Configuraciones actualizadas correctamente.']);
     }
 
     private function isStorageFile($value): bool

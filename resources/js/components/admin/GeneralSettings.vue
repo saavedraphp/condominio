@@ -50,6 +50,18 @@ const weekDays = [
                 />
             </v-col>
         </v-row>
+        <v-divider class="my-6"></v-divider>
+        <v-row>
+            <v-col cols="12" md="8">
+                <label class="v-label">Precio de KW</label>
+                <v-text-field
+                    v-model="localSettings.price_per_kw"
+                    variant="outlined"
+                    density="compact"
+                    @update:modelValue="emitUpdate"
+                ></v-text-field>
+            </v-col>
+        </v-row>
         <div v-if="false">
             <v-divider class="my-6"></v-divider>
 

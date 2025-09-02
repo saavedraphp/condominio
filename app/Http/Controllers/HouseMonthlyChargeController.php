@@ -35,11 +35,17 @@ class HouseMonthlyChargeController extends Controller
     const PRICE_BY_KWH = 0.625;
 
     private $statisticsService;
+    private $settings;
     private int $houseId = 1;
 
     public function __construct()
     {
         $this->serviceStatistics = app(StatisticsService::class);
+        $this->settings = Setting::query()
+            ->where('group', 'general')
+            ->pluck('value', 'key')
+            ->toArray();
+
     }
 
     public function showPage(): View
@@ -294,6 +300,7 @@ class HouseMonthlyChargeController extends Controller
                     'contact_email' => 'isp.asociacion@gmail.com',
                 ];
         } else if ($typeHouse === self::TYPE_HOUSE_BOARD) {
+            dd('Esta función no está implementada para Junta de Propietarios');
 
             $data = $data + [
                     'title_details_line_1' => 'RECIBO DE MANTENIMIENTO COMUN',
@@ -309,7 +316,10 @@ LOTE ACUMULADO C-39A',
                 'bank_account_cci' => 'XXXX',
                 'bank_account_name' => 'JUNTA DE PROPIETARIOS LOTE ACUMULADO C-39',
             ]);
+        } else {
+            dd('La casa no tiene una estructura de propiedad válida.');
         }
+
 
         return $data;
     }
@@ -386,7 +396,8 @@ LOTE ACUMULADO C-39A',
     private function getCountHouses(int $houseId): int
     {
         $owner = House::findOwner($houseId);
-        return $owner->getHouseCount();
+
+        return $owner?->getHouseCount() ?? 0;
     }
 
     public function getDetails(string $type, array $house): array
@@ -429,10 +440,21 @@ LOTE ACUMULADO C-39A',
 
     private function getDepartmentEnergyDetails(array $house, float $fee_association_ISP): array
     {
+
+        $pricePerKw = (float) ($this->settings['price_per_kw'] ?? 0);
+        if ($pricePerKw <= 0) {
+            $pricePerKw = self::PRICE_BY_KWH; // Usando tu constante
+        }
+
         $consumptionEnergy = $this->getLastMonthEnergyConsumptionPayment($house);
-        $amountElectric = $consumptionEnergy
-            ? $consumptionEnergy['consumption_calculated'] * self::PRICE_BY_KWH
-            : 0;
+        $amountElectric = 0;
+        if ($consumptionEnergy) {
+            // CONVERTIMOS AMBOS VALORES A FLOAT ANTES DE MULTIPLICAR
+            $consumption = (float) $consumptionEnergy['consumption_calculated'] ?? 0;
+            $amountElectric = $consumption * $pricePerKw;
+        }
+
+
         $totalBuildingBudget = $this->getTotalBuildingBudget();
         return [
             [
@@ -493,12 +515,11 @@ LOTE ACUMULADO C-39A',
     public function getQuoteAssociated(): array
     {
         $associatedUsersCount = $this->serviceStatistics->getAssociatedUsersCount();
+        $numberHouses = $this->getCountHouses($this->houseId);
 
-        if ($associatedUsersCount === 0) {
+        if ($associatedUsersCount === 0 || $numberHouses === 0) {
             return [];
         }
-
-        $numberHouses = $this->getCountHouses($this->houseId);
 
         $annualBudgets = AnnualBudget::query()
             ->whereHas('budgetType', function ($query) {

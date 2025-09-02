@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import {ref, onMounted, watch} from 'vue';
 import axios from 'axios'; // Asegúrate de tener axios instalado
 import GeneralSettings from '@/components/admin/GeneralSettings.vue';
 import Snackbar from "@/components/Snackbar.vue";
@@ -28,6 +28,12 @@ const fetchSettings = async (group) => {
 
 // Guarda las configuraciones del grupo actual
 const saveSettings = async () => {
+
+    const price = parseFloat(settings.value.general.price_per_kw);
+    if(isNaN(price) || price <= 0) {
+        mySnackbar.value.show('El precio por KW debe ser un número positivo.', 'error');
+        return;
+    }
     loading.value = true;
     try {
         const currentGroup = tab.value;
@@ -56,7 +62,7 @@ watch(tab, (newTab) => {
 <template>
     <v-container>
         <v-card>
-            <v-tabs v-model="tab" >
+            <v-tabs v-model="tab">
                 <v-tab value="general">General</v-tab>
                 <v-tab value="writing" v-if="false">Escritura</v-tab>
                 <v-tab value="reading" v-if="false">Lectura</v-tab>
@@ -66,7 +72,7 @@ watch(tab, (newTab) => {
                 <v-window v-model="tab">
                     <v-window-item value="general">
                         <!-- El componente para las configuraciones generales irá aquí -->
-                        <GeneralSettings v-if="settings.general" v-model="settings.general" />
+                        <GeneralSettings v-if="settings.general" v-model="settings.general"/>
                     </v-window-item>
 
                     <v-window-item value="writing">
@@ -84,7 +90,7 @@ watch(tab, (newTab) => {
 
             <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="primary"  variant="flat" :loading="loading" @click="saveSettings">
+                <v-btn color="primary" variant="flat" :loading="loading" @click="saveSettings">
                     Guardar Cambios
                 </v-btn>
             </v-card-actions>
