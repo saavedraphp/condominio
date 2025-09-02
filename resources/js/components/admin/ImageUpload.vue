@@ -28,7 +28,6 @@ const imageUrl = computed(() => {
     if (props.modelValue) {
         // Asegurarse de que si es una URL relativa, se resuelve correctamente
         const baseUrl = document.location.origin+'/storage/'|| ''; // Configura esto en tu .env.VITE
-        console.log('Base URL:', baseUrl);
         return `${baseUrl}${props.modelValue}`;
     }
     // Si no hay nada, no muestra imagen
