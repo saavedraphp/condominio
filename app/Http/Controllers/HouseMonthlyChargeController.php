@@ -199,6 +199,8 @@ class HouseMonthlyChargeController extends Controller
         $house_id = $input['house_id'];
         $year = $input['year'] ?? date('Y');
         $month = $input['month'] ?? date('m');
+        // CAMBIO AQUÍ LSL -1
+        $month = $month -1;
         $preview = $input['is_preview'];
 
         $house = House::query()
@@ -234,7 +236,8 @@ class HouseMonthlyChargeController extends Controller
 
         Carbon::setLocale('es');
         $now = Carbon::now()->locale('es');
-        $firstDay = $now->copy();
+        // CAMBIO AQUÍ LSL ->subDay
+        $firstDay = $now->copy()->subDay();
         $firstDay->startOfMonth();
         $date_emitted = Str::ucfirst($firstDay->translatedFormat('F d, Y'));
         $months = $this->getMonthSpanish();
@@ -343,7 +346,8 @@ LOTE ACUMULADO C-39A',
 
             // 5. Guardar el registro en la base de datos
             // updateOrCreate es perfecto para evitar duplicados
-            $now = Carbon::now();
+            // CAMBIO LSL
+            $now = Carbon::now()->subDays(1);
             $issuedDate = $now->copy()->startOfMonth();
             $dueDate = $now->copy()->startOfMonth()->addDays(14);
             HouseMonthlyCharge::updateOrCreate(
@@ -474,13 +478,14 @@ LOTE ACUMULADO C-39A',
 
     private function getLastMonthEnergyConsumptionPayment(array $house): array
     {
+        // CAMBIO AQUÍ 2 LSL
         $payment = PaymentService::query()
             ->where([
                 ['service_id', 1],
                 ['house_id', $house['id']],
             ])
             ->whereYear('payment_date', Carbon::now()->year)
-            ->whereMonth('payment_date', Carbon::now()->subMonth()->month)
+            ->whereMonth('payment_date', Carbon::now()->subMonth(2)->month)
             ->latest('payment_date')
             ->first();
 
