@@ -26,6 +26,12 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class HouseMonthlyChargeController extends Controller
 {
+    /**
+     * Almacena la fecha y hora de la instanciación del controlador.
+     * @var \Illuminate\Support\Carbon
+     */
+    private $nowDate;
+    private $previewMonthDate;
     const TYPE_HOUSE_ASSOCIATED = 'association_only';
     const TYPE_HOUSE_BOARD_ASSOCIATED = 'owners_board_with_association';
     const TYPE_HOUSE_BOARD = 'owners_board';
@@ -197,8 +203,13 @@ class HouseMonthlyChargeController extends Controller
     public function preparedData(array $input): array
     {
         $house_id = $input['house_id'];
-        $year = $input['year'] ?? date('Y');
-        $month = $input['month'] ?? date('m');
+        $this->nowDate = Carbon::now()->subMonths(1)->startOfMonth();
+        $previewMontDate = $this->nowDate->copy();
+        $this->previewMonthDate = $previewMontDate->subMonth();
+
+        $year = $input['year'] ?? $this->nowDate->year;
+        $month = $this->nowDate->month;
+
         $preview = $input['is_preview'];
 
         $house = House::query()
@@ -234,7 +245,7 @@ class HouseMonthlyChargeController extends Controller
 
         Carbon::setLocale('es');
         $now = Carbon::now()->locale('es');
-        $firstDay = $now->copy();
+        $firstDay = $this->nowDate->copy();
         $firstDay->startOfMonth();
         $date_emitted = Str::ucfirst($firstDay->translatedFormat('F d, Y'));
         $months = $this->getMonthSpanish();
@@ -343,7 +354,7 @@ LOTE ACUMULADO C-39A',
 
             // 5. Guardar el registro en la base de datos
             // updateOrCreate es perfecto para evitar duplicados
-            $now = Carbon::now();
+            $now = $this->nowDate;
             $issuedDate = $now->copy()->startOfMonth();
             $dueDate = $now->copy()->startOfMonth()->addDays(14);
             HouseMonthlyCharge::updateOrCreate(
@@ -426,7 +437,9 @@ LOTE ACUMULADO C-39A',
 
     private function getImageConsumption(array $house, string $is_preview): string|null
     {
-        $consumptionEnergy = $this->getLastMonthEnergyConsumptionPayment($house);
+        $year = $this->previewMonthDate->year;
+        $month = $this->previewMonthDate->month;
+        $consumptionEnergy = $this->getLastMonthEnergyConsumptionPayment($house, $year, $month);
         $imageConsumptionBD = $consumptionEnergy['file_path_url'] ?? null;
         $imagePathConsumptionBD = $consumptionEnergy['file_path'] ?? null;
         if ($is_preview === "true") {
@@ -441,16 +454,19 @@ LOTE ACUMULADO C-39A',
     private function getDepartmentEnergyDetails(array $house, float $fee_association_ISP): array
     {
 
-        $pricePerKw = (float) ($this->settings['price_per_kw'] ?? 0);
+        $pricePerKw = (float)($this->settings['price_per_kw'] ?? 0);
         if ($pricePerKw <= 0) {
             $pricePerKw = self::PRICE_BY_KWH; // Usando tu constante
         }
 
-        $consumptionEnergy = $this->getLastMonthEnergyConsumptionPayment($house);
+        $year = $this->previewMonthDate->year;
+        $month = $this->previewMonthDate->month;
+
+        $consumptionEnergy = $this->getLastMonthEnergyConsumptionPayment($house, $year, $month);
         $amountElectric = 0;
         if ($consumptionEnergy) {
             // CONVERTIMOS AMBOS VALORES A FLOAT ANTES DE MULTIPLICAR
-            $consumption = (float) $consumptionEnergy['consumption_calculated'] ?? 0;
+            $consumption = (float)$consumptionEnergy['consumption_calculated'] ?? 0;
             $amountElectric = $consumption * $pricePerKw;
         }
 
@@ -472,15 +488,15 @@ LOTE ACUMULADO C-39A',
         ];
     }
 
-    private function getLastMonthEnergyConsumptionPayment(array $house): array
+    private function getLastMonthEnergyConsumptionPayment(array $house, int $year, int $month): array
     {
         $payment = PaymentService::query()
             ->where([
                 ['service_id', 1],
                 ['house_id', $house['id']],
             ])
-            ->whereYear('payment_date', Carbon::now()->year)
-            ->whereMonth('payment_date', Carbon::now()->subMonth()->month)
+            ->whereYear('payment_date', $year)
+            ->whereMonth('payment_date',  $month)
             ->latest('payment_date')
             ->first();
 
