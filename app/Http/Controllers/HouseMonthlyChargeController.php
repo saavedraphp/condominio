@@ -265,13 +265,15 @@ class HouseMonthlyChargeController extends Controller
             'electrical_history_table' => $matrix,
             'logoPath' => $logoPath,
             'signature_path' => $signaturePath,
-            'title' => 'Asociación de Propietarios Islas de San Pedro',
+            'title' => 'Asociación de Propietarios del '.$this->settings['site_title'],
             'tablaImagePath' => $tablaImagePath,
             'debt' => empty($balanceHouse['opening_balance']) ? 'Pendiente a Revisión' : number_format($balanceHouse['amount_due'], 2),
-            'bank_name' => 'BANCO CREDITO DEL PERU (BCP)',
-            'bank_account' => '194-72597403-0-08',
-            'bank_account_cci' => '00219417259740300893',
-            'bank_account_name' => 'Rudy David Huaranga Bolaños',
+            'bank_name' => $this->settings['name_deposit_bank'],
+            'bank_account' => $this->settings['bank_account_payment'],
+            'bank_account_cci' => $this->settings['bank_account_cci_payment'],
+            'bank_account_name' => $this->settings['name_president'],
+            'chart_description' => $this->settings['chart_description'] ?? '',
+            'details_payment' => $this->settings['details_payment'] ?? '',
             'ruc_assoc_prop_isp' => 'RUC: 20525153861',
 
         ];
@@ -301,14 +303,14 @@ class HouseMonthlyChargeController extends Controller
 
             $data = $data + [
                     'title_details_line_1' => 'RECIBO POR MANTENIMIENTO – ' . strtoupper($data['period_month']) . ' ' . $data['period_year'],
-                    'title_details_line_2' => 'ASOCIACION DE PROPIETARIOS ISLAS DE SAN PEDRO',
-                    'contact_email' => 'isp.asociacion@gmail.com',
+                    'title_details_line_2' => 'ASOCIACION DE PROPIETARIOS DEL '. strtoupper($this->settings['site_title']),
+                    'contact_email' => $this->settings['email_contact'],
                 ];
         } else if ($typeHouse === self::TYPE_HOUSE_BOARD_ASSOCIATED) {
             $data = $data + [
                     'title_details_line_1' => 'RECIBO DE ASOCIADO',
-                    'title_details_line_2' => 'ASOCIACION DE PROPIETARIOS ISLAS DE SAN PEDRO',
-                    'contact_email' => 'isp.asociacion@gmail.com',
+                    'title_details_line_2' => 'ASOCIACION DE PROPIETARIOS DEL'. strtoupper($this->settings['site_title']),
+                    'contact_email' => $this->settings['email_contact'],
                 ];
         } else if ($typeHouse === self::TYPE_HOUSE_BOARD) {
             dd('Esta función no está implementada para Junta de Propietarios');

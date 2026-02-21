@@ -220,7 +220,7 @@
         <table class="main-content">
             <tr>
                 <td>
-                    <div class="section-title">Cuota de Asociación en {{$period_year}}</div>
+                    <div class="section-title">{{$chart_description}}</div>
                     <div class="chart-container">
                         <!-- Ruta absoluta para la imagen del gráfico -->
                         <img src="{{ $tablaImagePath }}" alt="Gráfico de Cuota">

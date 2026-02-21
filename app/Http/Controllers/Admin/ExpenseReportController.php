@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Expense;
 use App\Models\OtherExpenses;
+use App\Models\Setting;
 use App\Services\SharedViewDataService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Eloquent\Builder;
@@ -18,6 +19,7 @@ use Illuminate\View\View;
 class ExpenseReportController extends Controller
 {
     private SharedViewDataService $sharedViewDataService;
+    private $settings;
     const EXPENSE_TYPE_ASSOCIATION = 'ASOCIACION';
     const EXPENSE_TYPE_BUILDING = 'EDIFICIO';
     const EXPENSE_TYPE_ISLA_CERDENIA = 'ISLA CERDEÑA';
@@ -31,6 +33,10 @@ class ExpenseReportController extends Controller
     public function __construct(SharedViewDataService $sharedViewDataService)
     {
         $this->sharedViewDataService = $sharedViewDataService;
+        $this->settings = Setting::query()
+            ->where('group', 'general')
+            ->pluck('value', 'key')
+            ->toArray();
     }
 
     public function showListPage(): View
@@ -84,6 +90,7 @@ class ExpenseReportController extends Controller
 
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
+        $siteName = strtoupper($this->settings['site_title']);
 
         // 2. Preparar los datos para la vista
         return [
@@ -94,6 +101,7 @@ class ExpenseReportController extends Controller
                 'start_date' => $startDate,
                 'end_date' => $endDate,
                 'types' => $request->input('types', []),
+                'site_name' => $siteName,
             ]),
         ];
     }
