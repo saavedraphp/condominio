@@ -12,7 +12,7 @@
         </div>
 
         <div class="condominio-info">
-            <h2 class="name-condominio">Propietarios del {{$settings['site_title']}}</h2>
+            <h2 class="name-condominio">{{$settings['site_title']}}</h2>
             <p class="owner-meeting">Junta de propietarios y asociados</p>
         </div>
     </div>

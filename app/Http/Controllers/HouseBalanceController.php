@@ -76,7 +76,7 @@ class HouseBalanceController extends Controller
     {
         $logoPath = $preview
             ? asset('assets/images/logo.jpg')
-            : storage_path('app/public/file_paths/profile/nVcxTYTvFIndE6SVndfDMUTG6uFp5CPcCSFKhmFc.jpg');
+            : storage_path('app/public/file_paths/profile/VF2BljJIRAhKqCK71FIzyjPBl9pjox74bJzlkaIS.jpg');
 
         return [
             'logo_path' => $logoPath,

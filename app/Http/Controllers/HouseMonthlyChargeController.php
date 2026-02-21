@@ -237,7 +237,7 @@ class HouseMonthlyChargeController extends Controller
             $tablaImagePath = asset('assets/images/statistical-table-v2.jpg'); // public/assets/images
             $signaturePath = asset('assets/images/firma-digital.jpg'); // public/assets/images
         } else {
-            $logoPath = storage_path('app/public/file_paths/profile/nVcxTYTvFIndE6SVndfDMUTG6uFp5CPcCSFKhmFc.jpg');
+            $logoPath = storage_path('app/public/file_paths/profile/VF2BljJIRAhKqCK71FIzyjPBl9pjox74bJzlkaIS.jpg');
             $tablaImagePath = storage_path('app/public/' . $tablaImagePath);
             $signaturePath = storage_path('app/public/' . $signaturePath);
 
@@ -265,7 +265,7 @@ class HouseMonthlyChargeController extends Controller
             'electrical_history_table' => $matrix,
             'logoPath' => $logoPath,
             'signature_path' => $signaturePath,
-            'title' => 'Asociación de Propietarios del '.$this->settings['site_title'],
+            'title' => $this->settings['site_title'],
             'tablaImagePath' => $tablaImagePath,
             'debt' => empty($balanceHouse['opening_balance']) ? 'Pendiente a Revisión' : number_format($balanceHouse['amount_due'], 2),
             'bank_name' => $this->settings['name_deposit_bank'],
@@ -274,7 +274,7 @@ class HouseMonthlyChargeController extends Controller
             'bank_account_name' => $this->settings['name_president'],
             'chart_description' => $this->settings['chart_description'] ?? '',
             'details_payment' => $this->settings['details_payment'] ?? '',
-            'ruc_assoc_prop_isp' => 'RUC: 20525153861',
+            'ruc_assoc_prop_isp' => '',
 
         ];
         $data['details'] = [];
@@ -303,13 +303,13 @@ class HouseMonthlyChargeController extends Controller
 
             $data = $data + [
                     'title_details_line_1' => 'RECIBO POR MANTENIMIENTO – ' . strtoupper($data['period_month']) . ' ' . $data['period_year'],
-                    'title_details_line_2' => 'ASOCIACION DE PROPIETARIOS DEL '. strtoupper($this->settings['site_title']),
+                    'title_details_line_2' =>  strtoupper($this->settings['site_title']),
                     'contact_email' => $this->settings['email_contact'],
                 ];
         } else if ($typeHouse === self::TYPE_HOUSE_BOARD_ASSOCIATED) {
             $data = $data + [
                     'title_details_line_1' => 'RECIBO DE ASOCIADO',
-                    'title_details_line_2' => 'ASOCIACION DE PROPIETARIOS DEL'. strtoupper($this->settings['site_title']),
+                    'title_details_line_2' => strtoupper($this->settings['site_title']),
                     'contact_email' => $this->settings['email_contact'],
                 ];
         } else if ($typeHouse === self::TYPE_HOUSE_BOARD) {

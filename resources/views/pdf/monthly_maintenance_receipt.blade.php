@@ -227,7 +227,7 @@
                     </div>
                 </td>
                 <td>
-                    <div class="section-title">Desglose del Cobro</div>
+                    <div class="section-title">{{$details_payment}}</div>
                     <table class="desglose-table">
 
                         @foreach($details as $item)

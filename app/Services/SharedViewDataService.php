@@ -15,7 +15,7 @@ class SharedViewDataService
         // La lógica original, ahora en un método público.
         $logoPath = $isPreview
             ? asset('assets/images/logo.jpg')
-            : storage_path('app/public/file_paths/profile/nVcxTYTvFIndE6SVndfDMUTG6uFp5CPcCSFKhmFc.jpg');
+            : storage_path('app/public/file_paths/profile/VF2BljJIRAhKqCK71FIzyjPBl9pjox74bJzlkaIS.jpg');
 
         // A medida que esto crezca, puedes agregar más lógica aquí.
         // Por ejemplo, obtener datos del usuario autenticado, configuraciones globales, etc.

@@ -110,7 +110,7 @@
             </a>
         @endif
         <h1>Bitacora de Pagos</h1>
-        <h2>ASOCIACION DE PROPIETARIOS DEL {{$attributes['site_name']}}</h2>
+        <h2>{{$attributes['site_name']}}</h2>
         <p>Generado el: {{ date('d/m/Y H:i') }}</p>
         <p>Período: {{ \Carbon\Carbon::parse($attributes['start_date'])->format('d/m/Y') }} - {{  \Carbon\Carbon::parse($attributes['end_date'])->format('d/m/Y') }}</p>
         <h1>Total: {{ number_format($attributes['total_amount'],2)}}</h1>

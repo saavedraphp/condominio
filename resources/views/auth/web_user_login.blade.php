@@ -4,7 +4,7 @@
     <div class="header-login">
         <div>
             <h1 class="title">
-                <span>Condominio {{$settings['site_title']}}</span>
+                <span>Edificio Pompeya</span>
             </h1>
         </div>
         <div class="image-container">
@@ -12,8 +12,7 @@
         </div>
 
         <div class="condominio-info">
-            <h2 class="name-condominio">Propietarios del {{$settings['site_title']}}</h2>
-            <p class="owner-meeting">Junta de propietarios y asociados</p>
+            <h2 class="name-condominio">{{$settings['site_title']}}</h2>
         </div>
     </div>
 
