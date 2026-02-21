@@ -203,7 +203,7 @@ class HouseMonthlyChargeController extends Controller
     public function preparedData(array $input): array
     {
         $house_id = $input['house_id'];
-        $this->nowDate = Carbon::now()->subMonths(1)->startOfMonth();
+        $this->nowDate = Carbon::now()->startOfMonth();
         $previewMontDate = $this->nowDate->copy();
         $this->previewMonthDate = $previewMontDate->subMonth();
 
