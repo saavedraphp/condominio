@@ -84,22 +84,25 @@ class PaymentReportController extends Controller
     {
         $query = $this->getQueryBase($request);
 
-        $totalAmount = round((float) $query->clone()->sum('amount'), 2);
+        $totalAmount = round((float)$query->clone()->sum('amount'), 2);
         $groupedData = $this->groupDataByMonth($query);
-        $attributes = $this->sharedViewDataService->get($isPreview);
 
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
         $siteName = strtoupper($this->settings['site_title']);
+        $logoPathDB = $this->settings['logo_for_receipts_imagen'] ?? null;
+        $logoPath = $this->sharedViewDataService->get($logoPathDB, $isPreview);
+
 
         return [
             'reportData' => $groupedData,
-            'attributes' => array_merge($attributes, [
+            'attributes' => [
+                'logo_path' => $logoPath,
                 'total_amount' => $totalAmount,
                 'start_date' => $startDate,
                 'end_date' => $endDate,
                 'site_name' => $siteName,
-            ]),
+            ],
         ];
     }
 

@@ -363,7 +363,7 @@ return [
                     'can' => 'view_ads',
                 ],*/
         [
-            'text' => 'Peticiones al Vocal',
+            'text' => 'Peticiones al Presidente',
             'route' => 'admin.petitions.show-page',
             'icon' => 'fas fa-fw fa-envelope',
             'can' => 'view_ads',

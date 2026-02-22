@@ -4,7 +4,7 @@
     <div class="header-login">
         <div>
         <h1 class="title">
-            <span>La Esquina del Vocal</span>
+            <span>La Esquina del Presidente</span>
         </h1>
         </div>
         <div class="image-container">

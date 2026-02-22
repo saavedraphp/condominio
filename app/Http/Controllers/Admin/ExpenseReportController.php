@@ -86,7 +86,9 @@ class ExpenseReportController extends Controller
         // 1. Obtener los datos de gastos
         $ExpensesArray = $this->getExpensesData($request);
         $groupedData = $this->groupDataByMonth($ExpensesArray['items']);
-        $attributes = $this->sharedViewDataService->get($isPreview);
+
+        $logoPathDB = $this->settings['logo_for_receipts_imagen'] ?? null;
+        $logoPath = $this->sharedViewDataService->get($logoPathDB, $isPreview);
 
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
@@ -97,12 +99,13 @@ class ExpenseReportController extends Controller
             'reportData' => $groupedData,
             'totals' => $ExpensesArray['totals'],
             'details_total' => $ExpensesArray['details_total'],
-            'attributes' => array_merge($attributes, [
+            'attributes' => [
+                'logo_path' => $logoPath,
                 'start_date' => $startDate,
                 'end_date' => $endDate,
                 'types' => $request->input('types', []),
                 'site_name' => $siteName,
-            ]),
+            ],
         ];
     }
 

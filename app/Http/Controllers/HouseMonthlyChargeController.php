@@ -9,6 +9,7 @@ use App\Models\HouseMonthlyCharge;
 use App\Models\PaymentService;
 use App\Models\Setting;
 use App\Models\WebUser;
+use App\Services\SharedViewDataService;
 use App\Services\StatisticsService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
@@ -43,9 +44,11 @@ class HouseMonthlyChargeController extends Controller
     private $statisticsService;
     private $settings;
     private int $houseId = 1;
+    private SharedViewDataService $sharedViewDataService;
 
-    public function __construct()
+    public function __construct(SharedViewDataService $sharedViewDataService)
     {
+        $this->sharedViewDataService = $sharedViewDataService;
         $this->serviceStatistics = app(StatisticsService::class);
         $this->settings = Setting::query()
             ->where('group', 'general')
@@ -210,7 +213,7 @@ class HouseMonthlyChargeController extends Controller
         $year = $input['year'] ?? $this->nowDate->year;
         $month = $this->nowDate->month;
 
-        $preview = $input['is_preview'];
+        $preview = ($input['is_preview'] ?? 'false') === 'true';
 
         $house = House::query()
             ->where('id', $house_id)
@@ -230,18 +233,14 @@ class HouseMonthlyChargeController extends Controller
             ->pluck('value', 'key')
             ->toArray();
 
-        $signaturePath = $settings['signature_for_receipts_imagen'] ?? null;
-        $tablaImagePath = $settings['annual_expense_statistics_imagen'] ?? null;
-        if ($preview === "true") {
-            $logoPath = asset('assets/images/logo.jpg');
-            $tablaImagePath = asset('assets/images/statistical-table-v2.jpg'); // public/assets/images
-            $signaturePath = asset('assets/images/firma-digital.jpg'); // public/assets/images
-        } else {
-            $logoPath = storage_path('app/public/file_paths/profile/VF2BljJIRAhKqCK71FIzyjPBl9pjox74bJzlkaIS.jpg');
-            $tablaImagePath = storage_path('app/public/' . $tablaImagePath);
-            $signaturePath = storage_path('app/public/' . $signaturePath);
+        $logoPathBD = $settings['logo_for_receipts_imagen'] ?? null;
+        $tablaImagePathDB = $settings['annual_expense_statistics_imagen'] ?? null;
+        $signaturePathDB = $settings['signature_for_receipts_imagen'] ?? null;
 
-        }
+        $logoPath = $this->sharedViewDataService->get($logoPathBD, $preview);
+        $tablaImagePath = $this->sharedViewDataService->get($tablaImagePathDB, $preview);
+        $signaturePath = $this->sharedViewDataService->get($signaturePathDB, $preview);
+
 
         Carbon::setLocale('es');
         $now = Carbon::now()->locale('es');
@@ -437,14 +436,14 @@ LOTE ACUMULADO C-39A',
 
     }
 
-    private function getImageConsumption(array $house, string $is_preview): string|null
+    private function getImageConsumption(array $house, bool $is_preview): string|null
     {
         $year = $this->previewMonthDate->year;
         $month = $this->previewMonthDate->month;
         $consumptionEnergy = $this->getLastMonthEnergyConsumptionPayment($house, $year, $month);
         $imageConsumptionBD = $consumptionEnergy['file_path_url'] ?? null;
         $imagePathConsumptionBD = $consumptionEnergy['file_path'] ?? null;
-        if ($is_preview === "true") {
+        if ($is_preview) {
             $imageConsumption = $imageConsumptionBD;
         } else {
             $imageConsumption = $imagePathConsumptionBD ? storage_path('app/public/' . $imagePathConsumptionBD) : null;

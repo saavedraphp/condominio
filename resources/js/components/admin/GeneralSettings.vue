@@ -50,6 +50,14 @@ const weekDays = [
                 />
             </v-col>
         </v-row>
+        <v-row>
+            <v-col cols="12" md="6">
+                <ImageUpload label="Logo para recibos"
+                             v-model="localSettings.logo_for_receipts_imagen"
+                             @update:modelValue="emitUpdate"
+                />
+            </v-col>
+        </v-row>
         <v-divider class="my-6"></v-divider>
         <v-row>
             <v-col cols="12" md="8">
@@ -130,7 +138,7 @@ const weekDays = [
                         density="compact"
                         @update:modelValue="emitUpdate"
                     ></v-text-field>
-                    <label class="v-label"  v-if="false">Descripción corta</label>
+                    <label class="v-label" v-if="false">Descripción corta</label>
                     <v-text-field
                         v-if="false"
                         v-model="localSettings.tagline"
