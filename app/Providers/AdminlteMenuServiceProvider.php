@@ -127,7 +127,7 @@ class AdminlteMenuServiceProvider extends ServiceProvider
                         'can' => 'view_payment_history',
                     ]);
                     $event->menu->add([
-                        'text' => 'Peticiones al Vocal',
+                        'text' => 'Peticiones al Presidente',
                         'route' => 'user.petitions.show-page',
                         'icon' => 'fas fa-fw fa-envelope',
                         'can' => 'view_payment_history',

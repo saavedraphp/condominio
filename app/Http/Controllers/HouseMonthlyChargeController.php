@@ -9,6 +9,7 @@ use App\Models\HouseMonthlyCharge;
 use App\Models\PaymentService;
 use App\Models\Setting;
 use App\Models\WebUser;
+use App\Services\SharedViewDataService;
 use App\Services\StatisticsService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
@@ -43,9 +44,11 @@ class HouseMonthlyChargeController extends Controller
     private $statisticsService;
     private $settings;
     private int $houseId = 1;
+    private SharedViewDataService $sharedViewDataService;
 
-    public function __construct()
+    public function __construct(SharedViewDataService $sharedViewDataService)
     {
+        $this->sharedViewDataService = $sharedViewDataService;
         $this->serviceStatistics = app(StatisticsService::class);
         $this->settings = Setting::query()
             ->where('group', 'general')
@@ -203,14 +206,14 @@ class HouseMonthlyChargeController extends Controller
     public function preparedData(array $input): array
     {
         $house_id = $input['house_id'];
-        $this->nowDate = Carbon::now()->subMonths(1)->startOfMonth();
+        $this->nowDate = Carbon::now()->startOfMonth();
         $previewMontDate = $this->nowDate->copy();
         $this->previewMonthDate = $previewMontDate->subMonth();
 
         $year = $input['year'] ?? $this->nowDate->year;
         $month = $this->nowDate->month;
 
-        $preview = $input['is_preview'];
+        $preview = ($input['is_preview'] ?? 'false') === 'true';
 
         $house = House::query()
             ->where('id', $house_id)
@@ -230,18 +233,14 @@ class HouseMonthlyChargeController extends Controller
             ->pluck('value', 'key')
             ->toArray();
 
-        $signaturePath = $settings['signature_for_receipts_imagen'] ?? null;
-        $tablaImagePath = $settings['annual_expense_statistics_imagen'] ?? null;
-        if ($preview === "true") {
-            $logoPath = asset('assets/images/logo.jpg');
-            $tablaImagePath = asset('assets/images/statistical-table-v2.jpg'); // public/assets/images
-            $signaturePath = asset('assets/images/firma-digital.jpg'); // public/assets/images
-        } else {
-            $logoPath = storage_path('app/public/file_paths/profile/nVcxTYTvFIndE6SVndfDMUTG6uFp5CPcCSFKhmFc.jpg');
-            $tablaImagePath = storage_path('app/public/' . $tablaImagePath);
-            $signaturePath = storage_path('app/public/' . $signaturePath);
+        $logoPathBD = $settings['logo_for_receipts_imagen'] ?? null;
+        $tablaImagePathDB = $settings['annual_expense_statistics_imagen'] ?? null;
+        $signaturePathDB = $settings['signature_for_receipts_imagen'] ?? null;
 
-        }
+        $logoPath = $this->sharedViewDataService->get($logoPathBD, $preview);
+        $tablaImagePath = $this->sharedViewDataService->get($tablaImagePathDB, $preview);
+        $signaturePath = $this->sharedViewDataService->get($signaturePathDB, $preview);
+
 
         Carbon::setLocale('es');
         $now = Carbon::now()->locale('es');
@@ -265,14 +264,16 @@ class HouseMonthlyChargeController extends Controller
             'electrical_history_table' => $matrix,
             'logoPath' => $logoPath,
             'signature_path' => $signaturePath,
-            'title' => 'Asociación de Propietarios Islas de San Pedro',
+            'title' => $this->settings['site_title'],
             'tablaImagePath' => $tablaImagePath,
             'debt' => empty($balanceHouse['opening_balance']) ? 'Pendiente a Revisión' : number_format($balanceHouse['amount_due'], 2),
-            'bank_name' => 'BANCO CREDITO DEL PERU (BCP)',
-            'bank_account' => '194-72597403-0-08',
-            'bank_account_cci' => '00219417259740300893',
-            'bank_account_name' => 'Rudy David Huaranga Bolaños',
-            'ruc_assoc_prop_isp' => 'RUC: 20525153861',
+            'bank_name' => $this->settings['name_deposit_bank'],
+            'bank_account' => $this->settings['bank_account_payment'],
+            'bank_account_cci' => $this->settings['bank_account_cci_payment'],
+            'bank_account_name' => $this->settings['name_president'],
+            'chart_description' => $this->settings['chart_description'] ?? '',
+            'details_payment' => $this->settings['details_payment'] ?? '',
+            'ruc_assoc_prop_isp' => '',
 
         ];
         $data['details'] = [];
@@ -301,14 +302,14 @@ class HouseMonthlyChargeController extends Controller
 
             $data = $data + [
                     'title_details_line_1' => 'RECIBO POR MANTENIMIENTO – ' . strtoupper($data['period_month']) . ' ' . $data['period_year'],
-                    'title_details_line_2' => 'ASOCIACION DE PROPIETARIOS ISLAS DE SAN PEDRO',
-                    'contact_email' => 'isp.asociacion@gmail.com',
+                    'title_details_line_2' =>  strtoupper($this->settings['site_title']),
+                    'contact_email' => $this->settings['email_contact'],
                 ];
         } else if ($typeHouse === self::TYPE_HOUSE_BOARD_ASSOCIATED) {
             $data = $data + [
                     'title_details_line_1' => 'RECIBO DE ASOCIADO',
-                    'title_details_line_2' => 'ASOCIACION DE PROPIETARIOS ISLAS DE SAN PEDRO',
-                    'contact_email' => 'isp.asociacion@gmail.com',
+                    'title_details_line_2' => strtoupper($this->settings['site_title']),
+                    'contact_email' => $this->settings['email_contact'],
                 ];
         } else if ($typeHouse === self::TYPE_HOUSE_BOARD) {
             dd('Esta función no está implementada para Junta de Propietarios');
@@ -435,14 +436,14 @@ LOTE ACUMULADO C-39A',
 
     }
 
-    private function getImageConsumption(array $house, string $is_preview): string|null
+    private function getImageConsumption(array $house, bool $is_preview): string|null
     {
         $year = $this->previewMonthDate->year;
         $month = $this->previewMonthDate->month;
         $consumptionEnergy = $this->getLastMonthEnergyConsumptionPayment($house, $year, $month);
         $imageConsumptionBD = $consumptionEnergy['file_path_url'] ?? null;
         $imagePathConsumptionBD = $consumptionEnergy['file_path'] ?? null;
-        if ($is_preview === "true") {
+        if ($is_preview) {
             $imageConsumption = $imageConsumptionBD;
         } else {
             $imageConsumption = $imagePathConsumptionBD ? storage_path('app/public/' . $imagePathConsumptionBD) : null;

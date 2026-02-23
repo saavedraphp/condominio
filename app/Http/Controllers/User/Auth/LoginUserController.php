@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\User\Auth;
 
+use App\Models\Setting;
 use App\Models\WebUser;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -11,12 +12,24 @@ use Illuminate\Validation\ValidationException;
 
 class LoginUserController extends Controller
 {
+    private $settings;
+    public function __construct()
+    {
+
+        $this->settings = Setting::query()
+            ->where('group', 'general')
+            ->pluck('value', 'key')
+            ->toArray();
+
+    }
     public function showLoginForm()
     {
         if (Auth::guard('web_user')->check()) {
             return redirect()->route('user.dashboard');
         }
-        return view('auth.web_user_login');
+        $settings = $this->settings;
+
+        return view('auth.web_user_login', compact('settings'));
     }
 
     public function authentication(Request $request): RedirectResponse

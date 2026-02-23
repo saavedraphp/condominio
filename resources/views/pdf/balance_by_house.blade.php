@@ -195,15 +195,14 @@
     </style>
 </head>
 <body>
-
 <div class="report-container">
     <div class="card-header">
-        <img src="{{ $attributes['logo_path'] }}" alt="Logo">
+        <img src="{{ $logo_path }}" alt="Logo">
         @if(!$isPdf)
             <a href="{{ route('admin.houses.balance.download', $house) }}" class="download-button">Descargar PDF</a>
         @endif
         <h1>Estado de Cuenta</h1>
-        <h2>ASOCIACION DE PROPIETARIOS ISLAS DE SAN PEDRO</h2>
+        <h2>{{$attributes['site_title']}}</h2>
         <p>Balance detallado de movimientos : {{ $reportDate->isoFormat('D [de] MMMM [de] Y') }}</p>
 
         <!--        <div class="report-meta">

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Auth;
 
+use App\Models\Setting;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -11,9 +12,21 @@ use Illuminate\View\View;
 
 class LoginUserController extends Controller
 {
+    private $settings;
+    public function __construct()
+    {
+
+        $this->settings = Setting::query()
+            ->where('group', 'general')
+            ->pluck('value', 'key')
+            ->toArray();
+
+    }
     public function showLoginForm()
     {
-        return view('auth.login');
+        $settings = $this->settings;
+
+        return view('auth.login', compact('settings'));
     }
 
     public function authentication(Request $request): RedirectResponse

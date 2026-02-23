@@ -50,6 +50,14 @@ const weekDays = [
                 />
             </v-col>
         </v-row>
+        <v-row>
+            <v-col cols="12" md="6">
+                <ImageUpload label="Logo para recibos"
+                             v-model="localSettings.logo_for_receipts_imagen"
+                             @update:modelValue="emitUpdate"
+                />
+            </v-col>
+        </v-row>
         <v-divider class="my-6"></v-divider>
         <v-row>
             <v-col cols="12" md="8">
@@ -62,12 +70,12 @@ const weekDays = [
                 ></v-text-field>
             </v-col>
         </v-row>
-        <div v-if="false">
+        <div v-if="true">
             <v-divider class="my-6"></v-divider>
 
             <v-row>
                 <v-col cols="12" md="8">
-                    <label class="v-label">Título del sitio</label>
+                    <label class="v-label">Nombre del sitio</label>
                     <v-text-field
                         v-model="localSettings.site_title"
                         variant="outlined"
@@ -75,8 +83,64 @@ const weekDays = [
                         @update:modelValue="emitUpdate"
                     ></v-text-field>
 
-                    <label class="v-label">Descripción corta</label>
+                    <label class="v-label">Presidente a cargo</label>
                     <v-text-field
+                        v-model="localSettings.name_president"
+                        variant="outlined"
+                        density="compact"
+                        @update:modelValue="emitUpdate"
+                    ></v-text-field>
+
+                    <label class="v-label">Banco de abono</label>
+                    <v-text-field
+                        v-model="localSettings.name_deposit_bank"
+                        variant="outlined"
+                        density="compact"
+                        @update:modelValue="emitUpdate"
+                    ></v-text-field>
+
+                    <label class="v-label">Cuenta de abono</label>
+                    <v-text-field
+                        v-model="localSettings.bank_account_payment"
+                        variant="outlined"
+                        density="compact"
+                        @update:modelValue="emitUpdate"
+                    ></v-text-field>
+
+                    <label class="v-label">CCI de Cuenta de abono</label>
+                    <v-text-field
+                        v-model="localSettings.bank_account_cci_payment"
+                        variant="outlined"
+                        density="compact"
+                        @update:modelValue="emitUpdate"
+                    ></v-text-field>
+
+                    <label class="v-label">Email de Contacto</label>
+                    <v-text-field
+                        v-model="localSettings.email_contact"
+                        variant="outlined"
+                        density="compact"
+                        @update:modelValue="emitUpdate"
+                    ></v-text-field>
+
+                    <label class="v-label">Descripción del gráfico</label>
+                    <v-text-field
+                        v-model="localSettings.chart_description"
+                        variant="outlined"
+                        density="compact"
+                        @update:modelValue="emitUpdate"
+                    ></v-text-field>
+
+                    <label class="v-label">Desgloso del cobro</label>
+                    <v-text-field
+                        v-model="localSettings.details_payment"
+                        variant="outlined"
+                        density="compact"
+                        @update:modelValue="emitUpdate"
+                    ></v-text-field>
+                    <label class="v-label" v-if="false">Descripción corta</label>
+                    <v-text-field
+                        v-if="false"
                         v-model="localSettings.tagline"
                         variant="outlined"
                         density="compact"
@@ -89,7 +153,7 @@ const weekDays = [
 
             <v-divider class="my-6"></v-divider>
 
-            <v-row>
+            <v-row v-if="false">
                 <v-col cols="12" md="8">
                     <label class="v-label">Formato de fecha</label>
                     <v-radio-group v-model="localSettings.date_format" @update:modelValue="emitUpdate">
@@ -116,7 +180,7 @@ const weekDays = [
 
             <v-divider class="my-6"></v-divider>
 
-            <v-row>
+            <v-row v-if="false">
                 <v-col cols="12" md="8">
                     <label class="v-label">Formato de hora</label>
                     <v-radio-group v-model="localSettings.time_format" @update:modelValue="emitUpdate">
@@ -142,7 +206,7 @@ const weekDays = [
 
             <v-divider class="my-6"></v-divider>
 
-            <v-row>
+            <v-row v-if="false">
                 <v-col cols="12" md="4">
                     <label class="v-label">La semana comienza el</label>
                     <v-select

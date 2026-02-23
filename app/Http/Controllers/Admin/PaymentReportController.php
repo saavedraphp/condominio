@@ -7,6 +7,7 @@ use App\Http\Controllers\HouseBalanceController;
 use App\Models\House;
 use App\Models\HousePayment;
 use App\Models\PaymentService;
+use App\Models\Setting;
 use App\Services\SharedViewDataService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Query\Builder;
@@ -20,11 +21,16 @@ class PaymentReportController extends Controller
 {
     // 2. Declara una propiedad para guardar la instancia del servicio
     private SharedViewDataService $sharedViewDataService;
+    private $settings;
 
     // 3. Inyecta el servicio en el constructor
     public function __construct(SharedViewDataService $sharedViewDataService)
     {
         $this->sharedViewDataService = $sharedViewDataService;
+        $this->settings = Setting::query()
+            ->where('group', 'general')
+            ->pluck('value', 'key')
+            ->toArray();
     }
 
     public function showListPage(): View
@@ -78,20 +84,25 @@ class PaymentReportController extends Controller
     {
         $query = $this->getQueryBase($request);
 
-        $totalAmount = round((float) $query->clone()->sum('amount'), 2);
+        $totalAmount = round((float)$query->clone()->sum('amount'), 2);
         $groupedData = $this->groupDataByMonth($query);
-        $attributes = $this->sharedViewDataService->get($isPreview);
 
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
+        $siteName = strtoupper($this->settings['site_title']);
+        $logoPathDB = $this->settings['logo_for_receipts_imagen'] ?? null;
+        $logoPath = $this->sharedViewDataService->get($logoPathDB, $isPreview);
+
 
         return [
             'reportData' => $groupedData,
-            'attributes' => array_merge($attributes, [
+            'attributes' => [
+                'logo_path' => $logoPath,
                 'total_amount' => $totalAmount,
                 'start_date' => $startDate,
                 'end_date' => $endDate,
-            ]),
+                'site_name' => $siteName,
+            ],
         ];
     }
 
