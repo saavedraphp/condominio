@@ -34,7 +34,7 @@ class AssociateBalanceReportController extends Controller
 
         try {
             $debtStatusFilter = $request->input('debt_status', 'all');
-            $debtorData = $this->getDebtorData($debtStatusFilter);
+            $debtorData = $this->getDebtorData($request);
             $totalAmountDue = $debtorData->sum('total_due');
 
             return response()->json([
@@ -51,17 +51,32 @@ class AssociateBalanceReportController extends Controller
 
     }
 
-    private function getDebtorData(string $debtStatus = 'all'): Collection
+    private function getDebtorData(Request $request): Collection
     {
         // --- ESTA PARTE NO CAMBIA ---
+        $typeHouse = $request->input('type_house');
+        $debtStatus = $request->input('debt_status');
+
         $users = WebUser::where('is_associated', 1)
             ->with([
-                'houses:id,address,opening_balance',
+                'houses' => function ($q) use ($typeHouse) {
+                    $q->select('id','address','opening_balance','is_department');
+
+                    if ($typeHouse === 'deparments') {
+                        $q->where('is_department', true);
+
+                    }
+                },
                 'houses.payments:id,house_id,amount,payment_date',
                 'houses.monthlyCharges:id,house_id,period_year,period_month,due_date,total_amount,status',
-            ])
+            ])->when($request->input('type_house') === 'deparments', function ($q) {
+                $q->whereHas('houses', function ($houseQuery) {
+                    $houseQuery->where('is_department', true);
+                });
+            })
             ->get(['id', 'name', 'has_payment_arrangement']);
 
+        // 2. CÁLCULOS: Para cada usuario, calculamos el total adeudado sumando el balance de cada una de sus casas.
         $usersWithTotalDebt = $users->map(function (WebUser $user) {
             $totalDue = $user->houses->sum(function ($house) {
                 return $house->calculateBalance()['amount_due'];
@@ -89,9 +104,7 @@ class AssociateBalanceReportController extends Controller
             ];
         });
 
-        // --- AQUÍ VIENE EL CAMBIO ---
-        // En lugar de filtrar siempre, aplicamos el filtro condicionalmente.
-
+        // 3. FILTRADO POR DEUDA
         $filteredData = $usersWithTotalDebt
             // Condición 1: Si el filtro es 'with_debt', aplicamos este filtro.
             ->when($debtStatus === 'with_debt', function ($collection) {
@@ -117,7 +130,7 @@ class AssociateBalanceReportController extends Controller
     public function exportExcel(Request $request)
     {
         $debtStatus = $request->input('debt_status', 'all');
-        $debtorData = $this->getDebtorData($debtStatus);
+        $debtorData = $this->getDebtorData($request);
 
         // 2. Pasamos esa colección directamente a nuestra clase de exportación
         $fileName = 'reporte-balance-asociados-' . now()->format('Y-m-d') . '.xlsx';
