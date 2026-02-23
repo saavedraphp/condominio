@@ -46,6 +46,15 @@ const debtFilterItems = computed(() => {
     ];
 });
 
+const typeHousesFilterItems = computed(() => {
+    return [
+        {text: 'Todos', value: null},
+        {text: 'Departamentos', value: 'deparments'},
+    ];
+});
+
+const selectedTypeHouse = ref(null);
+
 const associates = ref([]);
 
 async function getData() {
@@ -59,7 +68,9 @@ async function getData() {
         if (selectedDebt.value) {
             filterParams.debt_status = selectedDebt.value;
         }
-
+        if (selectedTypeHouse.value) {
+            filterParams.type_house = selectedTypeHouse.value;
+        }
         const response = await axios.get(`${props.routes.base}`, {
             params: filterParams
         });
@@ -82,6 +93,7 @@ const applyDateFilter = () => {
 
 const clearFilters = () => {
     selectedDebt.value = null;
+    selectedTypeHouse.value = null;
     search.value = '';
     getData();
 };
@@ -94,6 +106,9 @@ async function downloadExcel() {
 
     if (selectedDebt.value) {
         filterParams.debt_status = selectedDebt.value;
+    }
+    if (selectedTypeHouse.value) {
+        filterParams.type_house = selectedTypeHouse.value;
     }
 
     try {
@@ -180,7 +195,7 @@ const dateMow = new Date().toLocaleDateString('es-ES', {
             <v-card-text>
                 <!-- Fila de Filtros -->
                 <v-row align="center" class="mt-5">
-                    <v-col cols="12">
+                    <v-col cols="12" sm="6">
                         <v-select
                             v-model="selectedDebt"
                             :items="debtFilterItems"
@@ -190,6 +205,18 @@ const dateMow = new Date().toLocaleDateString('es-ES', {
                             item-value="value"
                             variant="outlined"
                             density="compact"
+                        ></v-select>
+                    </v-col>
+                    <v-col cols="12" sm="6">
+                        <v-select
+                                  v-model="selectedTypeHouse"
+                                  :items="typeHousesFilterItems"
+                                  clearable
+                                  label="Filtrar por Tipo de casa "
+                                  item-title="text"
+                                  item-value="value"
+                                  variant="outlined"
+                                  density="compact"
                         ></v-select>
                     </v-col>
                 </v-row>
