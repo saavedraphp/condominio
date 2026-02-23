@@ -114,7 +114,7 @@
             Gracias por la puntualidad en sus pagos, el cual es fundamental para asegurar el mantenimiento continuo y eficiente de nuestras instalaciones y servicios.
         </p>
         <p>
-            Nuestros registros indican que el monto de pagar a la fecha de esta carta es de  <strong>S/{{number_format($total_debt, 2)}}</strong>.  Le informamos que todos los pagos son hechos a la cuenta bancaria aprobada a nombre del presidente de la asociación, el Sr. {{$bank_account_name}}:
+            Nuestros registros indican que el monto de pagar a la fecha de esta carta es de  <strong>S/{{number_format($total_debt, 2)}}</strong>.  Le informamos que todos los pagos son hechos a la cuenta bancaria aprobada a nombre de {{$bank_account_name}}:
 
         </p>
 

@@ -4,7 +4,7 @@
     <div class="header-login">
         <div>
         <h1 class="title">
-            <span>La Esquina del Vocal</span>
+            <span>La Esquina del Presidente</span>
         </h1>
         </div>
         <div class="image-container">
@@ -12,7 +12,7 @@
         </div>
 
         <div class="condominio-info">
-            <h2 class="name-condominio">Propietarios de Islas Cerdeñas</h2>
+            <h2 class="name-condominio">{{$settings['site_title']}}</h2>
             <p class="owner-meeting">Junta de propietarios y asociados</p>
         </div>
     </div>

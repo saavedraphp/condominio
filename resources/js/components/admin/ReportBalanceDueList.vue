@@ -1,5 +1,5 @@
 <script setup>
-import {ref, onMounted} from 'vue';
+import {ref, onMounted, computed} from 'vue';
 import axios from "axios";
 import Snackbar from "@/components/Snackbar.vue";
 import {getStructureTypes} from "@/utils/functions.js";
@@ -19,6 +19,16 @@ const dateMow = new Date().toLocaleDateString('es-ES', {
     month: '2-digit',
     day: '2-digit',
 });
+
+const typeHousesFilterItems = computed(() => {
+    return [
+        {text: 'Todos', value: null},
+        {text: 'Departamentos', value: 'deparments'},
+    ];
+});
+
+const selectedHouse = ref(null);
+
 const houses = ref([]);
 const loading = ref(true);
 const search = ref('Buscando resultados');
@@ -31,9 +41,16 @@ onMounted(() => {
 
 async function getHouses() {
     loading.value = true;
+    const filterParams = {};
+
+    if (selectedHouse.value) {
+        filterParams.type_house = selectedHouse.value;
+    }
 
     try {
-        const response = await axios.get(`/admin/reports/balance-due/index`);
+        const response = await axios.get(`/admin/reports/balance-due/index`,{
+            params: filterParams
+        });
         houses.value = response.data.data.map(item => ({
             ...item,
             type_structure: typeMap[item.ownership_structure] ?? 'N/A',
@@ -48,13 +65,24 @@ async function getHouses() {
     }
 }
 
+const applyDateFilter = () => {
+    getHouses();
+};
+
 const isDownloading =  ref(false);
 
 async function downloadExcel() {
     isDownloading.value = true;
+    const filterParams = {};
+
+    if (selectedHouse.value) {
+        filterParams.type_house = selectedHouse.value;
+    }
+
     try {
         // Hacemos la petición a la ruta de Laravel
         const response = await axios.get('/admin/debts/export/excel', {
+            params: filterParams,
             responseType: 'blob', // ¡MUY IMPORTANTE! Esto le dice a axios que espere datos binarios
         });
 
@@ -110,9 +138,28 @@ async function downloadExcel() {
                 </v-chip>
 
             </v-card-title>
-
+            <v-card-text>
+                <!-- Fila de Filtros -->
+                <v-row align="center">
+                    <!-- Filtro por Fechas (Server-Side) -->
+                    <v-col cols="12" sm="6">
+                        <v-select class="mt-5"
+                            v-model="selectedHouse"
+                            :items="typeHousesFilterItems"
+                            clearable
+                            label="Filtrar por Tipo de casa "
+                            item-title="text"
+                            item-value="value"
+                            variant="outlined"
+                            density="compact"
+                        ></v-select>
+                    </v-col>
+                    <v-col cols="12" sm="6" class="d-flex justify-end align-center flex-wrap ga-2">
+                        <v-btn @click="applyDateFilter" color="primary">Aplicar Filtro</v-btn>
+                    </v-col>
+                </v-row>
+            </v-card-text>
             <v-divider></v-divider>
-
             <v-data-table v-show="houses.length"
                           :headers="headers"
                           :items="houses"

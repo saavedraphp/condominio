@@ -18,11 +18,11 @@ class ReportBalanceDueController extends Controller
         return view('admin.reports.balance-due.index');
     }
 
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
        // $totalAmountDue = 0;
         try {
-            $debtorData = $this->getDebtorData();
+            $debtorData = $this->getDebtorData($request);
 
             // Calcular el total adeudado a partir de la colección ya procesada
             $totalAmountDue = $debtorData->sum('amount_due');
@@ -41,13 +41,17 @@ class ReportBalanceDueController extends Controller
 
     }
 
-    private function getDebtorData(): Collection
+    private function getDebtorData(Request $request): Collection
     {
+        //dd($request->filled('type_house'));
         $houses = House::with([
             'owner:id,name,has_payment_arrangement',
             'payments:id,house_id,amount,payment_date',
             'monthlyCharges:id,house_id,period_year,period_month,due_date,total_amount,status',
-        ])->get();
+        ])
+            ->when($request->filled('type_house'), function ($q) use ($request){
+                $q->where('is_department', 1);
+            })->get();
 
         // Filtrar solo casas con deuda
         $debtorHouses = $houses->filter(function ($house) {
@@ -78,7 +82,7 @@ class ReportBalanceDueController extends Controller
     public function exportExcel(Request $request)
     {
         // 1. Obtenemos la misma colección de datos que usa la UI
-        $debtorData = $this->getDebtorData();
+        $debtorData = $this->getDebtorData($request);
 
         // 2. Pasamos esa colección directamente a nuestra clase de exportación
         $fileName = 'reporte-deudores-' . now()->format('Y-m-d') . '.xlsx';

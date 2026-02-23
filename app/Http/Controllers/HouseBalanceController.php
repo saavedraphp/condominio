@@ -11,6 +11,8 @@ use App\Models\HousePayment;
 use App\Models\HouseMonthlyCharge;
 
 // Tu modelo de cobros
+use App\Models\Setting;
+use App\Services\SharedViewDataService;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Carbon;
@@ -20,6 +22,21 @@ use Illuminate\View\View;
 
 class HouseBalanceController extends Controller
 {
+    private SharedViewDataService $sharedViewDataService;
+    /**
+     * @var mixed[]
+     */
+    private array $settings;
+
+    public function __construct(SharedViewDataService $sharedViewDataService)
+    {
+        $this->sharedViewDataService = $sharedViewDataService;
+        $this->settings = Setting::query()
+            ->where('group', 'general')
+            ->pluck('value', 'key')
+            ->toArray();
+    }
+
     /**
      * Muestra el balance de la casa en una vista web.
      */
@@ -29,13 +46,15 @@ class HouseBalanceController extends Controller
         $house->load('owner');
         $balanceData = $this->generateBalanceData($house);
         $reportDate = now();
-        $attributes = $this->getSharedViewData(true);
+        $logoPathBD = $this->settings['logo_for_receipts_imagen'] ?? null;
+        $logoPath = $this->sharedViewDataService->get($logoPathBD, true);
         return view('pdf.balance_by_house', [
             'house' => $house,
             'balanceItems' => $balanceData['items'],
             'totals' => $balanceData['totals'],
             'reportDate' => $reportDate,
-            'attributes' => $attributes,
+            'logo_path' => $logoPath,
+            'attributes' => $this->settings,
             'isPdf' => false // Variable para ocultar el botón de descarga en el PDF
         ]);
     }
@@ -49,14 +68,16 @@ class HouseBalanceController extends Controller
         $reportDate = now();
 
         $balanceData = $this->generateBalanceData($house);
-        $attributes = $this->getSharedViewData(false);
+        $logoPathBD = $this->settings['logo_for_receipts_imagen'] ?? null;
+        $logoPath = $this->sharedViewDataService->get($logoPathBD, false);
 
         $pdf = PDF::loadView('pdf.balance_by_house', [
             'house' => $house,
             'balanceItems' => $balanceData['items'],
             'totals' => $balanceData['totals'],
             'reportDate' => $reportDate,
-            'attributes' => $attributes,
+            'logo_path' => $logoPath,
+            'attributes' => $this->settings,
             'isPdf' => true // Ocultará el botón de descarga en el PDF
         ]);
 
@@ -71,19 +92,6 @@ class HouseBalanceController extends Controller
      * @param House $house
      * @return array
      */
-
-    private function getSharedViewData(bool $preview = false): array
-    {
-        $logoPath = $preview
-            ? asset('assets/images/logo.jpg')
-            : storage_path('app/public/file_paths/profile/nVcxTYTvFIndE6SVndfDMUTG6uFp5CPcCSFKhmFc.jpg');
-
-        return [
-            'logo_path' => $logoPath,
-            'date' => now()->format('d/m/Y'),
-        ];
-    }
-
     private function generateBalanceData(House $house): array
     {
         // 1. Obtener todos los pagos y darles un formato estándar

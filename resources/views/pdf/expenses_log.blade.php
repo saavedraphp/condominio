@@ -111,7 +111,7 @@
             </a>
         @endif
         <h1>Bitacora de Gastos</h1>
-        <h2>ASOCIACION DE PROPIETARIOS ISLAS DE SAN PEDRO</h2>
+        <h2>{{$attributes['site_name']}}</h2>
         <p>Generado el: {{ now()->format('d/m/Y H:i') }}</p>
         <p>Período: {{ \Carbon\Carbon::parse($attributes['start_date'])->format('d/m/Y') }}
             - {{ \Carbon\Carbon::parse($attributes['end_date'])->format('d/m/Y') }}</p>
