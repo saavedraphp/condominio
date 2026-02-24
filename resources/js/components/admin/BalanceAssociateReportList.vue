@@ -254,7 +254,7 @@ const dateMow = new Date().toLocaleDateString('es-ES', {
                     <span>{{ (currentPage - 1) * 5 + index + 1 }}</span>
                 </template>
                 <template v-slot:item.total_due="{ value }">
-                    <span :style="{ color: value > 0 ? 'darkred' : '' }">{{ formattedMoney(value) }}</span>
+                    <span :style="{ color: value > 0 ? 'darkred' : 'green' }">{{ formattedMoney(value) }}</span>
                 </template>
 
                 <template v-slot:no-data>
