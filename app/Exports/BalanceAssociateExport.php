@@ -55,7 +55,8 @@ class BalanceAssociateExport implements FromCollection, WithHeadings, ShouldAuto
     {
         // La letra de la columna debe coincidir con el orden de tus headings/map
         return [
-            'C' => '#,##0.00;[Red]-#,##0.00;0.00',
+            //'C' => '#,##0.00;[Red]-#,##0.00;0.00',
+            'C' => '[Red]#,##0.00;[Green]-#,##0.00;[Green]0.00',
         ];
     }
 
