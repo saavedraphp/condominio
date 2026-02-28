@@ -46,6 +46,7 @@ const deleteDialogItemName = computed(() => {
     return `${itemToDelete.value.description}`;
 });
 
+const imageTypeExpenses =  ref([]);
 async function getExpenses() {
     loading.value = true;
     try {
@@ -54,10 +55,11 @@ async function getExpenses() {
                 budget_scope: pros.budgetScope,
             }
         });
-        expenses.value = response.data.map(item => ({
+        expenses.value = response.data.data.map(item => ({
             ...item,
             expense_date_format: formatDate(item.expense_date),
         }));
+        imageTypeExpenses.value = response.data.types_expenses;
 
     } catch (error) {
         mySnackbar.value.show('Lo sentimos, hubo un problema obtener la información. Intenta de nuevo, por favor.', 'error');
@@ -177,8 +179,10 @@ onMounted(() => {
             <ExpensesForm v-if="showModal"
                           v-model="showModal"
                           :element="selectedElement"
+                          :typeImageOptions="imageTypeExpenses"
                           :url-base="urlBase"
                           :budget-scope="budgetScope"
+                          @update-element="selectedElement = $event"
                           @expense-created="reloadWithMessage"
                           @expense-edited="reloadWithMessage"
             />

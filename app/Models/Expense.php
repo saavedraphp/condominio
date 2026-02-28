@@ -20,6 +20,8 @@ class Expense extends Model
         'amount',
         'expense_date',
         'file_path',
+        'file_path_receipt',
+        'file_path_job',
         'white_label_id',
     ];
 
@@ -30,6 +32,37 @@ class Expense extends Model
         'expense_date' => 'date', // Para asegurar que se trate como objeto Carbon/Date
     ];
 
+    public function getImagePath(bool $isPreview = true): ?string
+    {
+        if (!$this->file_path) {
+            return null;
+        }
+
+        return $isPreview
+            ? asset('storage/' . $this->file_path)
+            : storage_path('app/public/' . $this->file_path);
+    }
+    public function getImagePathReceipt(bool $isPreview = true): ?string
+    {
+        if (!$this->file_path_receipt) {
+            return null;
+        }
+
+        return $isPreview
+            ? asset('storage/' . $this->file_path_receipt)
+            : storage_path('app/public/' . $this->file_path_receipt);
+    }
+
+    public function getImagePathJob(bool $isPreview = true): ?string
+    {
+        if (!$this->file_path_job) {
+            return null;
+        }
+
+        return $isPreview
+            ? asset('storage/' . $this->file_path_job)
+            : storage_path('app/public/' . $this->file_path_job);
+    }
     protected function filePathUrl(): Attribute
     {
         return Attribute::make(
