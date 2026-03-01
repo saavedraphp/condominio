@@ -8,7 +8,6 @@
         /* Estilos generales inspirados en tu ejemplo y mejorados */
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: #f4f7f6;
             color: #333;
             margin: 0;
             padding: 20px;
@@ -193,7 +192,7 @@
                 </td>
                 <td>
                     @if($attributes['is_preview'])
-                        <a href="{{ route('admin.reports.payments.pdf', [
+                        <a href="{{ route('admin.reports.income-statement.pdf', [
             'start_date' => $attributes['start_date'],
             'end_date' => $attributes['end_date'],
             ])
@@ -238,6 +237,7 @@
         <thead>
         <tr>
             {{-- Cambia estos encabezados por los de tu modelo --}}
+            <th>#</th>
             <th>Fecha</th>
             <th>Titulo</th>
             <th>Tipo</th>
@@ -245,8 +245,9 @@
         </tr>
         </thead>
         <tbody>
-        @foreach($expenses_detail as $expense)
+        @foreach($expenses_detail as $key => $expense)
             <tr>
+                <td>{{$key +1}}</td>
                 <td>{{ \Carbon\Carbon::parse($expense->expense_date)->format('d/m/Y') }}</td>
                 <td>{{ substr($expense->title,0,30) ?? 'Sin titulo' }}</td>
                 <td>EDIFICIO</td>

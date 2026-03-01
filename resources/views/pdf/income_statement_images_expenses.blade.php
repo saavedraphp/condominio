@@ -15,7 +15,7 @@
         .report-container {
             max-width: 800px;
             margin: auto;
-            background-color: #fff;
+
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             overflow: hidden;
@@ -67,12 +67,11 @@
 </head>
 <body>
 <div class="report-container">
-    @foreach($expenses_detail as $expense)
+    @foreach($expenses_detail as $key => $expense)
 
         <div class="page-break">
-
             <div class="expense-title">
-                ID: {{ $expense->id }} - {{ $expense->title }}
+                #: {{ $key + 1 }} - {{ $expense->title }}
             </div>
 
             {{-- Primera fila: 2 imágenes --}}

@@ -8,6 +8,7 @@ use App\Http\Resources\PaymentResource;
 use App\Models\Setting;
 use App\Services\FinancialReportService;
 use App\Services\SharedViewDataService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\JsonResponse;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -81,6 +82,19 @@ class IncomeStatementController extends Controller
         return view($viewToLoad,$data);
 
     }
+
+    public function downloadPdf(Request $request): \Illuminate\Http\Response
+    {
+        $data = $this->prepareData($request);
+        $data['attributes'] = $this->getAttributeToReport($request, false);
+        $viewToLoad = 'pdf.income_statement_all';
+        // Cargamos la misma vista Blade en el generador de PDF
+        $pdf = PDF::loadView($viewToLoad, $data);
+
+        // Descargamos el archivo
+        return $pdf->download('income-statement-' . now()->format('Y-m-d') . '.pdf');
+    }
+
 
     private function getAttributeToReport(Request $request, $isPreview = false): array
     {
