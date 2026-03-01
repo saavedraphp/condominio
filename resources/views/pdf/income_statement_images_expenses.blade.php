@@ -69,54 +69,32 @@
 <div class="report-container">
     @foreach($expenses_detail as $key => $expense)
 
-        <div class="page-break">
-            <div class="expense-title">
-                #: {{ $key + 1 }} - {{ $expense->title }}
-            </div>
-
-            {{-- Primera fila: 2 imágenes --}}
-            <table class="image-table">
-                <tr>
-                    <td>
-                        <p>Recibo</p>
-                        @if($expense->file_path_receipt)
-                            <img src="{{ $expense->getImagePathReceipt($attributes['is_preview']) }}">
-                        @else
-                            <span class="no-image">No tiene imagen</span>
-                        @endif
-                    </td>
-
-                    <td>
-                        <p>Pago</p>
-                        @if($expense->file_path)
-                            <img src="{{ $expense->getImagePath($attributes['is_preview']) }}">
-                        @else
-                            <span class="no-image">No tiene imagen</span>
-                        @endif
-                    </td>
-                </tr>
-            </table>
-
-            {{-- Segunda fila: imagen centrada --}}
-            <table style="width:100%; margin-top:15px;">
-                <tr>
-                    <td class="image-single" style="height:220px; text-align:center; vertical-align:middle;">
-                        <p>Trabajo</p>
-
-                        @if($expense->file_path_job)
-                            <img
-                                src="{{ $expense->getImagePathJob($attributes['is_preview']) }}"
-                                style="height:200px; width:auto; display:block; margin:0 auto;"
-                            >
-                        @else
-                            <span class="no-image">No tiene imagen</span>
-                        @endif
-
-                    </td>
-                </tr>
-            </table>
-
+        <div class="expense-title">
+            #: {{ $key + 1 }} - {{ $expense->title }}
         </div>
+
+        {{-- Primera fila: 2 imágenes --}}
+        <table class="image-table">
+            <tr>
+                <td>
+                    <p>Imagen 1</p>
+                    @if($expense->file_path_receipt)
+                        <img src="{{ $expense->getImagePathReceipt($attributes['is_preview']) }}">
+                    @else
+                        <span class="no-image">No tiene imagen</span>
+                    @endif
+                </td>
+
+                <td>
+                    <p>Imagen 2</p>
+                    @if($expense->file_path)
+                        <img src="{{ $expense->getImagePath($attributes['is_preview']) }}">
+                    @else
+                        <span class="no-image">No tiene imagen</span>
+                    @endif
+                </td>
+            </tr>
+        </table>
 
     @endforeach
 </div>

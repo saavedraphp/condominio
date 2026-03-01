@@ -4,4 +4,6 @@
 <!--<div style="page-break-after: always;"></div>-->
 
 {{-- Página 2: El recibo que ya tenías --}}
-@include('pdf.income_statement_images_expenses')
+@if($attributes['with_images'])
+    @include('pdf.income_statement_images_expenses')
+@endif

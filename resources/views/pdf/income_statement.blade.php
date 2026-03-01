@@ -197,10 +197,11 @@
                     </p>
                 </td>
                 <td>
-                    @if($attributes['is_preview'])
+                    @if($attributes['is_preview'] && !$attributes['with_images'])
                         <a href="{{ route('admin.reports.income-statement.pdf', [
             'start_date' => $attributes['start_date'],
             'end_date' => $attributes['end_date'],
+            'with_images' => $attributes['with_images'],
             ])
             }}" class="download-button">Descargar PDF
                         </a>
@@ -238,7 +239,7 @@
         </tbody>
     </table>
     <br>
-    <h2 class="group-header">EGRESOS: </h2>
+    <h2 class="group-header">EGRESOS</h2>
     <table>
         <thead>
         <tr>

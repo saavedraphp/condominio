@@ -26,6 +26,7 @@ const typeMap = getStructureTypes();
 const totalIncomes = ref();
 const totalExpenses = ref();
 const totalBalance = ref();
+const withImages = ref(false);
 
 const startDate = ref(null); //ref(dayjs('2025-05-01').format('YYYY-MM-DD'));
 const endDate = ref(null);
@@ -36,7 +37,6 @@ async function getHouses() {
 
     try {
         // Construimos los parámetros de la URL
-        console.log(startDate.value, endDate.value);
         const params = new URLSearchParams();
         if (startDate.value) {
             params.append('start_date', dayjs(startDate.value).format('YYYY-MM-DD'));
@@ -44,6 +44,7 @@ async function getHouses() {
         if (endDate.value) {
             params.append('end_date', dayjs(endDate.value).format('YYYY-MM-DD'));
         }
+        params.append('with_images', withImages.value ? '1' : '0');
 
         const response = await axios.get(`/admin/reports/income-statement/index?${params.toString()}`);
         houses.value = response.data.data;
@@ -84,7 +85,7 @@ const previewReport = () => {
         return;
     }
 
-    const url = `/admin/reports/income-statement/preview?start_date=${startDate.value}&end_date=${endDate.value}`;
+    const url = `/admin/reports/income-statement/preview?start_date=${startDate.value}&end_date=${endDate.value}&with_images=${withImages.value ? '1' : '0'}`;
     window.open(url, '_blank');
 };
 
@@ -128,6 +129,17 @@ const previewReport = () => {
                         <v-btn @click="previewReport" color="secondary" prepend-icon="mdi-printer">
                             Previsualizar
                         </v-btn>
+                    </v-col>
+                </v-row>
+                <v-row>
+                    <v-col>
+                        <v-checkbox
+                            v-model="withImages"
+                                    label="Con Imagenes"
+                                    class="pa-0 ma-0"
+                                    density="compact">
+
+                        </v-checkbox>
                     </v-col>
                 </v-row>
                 <v-divider></v-divider>

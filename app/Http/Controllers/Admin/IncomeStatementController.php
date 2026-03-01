@@ -115,6 +115,7 @@ class IncomeStatementController extends Controller
             'signature_path' => $signaturePath,
             'name_president' => $this->settings['name_president'],
             'is_preview' => $isPreview,
+            'with_images' =>$request->input('with_images', false),
         ];
 
     }
