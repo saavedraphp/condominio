@@ -79,6 +79,12 @@
             width: 50%;
         }
 
+        /* Gráfico */
+        .chart-container img {
+            max-width: 100%;
+            height: auto;
+            border: 0 solid #eee;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
