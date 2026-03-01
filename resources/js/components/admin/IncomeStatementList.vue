@@ -27,17 +27,11 @@ const totalIncomes = ref();
 const totalExpenses = ref();
 const totalBalance = ref();
 
-const startDate = ref(dayjs('2025-05-01').format('YYYY-MM-DD'));//ref(null);
-const endDate = ref(dayjs('2026-02-28').format('YYYY-MM-DD'));
-const menuStartDate = ref(false);
-const menuEndDate = ref(false);
-
-// --- METHODS ---
-onMounted(() => {
-    getHouses();
-})
+const startDate = ref(null); //ref(dayjs('2025-05-01').format('YYYY-MM-DD'));
+const endDate = ref(null);
 
 async function getHouses() {
+
     loading.value = true;
 
     try {
@@ -66,6 +60,14 @@ async function getHouses() {
 
 // Se llama al hacer clic en el botón "Aplicar Filtro"
 const applyDateFilter = () => {
+    if (!startDate.value || !endDate.value) {
+        mySnackbar.value.show('Por favor, complete ambos campos de fecha para aplicar el filtro.', 'error');
+        return;
+    }
+    if (startDate.value && endDate.value && dayjs(startDate.value).isAfter(dayjs(endDate.value))) {
+        mySnackbar.value.show('La fecha de inicio no puede ser posterior a la fecha de fin.', 'error');
+        return;
+    }
     getHouses();
 };
 
@@ -131,29 +133,29 @@ const previewReport = () => {
                 <v-divider></v-divider>
                 <h2>RESUMEN</h2>
                 <v-row>
-<v-col cols="12" class="d-flex justify-end align-center flex-wrap ga-2">
-    <v-chip
-        color="primary"
-        variant="elevated"
-        size="large"
-    >
-        <strong>INGRESOS: {{ totalIncomes }}</strong>
-    </v-chip>
-    <v-chip
-        color="primary"
-        variant="elevated"
-        size="large"
-    >
-        <strong>EGRESOS: {{ totalExpenses }}</strong>
-    </v-chip>
-    <v-chip
-        color="primary"
-        variant="elevated"
-        size="large"
-    >
-        <strong>EN CAJA: {{ totalBalance }}</strong>
-    </v-chip>
-</v-col>
+                    <v-col cols="12" class="d-flex justify-end align-center flex-wrap ga-2">
+                        <v-chip
+                            color="primary"
+                            variant="elevated"
+                            size="large"
+                        >
+                            <strong>INGRESOS: {{ totalIncomes }}</strong>
+                        </v-chip>
+                        <v-chip
+                            color="primary"
+                            variant="elevated"
+                            size="large"
+                        >
+                            <strong>EGRESOS: {{ totalExpenses }}</strong>
+                        </v-chip>
+                        <v-chip
+                            color="primary"
+                            variant="elevated"
+                            size="large"
+                        >
+                            <strong>EN CAJA: {{ totalBalance }}</strong>
+                        </v-chip>
+                    </v-col>
                 </v-row>
                 <v-divider></v-divider>
 
