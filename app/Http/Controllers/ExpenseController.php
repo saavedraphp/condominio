@@ -232,6 +232,13 @@ class ExpenseController extends Controller
 
     public function uploadImage(Request $request, Expense $expense): JsonResponse
     {
+        $request->validate([
+            'file_path' => 'required|file|mimes:jpg,jpeg,png|max:2048',
+        ], [
+            'file_path.required' => 'Debe seleccionar un archivo.',
+            'file_path.mimes' => 'El archivo debe ser JPG, PNG.',
+            'file_path.max' => 'El archivo no debe superar los 2MB.',
+        ]);
         try {
 
             // 1. Definimos el mapa de relación (Tipo de Gasto => Columna en Base de Datos)

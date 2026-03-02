@@ -69,9 +69,12 @@
 <div class="page-break"></div>
 <div class="report-container">
     @foreach($expenses_detail as $key => $expense)
+        @php
+            $correlative = $key + 1
+        @endphp
 
         <div class="expense-title">
-            #: {{ $key + 1 }} - {{ $expense->title }}
+            #: {{ $correlative }} - {{ $expense->title }}
         </div>
 
         {{-- Primera fila: 2 imágenes --}}
@@ -96,7 +99,13 @@
                 </td>
             </tr>
         </table>
+        @php
+            $total = count($expenses_detail);
+        @endphp
 
+        @if(($correlative) % 3 == 0 && ($correlative) < $total)
+            <div class="page-break"></div>
+        @endif
     @endforeach
 </div>
 

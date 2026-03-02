@@ -51,7 +51,6 @@ const {handleSubmit, resetForm} = useForm({
 });
 
 const ACCEPTED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-const existingImageUrl = ref(null);
 // Campos de VeeValidate
 const selectedAnnualBudget = ref(null);
 const annualBudget = ref([]);
@@ -172,10 +171,8 @@ watch(() => props.element, (newValue) => {
         title.value = newValue.title || "";
         amount.value.value = newValue.amount || "";
         expense_date.value.value = new Date(newValue.expense_date).toISOString().split('T')[0] || "";
-        existingImageUrl.value = newValue.file_path_url || null;
     } else {
         resetForm();
-        existingImageUrl.value = null;
     }
 }, {immediate: true});
 
@@ -442,15 +439,6 @@ const closeDeleteModal = () => {
                             </v-btn>
                         </v-col>
                     </v-row>
-                    <div v-if="existingImageUrl" class="mb-3">
-                        <v-img
-                            :src="existingImageUrl"
-                            max-height="150"
-                            contain
-                            alt="Imagen actual"
-                            class="mb-2"
-                        ></v-img>
-                    </div>
                     <v-list v-if="arrayImages && arrayImages.length > 0" lines="two"
                             density="compact">
                         <v-list-item
