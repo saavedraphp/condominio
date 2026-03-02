@@ -216,7 +216,7 @@
         <p>Período: {{ \Carbon\Carbon::parse($attributes['start_date'])->format('d/m/Y') }}
             - {{  \Carbon\Carbon::parse($attributes['end_date'])->format('d/m/Y') }}</p>
     </div>
-    <h2 class="group-header">INGRESOS</h2>
+    <h2 class="group-header">INGRESOS: S/ {{number_format($summary['total_incomes'], 2) }}</h2>
     <table>
         <thead>
         <tr>
@@ -239,7 +239,7 @@
         </tbody>
     </table>
     <br>
-    <h2 class="group-header">EGRESOS</h2>
+    <h2 class="group-header">EGRESOS: S/ {{number_format($summary['total_expenses'], 2) }}</h2>
     <table>
         <thead>
         <tr>
@@ -278,7 +278,7 @@
                 <h1>RESUMEN:</h1>
                 <table class="tabla_balance">
                     <tr>
-                        <td class="title">Ingreso:</td>
+                        <td class="title">Ingresos:</td>
                         <td class="value_positive">S/ {{number_format($summary['total_incomes'], 2) }}</td>
                     </tr>
                     <tr>
