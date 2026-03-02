@@ -29,7 +29,7 @@ class FinancialReportService
      */
     public function getExpensesQuery(?string $startDate, ?string $endDate,  ?string $budgetScope = null): Builder
     {
-        return $expenses = Expense::with(['annualBudget.budgetType:id,budget_scope'])
+        return $expenses = Expense::with(['annualBudget.budgetType:id,budget_scope,name'])
             ->when($startDate, function ($query) use ($startDate) {
                 $query->whereDate('expense_date', '>=', $startDate);
             })

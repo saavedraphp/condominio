@@ -28,8 +28,8 @@ const totalExpenses = ref();
 const totalBalance = ref();
 const withImages = ref(false);
 
-const startDate = ref(null); //ref(dayjs('2025-05-01').format('YYYY-MM-DD'));
-const endDate = ref(null);
+const startDate = ref(dayjs('2025-05-01').format('YYYY-MM-DD')); //ref(dayjs('2025-05-01').format('YYYY-MM-DD'));
+const endDate = ref(dayjs('2026-03-01').format('YYYY-MM-DD'));
 
 async function getHouses() {
 

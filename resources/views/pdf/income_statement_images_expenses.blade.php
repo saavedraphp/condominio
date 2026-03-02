@@ -66,6 +66,7 @@
     </style>
 </head>
 <body>
+<div class="page-break"></div>
 <div class="report-container">
     @foreach($expenses_detail as $key => $expense)
 

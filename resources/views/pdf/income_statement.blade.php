@@ -247,7 +247,7 @@
             <th>#</th>
             <th>Fecha</th>
             <th>Titulo</th>
-            <th>Tipo</th>
+            <th>Tipo Gasto</th>
             <th style="text-align: right;">Monto</th>
         </tr>
         </thead>
@@ -257,13 +257,13 @@
                 <td>{{$key +1}}</td>
                 <td>{{ \Carbon\Carbon::parse($expense->expense_date)->format('d/m/Y') }}</td>
                 <td>{{ substr($expense->title,0,30) ?? 'Sin titulo' }}</td>
-                <td>EDIFICIO</td>
+                <td>{{$expense->annualBudget?->budgetType?->name}}</td>
                 <td style="text-align: right;">S/ {{ number_format($expense->amount, 2) }}</td>
             </tr>
         @endforeach
         </tbody>
     </table>
-
+    <div class="signature-block">
     <table class="main-content">
         <tr>
             <td>
