@@ -286,7 +286,7 @@
                         <td class="value_neative">S/ {{number_format($summary['total_expenses'], 2) }}</td>
                     </tr>
                     <tr>
-                        <td class="title">En Caja</td>
+                        <td class="title">En Caja:</td>
                         <td class="value_positive">S/ {{number_format($summary['balance'], 2) }}</td>
                     </tr>
                 </table>
