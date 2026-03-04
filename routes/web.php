@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\HouseController as AdminHouseController;
 use App\Http\Controllers\Admin\HouseResidentController;
 use App\Http\Controllers\Admin\HouseVehicleController;
 use App\Http\Controllers\Admin\ImpersonateController;
+use App\Http\Controllers\Admin\IncomeStatementController;
 use App\Http\Controllers\Admin\OtherExpenseController;
 use App\Http\Controllers\Admin\OtherExpenseDetailsController;
 use App\Http\Controllers\Admin\PaymentReportController;
@@ -316,6 +317,13 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/expenses/list', [ExpenseController::class, 'showPage'])->name('expenses.show-page');
         Route::get('/expenses', [ExpenseController::class, 'index'])->name('expenses.index');
         Route::post('/expenses', [ExpenseController::class, 'store'])->name('expenses.store');
+        Route::get('/expenses/preview-payment/{expense}', [ExpenseController::class, 'previewImage'])
+            ->name('expense.preview.payment');
+        Route::get('/expenses/preview-receipt/{expense}', [ExpenseController::class, 'previewReceipt'])
+            ->name('expense.preview.receipt');
+        Route::get('/expenses/preview-job/{expense}', [ExpenseController::class, 'previewJob'])
+            ->name('expense.preview.job');
+        Route::delete('/expenses/{expense}/delete-images/{type_image}', [ExpenseController::class, 'destroyImages'])->name('expense.delete.image');
         Route::put('/expenses/{expense}', [ExpenseController::class, 'update'])->name('expenses.update');
         Route::delete('/expenses/{expense}', [ExpenseController::class, 'destroy'])->name('expenses.destroy');
 
@@ -324,6 +332,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/building-expenses', [ExpenseController::class, 'index'])->name('building-expenses.index');
         Route::post('/building-expenses', [ExpenseController::class, 'store'])->name('building-expenses.store');
         Route::put('/building-expenses/{expense}', [ExpenseController::class, 'update'])->name('building-expenses.update');
+        Route::post('building-expenses/{expense}/upload-image', [ExpenseController::class, 'uploadImage'])->name('building-expenses.upload-image');
         Route::delete('/building-expenses/{expense}', [ExpenseController::class, 'destroy'])->name('building-expenses.destroy');
 
         //OTHER EXPENSES
@@ -402,6 +411,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
         Route::get('/reports/payments/preview', [PaymentReportController::class, 'previewPdf'])->name('reports.payments.preview-pdf');
         Route::get('/reports/payments/download-pdf', [PaymentReportController::class, 'downloadPdf'])->name('reports.payments.pdf');
+
+        /* REPORTS INCOME STATEMENT*/
+        Route::get('/reports/income-statement/list', [IncomeStatementController::class, 'showListPage'])->name('reports.income-statement.list');
+        Route::get('/reports/income-statement/index', [IncomeStatementController::class, 'getSummary'])->name('reports.income-statement.index');
+        Route::get('/reports/income-statement/preview', [IncomeStatementController::class, 'previewPdf'])->name('reports.income-statement.preview-pdf');
+        Route::get('/reports/income-statement/download-pdf', [IncomeStatementController::class, 'downloadPdf'])->name('reports.income-statement.pdf');
 
         /* REPORT EXPENSES*/
         Route::get('/reports/expenses/list', [ExpenseReportController::class, 'showListPage'])->name('reports.expenses.list');

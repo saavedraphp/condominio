@@ -29,15 +29,6 @@ class ExpenseRequest extends FormRequest
             'expense_date' => 'required|date',
         ];
 
-        if ($this->isMethod('post')) {
-            // --- CREACIÓN ---
-            // El archivo es estrictamente requerido
-            $rules['file_path'] = 'required|file|mimes:jpg,jpeg,png|max:2048';
-        } elseif ($this->isMethod('put') || $this->isMethod('patch')) {
-            // 'sometimes' significa: valida esto sólo si el campo está presente en la data de la solicitud.
-            $rules['file_path'] = 'sometimes|required|file|mimes:jpg,jpeg,png|max:2048'; // Ajusta mimes y max
-        }
-
         return $rules;
     }
 
@@ -53,9 +44,6 @@ class ExpenseRequest extends FormRequest
             'amount.gt' => 'El campo monto debe ser mayor que cero.',
             'expense_date.required' => 'El campo fecha es obligatorio.',
             'expense_date.date' => 'El campo fecha debe ser una fecha válida.',
-            'file_path.file' => 'El campo archivo debe ser un archivo.',
-            'file_path.mimes' => 'El archivo debe ser de tipo: jpg, jpeg, png, pdf.',
-            'file_path.max' => 'El archivo no debe exceder los 2MB.',
         ];
     }
 }

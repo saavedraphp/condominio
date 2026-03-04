@@ -140,6 +140,7 @@
         <p><strong>{{$bank_account_name}}, presidente</strong></p>
         <p>{{$title}}</p>
     </div>
+    <br>
 </div>
 </body>
 </html>
