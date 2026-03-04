@@ -583,7 +583,7 @@ const handleClosePreviewFileModal = () => {
                         </div>
                         <v-alert v-if="!isEditingProject && !localProjectData.id" type="info" density="compact"
                                  class="ma-2" outlined>
-                            Las cotizaciones añadidas aquí se guardarán al guardar el nuevo proyecto.
+                            Las cotizaciones añadidas aquí se agregaran al guardar el nuevo proyecto.
                             Puedes gestionar (editar, eliminar o seleccionar) las cotizaciones una vez creado el
                             proyecto.
                         </v-alert>

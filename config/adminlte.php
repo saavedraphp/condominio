@@ -464,6 +464,10 @@ return [
                     'url' => 'admin/reports/expenses/list',
                 ],
                 [
+                    'text' => 'Balance de Ingresos y Gastos',
+                    'url' => 'admin/reports/income-statement/list',
+                ],
+                [
                     'text' => 'Pases de Visitas',
                     'url' => 'admin/reports/visit-pass/list',
                 ],
