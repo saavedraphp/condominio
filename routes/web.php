@@ -4,6 +4,7 @@
 use App\Http\Controllers\AccountActivationController;
 use App\Http\Controllers\Admin\AdsController;
 use App\Http\Controllers\Admin\Auth\LoginUserController as AdminLogin;
+use App\Http\Controllers\Admin\BalanceSheetController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
 use App\Http\Controllers\Admin\DoormanController;
 use App\Http\Controllers\Admin\ExpenseReportController;
@@ -334,6 +335,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::put('/building-expenses/{expense}', [ExpenseController::class, 'update'])->name('building-expenses.update');
         Route::post('building-expenses/{expense}/upload-image', [ExpenseController::class, 'uploadImage'])->name('building-expenses.upload-image');
         Route::delete('/building-expenses/{expense}', [ExpenseController::class, 'destroy'])->name('building-expenses.destroy');
+        Route::get('/building-expenses/next-code', [ExpenseController::class, 'getNextCode'])->name('building-expenses.next-code');
+
 
         //OTHER EXPENSES
         Route::get('/other-expenses/list', [OtherExpenseController::class, 'showPage'])->name('other-expenses.show-page');
@@ -417,6 +420,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/reports/income-statement/index', [IncomeStatementController::class, 'getSummary'])->name('reports.income-statement.index');
         Route::get('/reports/income-statement/preview', [IncomeStatementController::class, 'previewPdf'])->name('reports.income-statement.preview-pdf');
         Route::get('/reports/income-statement/download-pdf', [IncomeStatementController::class, 'downloadPdf'])->name('reports.income-statement.pdf');
+
+        /*REPORTE DE BALANCE GENERAL*/
+        Route::get('/reports/balance-sheet/list', [BalanceSheetController::class, 'showListPage'])->name('reports.balance-sheet.list');
+        Route::get('/reports/balance-sheet/preview', [BalanceSheetController::class, 'previewPdf'])->name('reports.balance-sheet.preview-pdf');
+        Route::get('/reports/balance-sheet/download-pdf', [BalanceSheetController::class, 'downloadPdf'])->name('reports.balance-sheet.pdf');
+
 
         /* REPORT EXPENSES*/
         Route::get('/reports/expenses/list', [ExpenseReportController::class, 'showListPage'])->name('reports.expenses.list');

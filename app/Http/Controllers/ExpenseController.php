@@ -137,6 +137,7 @@ class ExpenseController extends Controller
             'preview_job' => route('admin.expense.preview.job', [
                 'expense' => 'PLACEHOLDER_1'
             ]),
+            'next_code' => route('admin.building-expenses.next-code'),
         ];
         $meta = [
             'title' => 'Gastos del Edificio',
@@ -181,6 +182,11 @@ class ExpenseController extends Controller
                 'description' => $validatedData['description'],
                 'amount' => $validatedData['amount'],
                 'expense_date' => $validatedData['expense_date'],
+                'is_asset' => $request->input('is_asset', false),
+                'asset_type' => $request->input('asset_type', null),
+                'asset_code' => $request->input('asset_code', null),
+                'asset_brand' => $request->input('asset_brand', null),
+                'market_value' => $request->input('market_value', null),
                 'white_label_id' => 1,
             ]);
 
@@ -210,6 +216,11 @@ class ExpenseController extends Controller
                 'description' => $validatedData['description'],
                 'amount' => $validatedData['amount'],
                 'expense_date' => $validatedData['expense_date'],
+                'is_asset' => $request->input('is_asset'),
+                'asset_type' => $request->input('asset_type'),
+                'asset_code' => $request->input('asset_code'),
+                'asset_brand' => $request->input('asset_brand'),
+                'market_value' => $request->input('market_value'),
             ];
 
             $expense->update($dataToUpdate);
@@ -372,7 +383,7 @@ class ExpenseController extends Controller
             ]);
 
         } catch (\exception $e) {
-            $errorMessage = 'Error al intentar eliminar la imagen  de registro id: ' . $expense?->id. ' de la columna: ' . $targetColumn;
+            $errorMessage = 'Error al intentar eliminar la imagen  de registro id: ' . $expense?->id . ' de la columna: ' . $targetColumn;
             Log::error($errorMessage . ': ' . $e->getMessage(), ['exception' => $e]);
 
             return response()->json([
@@ -402,5 +413,37 @@ class ExpenseController extends Controller
         }
 
         return $query;
+    }
+
+    public function getNextCode(Request $request)
+    {
+        $type = $request->query('type'); // 'asset' o 'supply'
+
+        // Definir el prefijo basado en el tipo
+        $prefix = $type === 'asset' ? 'ACTI-' : 'ACTS-';
+
+        // Buscar el último registro de ese tipo (asumiendo que la columna se llama 'code')
+        $lastExpense = Expense::withTrashed()
+            ->where('is_asset', 1)
+            ->where('asset_type', $type)
+            ->orderBy('id', 'desc') // o orderBy('code', 'desc')
+            ->first();
+
+        if (!$lastExpense || !$lastExpense->asset_code) {
+            // Si no hay registros, iniciamos en 0001
+            $newCode = $prefix . '0001';
+        } else {
+            // Extraer el número del último código (ej. "ACTI-0005" -> 5)
+            // Usamos substr para quitar el prefijo (5 caracteres: A,C,T,I,-)
+            $lastNumber = (int)substr($lastExpense->asset_code, 5);
+            $nextNumber = $lastNumber + 1;
+
+            // Formatear el nuevo número con 4 ceros a la izquierda
+            $newCode = $prefix . str_pad($nextNumber, 4, '0', STR_PAD_LEFT);
+        }
+
+        return response()->json([
+            'asset_code' => $newCode
+        ]);
     }
 }
