@@ -205,8 +205,6 @@
         </tr>
 
     </table>
-<p style="page-break-before: always;"></p>
-
     <div class="header-box">
         INFORME DE ACTIVOS Y PASIVOS
     </div>
