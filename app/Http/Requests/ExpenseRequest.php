@@ -27,6 +27,11 @@ class ExpenseRequest extends FormRequest
             'description' => 'required|string|max:50',
             'amount' => 'required|numeric|gt:0',
             'expense_date' => 'required|date',
+            'is_asset' => 'nullable|boolean',
+            'asset_type' => 'required_if:is_asset,true,1|nullable|string',
+            'asset_code' => 'nullable|string|max:10',
+            'asset_brand' => 'nullable|string|max:50',
+            'market_value' => 'nullable|numeric',
         ];
 
         return $rules;
@@ -44,6 +49,7 @@ class ExpenseRequest extends FormRequest
             'amount.gt' => 'El campo monto debe ser mayor que cero.',
             'expense_date.required' => 'El campo fecha es obligatorio.',
             'expense_date.date' => 'El campo fecha debe ser una fecha válida.',
+            'asset_type.required_if' => 'Si el gasto es un activo o suministro, debes seleccionar un tipo.',
         ];
     }
 }

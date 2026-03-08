@@ -182,11 +182,11 @@ class ExpenseController extends Controller
                 'description' => $validatedData['description'],
                 'amount' => $validatedData['amount'],
                 'expense_date' => $validatedData['expense_date'],
-                'is_asset' => $request->input('is_asset', false),
-                'asset_type' => $request->input('asset_type', null),
-                'asset_code' => $request->input('asset_code', null),
-                'asset_brand' => $request->input('asset_brand', null),
-                'market_value' => $request->input('market_value', null),
+                'is_asset'         => $request->boolean('is_asset'),
+                'asset_type'       => $validatedData['asset_type'] ?? null,
+                'asset_code'       => $validatedData['asset_code'] ?? null,
+                'asset_brand'      => $validatedData['asset_brand'] ?? null,
+                'market_value'     => $validatedData['market_value'] ?? null,
                 'white_label_id' => 1,
             ]);
 
@@ -216,11 +216,11 @@ class ExpenseController extends Controller
                 'description' => $validatedData['description'],
                 'amount' => $validatedData['amount'],
                 'expense_date' => $validatedData['expense_date'],
-                'is_asset' => $request->input('is_asset'),
-                'asset_type' => $request->input('asset_type'),
-                'asset_code' => $request->input('asset_code'),
-                'asset_brand' => $request->input('asset_brand'),
-                'market_value' => $request->input('market_value'),
+                'is_asset' => $validatedData['is_asset'] ?? false,
+                'asset_type' => $validatedData['asset_type'] ?? null,
+                'asset_code' => $validatedData['asset_code'] ?? null,
+                'asset_brand' => $validatedData['asset_brand'] ?? null,
+                'market_value' => $validatedData['market_value'] ?? null,
             ];
 
             $expense->update($dataToUpdate);

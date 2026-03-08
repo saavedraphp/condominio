@@ -47,6 +47,12 @@ const {handleSubmit, resetForm} = useForm({
         amount: '',
         expense_date: new Date().toISOString().split('T')[0], // Formato YYYY-MM-DD
         documentFile: null,
+        is_asset: false,
+        asset_brand: '',
+        asset_code: '',
+        asset_type: '',
+        selectedTypeActive: '',
+        market_value: '',
     }
 });
 
@@ -195,6 +201,8 @@ watch(() => props.element, (newValue) => {
         generatedCode.value = newValue.asset_code || "";
         asset_brand.value = newValue.asset_brand || "";
         market_value.value = newValue.market_value || "";
+        originalType.value = newValue.asset_type || "";
+        originalCode.value = newValue.asset_code || "";
 
     } else {
         resetForm();
@@ -249,6 +257,21 @@ const uploadImage = async () => {
 
 const submitForm = handleSubmit(async (values) => {
 
+    if(isAsset.value && !selectedTypeActive.value) {
+        mySnackbar.value.show('Si el gasto es un activo o suministro, debes seleccionar un tipo.', 'error');
+        return;
+    }
+
+    if(isAsset.value && !generatedCode.value) {
+        mySnackbar.value.show('No se ha podido generar un código para el activo/suministro. Por favor, intenta seleccionar el tipo nuevamente.', 'error');
+        return;
+    }
+
+    if(selectedTypeActive.value && !isAsset.value) {
+        mySnackbar.value.show('Si has seleccionado un tipo de activo, el gasto debe ser marcado como activo o suministro.', 'error');
+        return;
+    }
+
     const formData = new FormData();
     formData.append('description', values.description);
     formData.append('title', values.title);
@@ -256,11 +279,10 @@ const submitForm = handleSubmit(async (values) => {
     formData.append('expense_date', values.expense_date);
     formData.append('annual_budget_id', selectedAnnualBudget.value.id);
     formData.append('is_asset', isAsset.value ? '1' : '0');
-    formData.append('asset_type', selectedTypeActive.value);
-    formData.append('asset_code', generatedCode.value);
-    formData.append(('asset_brand'), asset_brand.value);
-    formData.append(('market_value'), market_value.value);
-
+    formData.append('asset_type', selectedTypeActive.value ? selectedTypeActive.value : '');
+    formData.append('asset_code', generatedCode.value? generatedCode.value : '');
+    formData.append(('asset_brand'), values.asset_brand);
+    formData.append(('market_value'), values.market_value);
 
     isRecording.value = true;
     let url = `${props.urlBase['base']}/`;
