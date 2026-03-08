@@ -8,6 +8,7 @@ use App\Models\Setting;
 use App\Services\FinancialReportService;
 use App\Services\SharedViewDataService;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
@@ -116,7 +117,7 @@ class BalanceSheetController extends Controller
 
         // 2. PASAS EL VALOR CALCULADO A TUS MÉTODOS
         $currentAssets = $this->getCurrentAssets($balance, $totalAmountDue);
-        $nonCurrentAssets = $this->getNonCurrentAssets();
+        $nonCurrentAssets = $this->getNonCurrentAssets($year, $month);
         $liabilities = $this->getLiabilities($totalAmountDue);
         $totalAssets = array_sum($currentAssets) + array_sum($nonCurrentAssets);
 
@@ -147,21 +148,25 @@ class BalanceSheetController extends Controller
 
     }
 
-    private function getTotalAssets(string $type): float
+    private function getTotalAssets(string $type, string $year = null, string $month = null): float
     {
         $assets = Expense::query()
             ->where('is_asset', true)
             ->where('asset_type', $type)
+            ->when($month, function (Builder $query) use ($year, $month) {
+                $date = Carbon::createFromDate($year, $month, 1)->endOfMonth();
+                $query->whereDate('expense_date', '<=', $date);
+            })
             ->sum('amount');
 
         return round((float)$assets, 2);
 
     }
 
-    private function getNonCurrentAssets(): array
+    private function getNonCurrentAssets(string $year, string $month): array
     {
-        $totalAsset = $this->getTotalAssets('asset');
-        $totalSupplies = $this->getTotalAssets('supply');
+        $totalAsset = $this->getTotalAssets('asset', $year, $month);
+        $totalSupplies = $this->getTotalAssets('supply', $year, $month);
 
         return [
             'assets' => $totalAsset,
@@ -206,7 +211,7 @@ class BalanceSheetController extends Controller
             'anho' => $request->input('anho', date('Y')),
             'month' => $request->input('month', date('m')),
             'month_name' => strtoupper(Carbon::create()->month($request->input('month'))->translatedFormat('F')),
-            'last_day_month' => Carbon::create()->month($request->input('month'))->endOfMonth()->day,
+            'last_day_month' => Carbon::create($request->input('year'), $request->input('month'), 1)->endOfMonth()->day,
             'site_name' => strtoupper($this->settings['site_title']),
             'is_preview' => $isPreview,
         ];

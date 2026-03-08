@@ -20,10 +20,16 @@
             padding: 4px 6px;
         }
 
+        .td-right {
+            text-align: right;
+            width: 20%;
+        }
+
         .header-box {
             border: 2px solid #000;
             background: #d9e1e5;
             text-align: center;
+            font-size: 18px;
             font-weight: bold;
             padding: 6px;
             margin-top: 10px;
@@ -34,12 +40,25 @@
             padding-top: 10px;
         }
 
+        .assets-title {
+            font-weight: bold;
+            padding-top: 10px;
+            text-decoration: underline;
+        }
         .right {
             text-align: right;
         }
 
         .indent {
             padding-left: 25px;
+        }
+
+        .indent-two {
+            padding-left: 50px;
+        }
+
+        .indent-three {
+            padding-left: 75px;
         }
 
         .total {
@@ -104,11 +123,15 @@
         th {
             background-color: #f2f2f2;
         }
+
+        .new_page {
+            page-break-before: always;
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
+<div>
     <div class="card-header">
         <img src="{{ $attributes['logo_path'] }}" alt="Logo">
         @if( $attributes['is_preview'])
@@ -138,7 +161,7 @@
 
         <tr>
             <td class="indent">SALDO DEL MES ANTERIOR</td>
-            <td class="right">{{number_format($last_balance,2)}}</td>
+            <td class="td-right">{{number_format($last_balance,2)}}</td>
         </tr>
 
         <tr>
@@ -147,32 +170,32 @@
         </tr>
 
         <tr>
-            <td class="indent">CUOTA DE GASTOS COMUNES (17 UNIDADES)</td>
+            <td class="indent-two">CUOTA DE GASTOS COMUNES (17 UNIDADES)</td>
             <td class="right">{{number_format($incomes_general['common_income'],2)}}</td>
         </tr>
 
         <tr>
-            <td class="indent">CUOTA EXTRAORDINARIA</td>
+            <td class="indent-two">CUOTA EXTRAORDINARIA</td>
             <td class="right">{{number_format($incomes_general['extraordinary_income'],2)}}</td>
         </tr>
 
         <tr>
-            <td class="indent">INGRESOS DE RENTA DE PARRILLA</td>
+            <td class="indent-two">INGRESOS DE RENTA DE PARRILLA</td>
             <td class="right">{{number_format($incomes_general['grill_rental_income'],2)}}</td>
         </tr>
 
         <tr>
-            <td class="indent">INGRESOS DE RENTA DE CINE</td>
+            <td class="indent-two">INGRESOS DE RENTA DE CINE</td>
             <td class="right">{{number_format($incomes_general['cine_rental_income'],2)}}</td>
         </tr>
 
         <tr>
-            <td class="indent">PENALIDAD POR MORA DEL MES</td>
+            <td class="indent-two">PENALIDAD POR MORA DEL MES</td>
             <td class="right">{{number_format($incomes_general['penalties_income'],2)}}</td>
         </tr>
 
         <tr class="total">
-            <td>TOTAL INGRESOS AL {{$attributes['month_name']}} DE {{$attributes['anho']}}</td>
+            <td class="right">TOTAL INGRESOS AL {{$attributes['month_name']}} DE {{$attributes['anho']}}</td>
             <td class="right">{{number_format($grandTotalIncome,2)}}</td>
         </tr>
 
@@ -195,17 +218,17 @@
 
 
         <tr class="total">
-            <td>TOTAL EGRESOS AL {{$attributes['month_name']}} DE {{$attributes['anho']}}</td>
-            <td class="right">{{number_format($grand_total_expenses,2)}}</td>
+            <td class="right">TOTAL EGRESOS AL {{$attributes['month_name']}} DE {{$attributes['anho']}}</td>
+            <td class="td-right">{{number_format($grand_total_expenses,2)}}</td>
         </tr>
 
         <tr class="balance">
-            <td>BALANCE</td>
-            <td class="right">({{number_format($balance,2)}})</td>
+            <td class="right">BALANCE</td>
+            <td class="td-right">({{number_format($balance,2)}})</td>
         </tr>
 
     </table>
-    <div class="header-box">
+    <div class="header-box new_page">
         INFORME DE ACTIVOS Y PASIVOS
     </div>
 
@@ -216,51 +239,51 @@
         </tr>
 
         <tr>
-            <td colspan="2" class="section-title">ACTIVOS CORRIENTES</td>
+            <td colspan="2" class="assets-title indent ">ACTIVOS CORRIENTES</td>
         </tr>
 
         <tr>
-            <td class="indent">EFECTIVO EN BANCA (BCP)</td>
-            <td class="right">{{number_format($current_assets['cash_bank'],2)}}</td>
+            <td class="indent-two">EFECTIVO EN BANCA (BCP)</td>
+            <td class="td-right right">{{number_format($current_assets['cash_bank'],2)}}</td>
         </tr>
 
         <tr>
-            <td class="indent">CUENTAS POR COBRAR</td>
+            <td class="indent-two">CUENTAS POR COBRAR</td>
             <td class="right">{{number_format($current_assets['accounts_receivable'],2)}}</td>
         </tr>
 
         <tr>
-            <td class="indent">GASTOS ANTICIPADOS</td>
+            <td class="indent-two">GASTOS ANTICIPADOS</td>
             <td class="right">{{number_format($current_assets['expenses_prepaid'],2)}}</td>
         </tr>
 
         <tr class="total">
-            <td>TOTAL ACTIVOS CORRIENTES</td>
+            <td class="right">TOTAL ACTIVOS CORRIENTES</td>
             <td class="right">{{number_format(array_sum($current_assets),2)}}</td>
         </tr>
 
         <tr>
-            <td colspan="2" class="section-title">ACTIVOS NO CORRIENTES</td>
+            <td colspan="2" class="assets-title indent">ACTIVOS NO CORRIENTES</td>
         </tr>
 
         <tr>
-            <td class="indent">ACTIVOS GENERALES</td>
+            <td class="indent-two">ACTIVOS GENERALES</td>
             <td class="right">{{number_format($non_current_assets['assets'],2)}}</td>
         </tr>
 
         <tr>
-            <td class="indent">ACTIVOS - SUMINISTROS</td>
+            <td class="indent-two">ACTIVOS - SUMINISTROS</td>
             <td class="right">{{number_format($non_current_assets['supplies'],2)}}</td>
         </tr>
 
         <tr class="total">
-            <td>TOTAL ACTIVOS NO CORRIENTES</td>
-            <td class="right">{{number_format(array_sum($non_current_assets),2)}}</td>
+            <td class="right">TOTAL ACTIVOS NO CORRIENTES</td>
+            <td class="td-right right">{{number_format(array_sum($non_current_assets),2)}}</td>
         </tr>
 
         <tr class="total">
-            <td>TOTAL ACTIVOS</td>
-            <td class="right">{{number_format($total_assets,2)}}</td>
+            <td class="right">TOTAL ACTIVOS</td>
+            <td class="td-right right">{{number_format($total_assets,2)}}</td>
         </tr>
 
         <tr>
@@ -283,12 +306,12 @@
         </tr>
 
         <tr class="total">
-            <td>TOTAL PASIVOS</td>
+            <td class="right">TOTAL PASIVOS</td>
             <td class="right">{{number_format(array_sum($liabilities),2)}}</td>
         </tr>
 
         <tr class="double-line total">
-            <td>BALANCE PATRIMONIAL</td>
+            <td class="right">BALANCE PATRIMONIAL</td>
             <td class="right">{{number_format($equity_balance,2)}}</td>
         </tr>
 
