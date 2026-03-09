@@ -426,7 +426,7 @@ class ExpenseController extends Controller
         $lastExpense = Expense::withTrashed()
             ->where('is_asset', 1)
             ->where('asset_type', $type)
-            ->orderBy('id', 'desc') // o orderBy('code', 'desc')
+            ->orderBy('asset_code', 'desc')
             ->first();
 
         if (!$lastExpense || !$lastExpense->asset_code) {
