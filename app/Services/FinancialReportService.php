@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\BudgetType;
 use App\Models\House;
 use App\Models\HousePayment;
 use App\Models\Expense;
@@ -118,5 +119,62 @@ class FinancialReportService
         return $filteredData
             ->sortByDesc('total_due')
             ->values();
+    }
+
+    /**
+     * Obtiene el resumen de egresos agrupados por categoría,
+     * incluyendo aquellas con total 0.00.
+     */
+    public function getExpensesSummary(?string $startDate, ?string $endDate, ?string $budgetScope = null): Collection
+    {
+        // 1. Obtenemos la consulta original y ejecutamos para traer los datos reales
+        $expenses = $this->getExpensesQuery($startDate, $endDate, $budgetScope)->get();
+
+        // 2. Agrupamos y sumamos solo lo que realmente se gastó
+        $expensesTotals = $expenses->groupBy(function ($expense) {
+            return $expense->annualBudget?->budgetType?->name ?? 'Sin Categoría';
+        })->map->sum('amount');
+
+        // 3. Consultamos TODOS los tipos de presupuesto
+        // Mencionaste "correspondientes a ese año". Si guardas el año en annual_budgets,
+        // puedes filtrar aquí. Si no, esto trae todo el catálogo ordenado.
+        $allBudgetTypesQuery = BudgetType::query()
+            ->when($budgetScope, function ($query) use ($budgetScope) {
+                $query->where('budget_scope', $budgetScope);
+            });
+
+        // OPCIONAL: Si necesitas filtrar ESTRICTAMENTE para que solo salgan
+        // los budget_types que tienen un presupuesto creado para ese año.
+        // (Asumiendo que $startDate tiene formato 'Y-m-d' y extraes el año)
+        if ($startDate) {
+            $year = date('Y', strtotime($startDate));
+            $allBudgetTypesQuery->whereHas('annualBudgets', function ($q) use ($year) {
+                $q->where('year', $year);
+            });
+        }
+
+
+        // Obtenemos solo los nombres ordenados de la A a la Z
+        $allBudgetTypes = $allBudgetTypesQuery->orderBy('name', 'asc')->pluck('name');
+
+        // 4. Mapeamos para estructurar el resultado final (fusionando nombres con totales)
+        $summary = $allBudgetTypes->map(function ($budgetName) use ($expensesTotals) {
+            return [
+                'name' => $budgetName,
+                // Si la categoría existe en los gastos, pone el total, si no, 0.00
+                'total' => $expensesTotals->get($budgetName, 0.00)
+            ];
+        });
+
+        // 5. Manejo de gastos huérfanos (si algún gasto se quedó sin categoría asignada)
+        if ($expensesTotals->has('Sin Categoría')) {
+            $summary->push([
+                'name' => 'Sin Categoría',
+                'total' => $expensesTotals->get('Sin Categoría')
+            ]);
+        }
+
+        // Retornamos los valores limpios
+        return $summary->values();
     }
 }

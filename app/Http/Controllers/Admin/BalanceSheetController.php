@@ -88,25 +88,9 @@ class BalanceSheetController extends Controller
         $lastBalance = $this->BalanceLast($request);
 
         /*CALCULO PARA EL SALDO DEL MES ANTERIOR*/
-
-        $expensesQuery = $this->financialService->getExpensesQuery($startDate, $endDate, 'building');
-
-        // Calcular totales
-
-        $totalExpenses = round((float)$expensesQuery->clone()->sum('amount'), 2);
-        $expenses = $expensesQuery->orderBy('expense_date', 'desc')->get();
-
-        $expensesSummary = $expenses->groupBy(function ($expense) {
-            return $expense->annualBudget?->budgetType?->name ?? 'Sin Categoría';
-        })->map(function ($group, $budgetName) {
-            return [
-                'name' => $budgetName,
-                'total' => $group->sum('amount')
-            ];
-        })->values();
+        $expensesSummary = $this->financialService->getExpensesSummary($startDate, $endDate, 'building');
 
         $grandExpensesTotal = $expensesSummary->sum('total');
-
 
         $incomesGeneralItems = $this->getIncomeGeneral($startDate, $endDate);
         $balance = ($lastBalance + array_sum($incomesGeneralItems)) - $grandExpensesTotal;
@@ -205,6 +189,8 @@ class BalanceSheetController extends Controller
     {
         $logoPathDB = $this->settings['logo_for_receipts_imagen'] ?? null;
         $logoPath = $this->sharedViewDataService->get($logoPathDB, $isPreview);
+        $signaturePathDB = $this->settings['signature_for_receipts_imagen'] ?? null;
+        $signaturePath = $this->sharedViewDataService->get($signaturePathDB, $isPreview);
 
         return [
             'logo_path' => $logoPath,
@@ -213,6 +199,8 @@ class BalanceSheetController extends Controller
             'month_name' => strtoupper(Carbon::create()->month($request->input('month'))->translatedFormat('F')),
             'last_day_month' => Carbon::create($request->input('year'), $request->input('month'), 1)->endOfMonth()->day,
             'site_name' => strtoupper($this->settings['site_title']),
+            'signature_path' => $signaturePath,
+            'name_president' => $this->settings['name_president'],
             'is_preview' => $isPreview,
         ];
     }
