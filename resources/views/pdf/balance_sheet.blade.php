@@ -253,7 +253,7 @@
 
         <tr class="balance">
             <td class="right">BALANCE</td>
-            <td class="td-right">({{number_format($balance,2)}})</td>
+            <td class="td-right">{{$balance_formated}}</td>
         </tr>
 
     </table>

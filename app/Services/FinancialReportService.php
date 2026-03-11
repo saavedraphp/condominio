@@ -113,7 +113,6 @@ class FinancialReportService
                 });
             });
         // Si $debtStatus es 'all', ninguna de las condiciones 'when' se cumple,
-        // y la colección original ($usersWithTotalDebt) pasa sin cambios. ¡Perfecto!
 
         // El ordenamiento y la re-indexación se aplican al final, sobre la colección ya filtrada.
         return $filteredData

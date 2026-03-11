@@ -59,17 +59,24 @@ class BalanceSheetController extends Controller
     {
         $year = $request->input('anho');
         $month = $request->input('month');
+
+        // Obtenemos el último día del mes anterior
         $date = Carbon::create($year, $month, 1);
-        $startPreviousMonth = $date->copy()->subMonth()->startOfMonth()->toDateString();
         $endPreviousMonth = $date->copy()->subMonth()->endOfMonth()->toDateString();
 
-        /*CALCULO PARA EL SALDO DEL MES ANTERIOR*/
-        $paymentsQueryPrev = $this->financialService->getPaymentsQuery($startPreviousMonth, $endPreviousMonth);
-        $expensesQueryPrev = $this->financialService->getExpensesQuery($startPreviousMonth, $endPreviousMonth, 'building');
+        /*
+         * CALCULO PARA EL SALDO DEL MES ANTERIOR (ACUMULADO HISTÓRICO)
+         * Pasamos 'null' como fecha de inicio para que sume TODO desde el principio
+         * hasta el último día del mes anterior.
+         */
+        $paymentsQueryPrev = $this->financialService->getPaymentsQuery(null, $endPreviousMonth);
+        $expensesQueryPrev = $this->financialService->getExpensesQuery(null, $endPreviousMonth, 'building');
 
-        // Calcular totales
+        // Calcular totales acumulados
         $totalPaymentsPrev = round((float)$paymentsQueryPrev->clone()->sum('amount'), 2);
         $totalExpensesPrev = round((float)$expensesQueryPrev->clone()->sum('amount'), 2);
+
+        // El balance real es la diferencia histórica
         $lastBalance = $totalPaymentsPrev - $totalExpensesPrev;
 
         return $lastBalance;
@@ -112,6 +119,7 @@ class BalanceSheetController extends Controller
             'last_balance' => $lastBalance,
             'grandTotalIncome' => $lastBalance + array_sum($incomesGeneralItems),
             'balance' => $balance,
+            'balance_formated' => $balance >= 0 ? number_format($balance, 2) : '(' . number_format(abs($balance), 2) . ')',
             'expenses' => $expensesSummary,
             'grand_total_expenses' => $grandExpensesTotal,
             'current_assets' => $currentAssets,
