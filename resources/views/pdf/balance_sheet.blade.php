@@ -346,7 +346,7 @@
 
     </table>
 
-    <div class="signature-block new_page">
+    <div class="signature-block">
         @if($attributes['signature_path'])
             <div class="signature-container">
                 <img src="{{$attributes['signature_path']}}" alt="Firma digital">
