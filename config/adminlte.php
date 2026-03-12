@@ -468,6 +468,10 @@ return [
                     'url' => 'admin/reports/income-statement/list',
                 ],
                 [
+                    'text' => 'Balance General',
+                    'route' => 'admin.reports.balance-sheet.list',
+                ],
+                [
                     'text' => 'Pases de Visitas',
                     'url' => 'admin/reports/visit-pass/list',
                 ],

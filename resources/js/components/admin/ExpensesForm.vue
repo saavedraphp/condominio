@@ -7,7 +7,7 @@ import Snackbar from "@/components/Snackbar.vue";
 import PreviewImageDialog from "@/components/user/PreviewImageDialog.vue";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal.vue";
 
-const emit = defineEmits(['update:modelValue', 'expense-created', 'expense-edited','update-element']);
+const emit = defineEmits(['update:modelValue', 'expense-created', 'expense-edited', 'update-element']);
 const props = defineProps({
     modelValue: Boolean,
     element: Object,
@@ -47,6 +47,12 @@ const {handleSubmit, resetForm} = useForm({
         amount: '',
         expense_date: new Date().toISOString().split('T')[0], // Formato YYYY-MM-DD
         documentFile: null,
+        is_asset: false,
+        asset_brand: '',
+        asset_code: '',
+        asset_type: '',
+        selectedTypeActive: '',
+        market_value: '',
     }
 });
 
@@ -59,12 +65,31 @@ const expense_date = useField('expense_date');
 const description = useField('description');
 const {value: title, errorMessage: titleError} = useField('title');
 const {value: documentFile, errorMessage: documentFileError} = useField('documentFile');
+const {value: selectedTypeActive, errorMessage: selectedTypeActiveError} = useField('selectedTypeActive');
+const {value: asset_brand, errorMessage: assetBrandError} = useField('asset_brand');
+const {value: market_value, errorMessage: marketValueError} = useField('market_value');
+
 const amount = useField('amount');
 const isRecording = ref(false);
 const mySnackbar = ref(null);
 const errorMessage = ref(null);
 const currentSearch = ref('');
 const selectExpenseType = ref(null);
+
+const activeTab = ref('expenses');
+
+const isAsset = ref(false);
+const generatedCode = ref('');
+
+// --- VARIABLES PARA EL MODO EDICIÓN ---
+const originalType = ref(null);
+const originalCode = ref('');
+const typeAssetsItems = computed(() => {
+    return [
+        {text: 'Activo', value: 'asset'},
+        {text: 'Suministro', value: 'supply'}
+    ];
+});
 
 const arrayImages = computed(() => {
     // Si no hay elemento (ej. creando nuevo), devolvemos un arreglo vacío
@@ -171,6 +196,14 @@ watch(() => props.element, (newValue) => {
         title.value = newValue.title || "";
         amount.value.value = newValue.amount || "";
         expense_date.value.value = new Date(newValue.expense_date).toISOString().split('T')[0] || "";
+        selectedTypeActive.value = newValue.asset_type || "";
+        isAsset.value = !!newValue.is_asset;
+        generatedCode.value = newValue.asset_code || "";
+        asset_brand.value = newValue.asset_brand || "";
+        market_value.value = newValue.market_value || "";
+        originalType.value = newValue.asset_type || "";
+        originalCode.value = newValue.asset_code || "";
+
     } else {
         resetForm();
     }
@@ -224,12 +257,32 @@ const uploadImage = async () => {
 
 const submitForm = handleSubmit(async (values) => {
 
+    if(isAsset.value && !selectedTypeActive.value) {
+        mySnackbar.value.show('Si el gasto es un activo o suministro, debes seleccionar un tipo.', 'error');
+        return;
+    }
+
+    if(isAsset.value && !generatedCode.value) {
+        mySnackbar.value.show('No se ha podido generar un código para el activo/suministro. Por favor, intenta seleccionar el tipo nuevamente.', 'error');
+        return;
+    }
+
+    if(selectedTypeActive.value && !isAsset.value) {
+        mySnackbar.value.show('Si has seleccionado un tipo de activo, el gasto debe ser marcado como activo o suministro.', 'error');
+        return;
+    }
+
     const formData = new FormData();
     formData.append('description', values.description);
     formData.append('title', values.title);
     formData.append('amount', values.amount);
     formData.append('expense_date', values.expense_date);
     formData.append('annual_budget_id', selectedAnnualBudget.value.id);
+    formData.append('is_asset', isAsset.value ? '1' : '0');
+    formData.append('asset_type', selectedTypeActive.value ? selectedTypeActive.value : '');
+    formData.append('asset_code', generatedCode.value? generatedCode.value : '');
+    formData.append(('asset_brand'), values.asset_brand);
+    formData.append(('market_value'), values.market_value);
 
     isRecording.value = true;
     let url = `${props.urlBase['base']}/`;
@@ -317,184 +370,277 @@ const closeDeleteModal = () => {
         isLoading.value = false;
     }, 300);
 };
+
+watch(selectedTypeActive, async (newValue) => {
+    // Si el valor es nulo (se limpió el selector), vaciamos el código
+    if (!newValue) {
+        generatedCode.value = '';
+        return;
+    }
+
+    // EL CASO MÁGICO DE LA EDICIÓN:
+    // Si estamos editando y el usuario volvió a seleccionar el tipo con el que se abrió el formulario,
+    // restauramos el código original en lugar de pedir uno nuevo a la BD.
+    if (isEditing.value && newValue === originalType.value) {
+        generatedCode.value = originalCode.value;
+        return;
+    }
+
+    // Si es nuevo o cambió a un tipo distinto al original, consultamos al Backend
+    try {
+        const response = await axios.get(`${props.urlBase['next_code']}?type=${newValue}`);
+        generatedCode.value = response.data.asset_code;
+    } catch (error) {
+        console.error('Error al generar el código:', error);
+    }
+});
+
 </script>
 <template>
-    <v-dialog v-model="dialog" persistent max-width="600px">
+    <v-dialog v-model="dialog" persistent max-width="700px">
         <v-card>
             <v-card-title>{{ formTitle }}</v-card-title>
+            <v-tabs v-model="activeTab" color="primary" grow class="mb-0">
+                <v-tab value="expenses" :disabled="isLoading">Detalles del Gasto</v-tab>
+                <v-tab value="active" :disabled="isLoading">Datos de Activo/Suministro</v-tab>
+            </v-tabs>
             <v-card-text>
                 <v-form @submit.prevent="submitForm">
+                    <v-window v-model="activeTab">
+                        <v-window-item value="expenses">
 
-                    <v-row dense>
-                        <v-col cols="12">
-                            <v-autocomplete
-                                v-model="selectedAnnualBudget"
-                                :items="annualBudget"
-                                :loading="isLoadingBudget"
-                                :disabled="isLoadingBudget"
-                                item-title="Tipo de gasto"
-                                item-value="id"
-                                label="Buscar y seleccionar el tipo de gasto..."
-                                placeholder="Escribe el nombre..."
+                            <v-row class="mt-5">
+                                <v-col cols="12">
+                                    <v-autocomplete
+                                        v-model="selectedAnnualBudget"
+                                        :items="annualBudget"
+                                        :loading="isLoadingBudget"
+                                        :disabled="isLoadingBudget"
+                                        item-title="Tipo de gasto"
+                                        item-value="id"
+                                        label="Buscar y seleccionar el tipo de gasto..."
+                                        placeholder="Escribe el nombre..."
+                                        variant="outlined"
+                                        return-object
+                                        clearable
+                                        no-data-text="No se encontraron gastos"
+                                        @update:search="onSearchInput"
+                                    >
+                                        <!-- Opcional: Personalizar cómo se muestra cada item en la lista -->
+                                        <template v-slot:item="{ props, item }">
+                                            <v-list-item
+                                                v-bind="props"
+                                                :title="`${item.raw.budget_type.name} (${item.raw.year})`"
+                                            ></v-list-item>
+                                        </template>
+
+                                        <!-- Opcional: Mostrar algo más que el item-title cuando está seleccionado -->
+                                        <template v-slot:selection="{ item }">
+                                            <span>{{ item.raw.budget_type.name }} ({{ item.raw.year }})</span>
+                                        </template>
+
+                                    </v-autocomplete>
+                                </v-col>
+                            </v-row>
+
+                            <v-text-field
+                                v-model="title"
+                                :error-messages="titleError"
                                 variant="outlined"
-                                return-object
-                                clearable
-                                no-data-text="No se encontraron gastos"
-                                @update:search="onSearchInput"
+                                label="Título del gasto"
+                            ></v-text-field>
+                            <v-textarea
+                                v-model="description.value.value"
+                                :error-messages="description.errorMessage.value"
+                                rows="3"
+                                variant="outlined"
+                                label="Descripción del gasto"
+                            />
+                            <v-row>
+                                <v-col cols="12" md="4">
+
+                                    <v-text-field
+                                        v-model="amount.value.value"
+                                        :error-messages="amount.errorMessage.value"
+                                        variant="outlined"
+                                        label="Monto"
+                                        type="number"
+                                    />
+                                </v-col>
+                                <v-col cols="12" md="4">
+                                    <v-text-field
+                                        v-model="expense_date.value.value"
+                                        :error-messages="expense_date.errorMessage.value"
+                                        variant="outlined"
+                                        label="Fecha del gasto"
+                                        type="date"
+                                    />
+                                </v-col>
+                                <v-col cols="12" md="4">
+                                    <v-checkbox
+                                        v-model="isAsset"
+                                        label="Es Activo/Suministro"
+                                        class="pa-0 ma-0"
+                                        density="compact"
+                                    >
+                                    </v-checkbox>
+                                </v-col>
+                            </v-row>
+
+                            <v-alert v-if="!element && !element?.id" type="info" density="compact"
+                                     class="ma-2" outlined>
+                                Las imagenes podran ser asociadas a un gasto una vez que este haya sido creado, por lo
+                                que si
+                                deseas agregar una imagen, primero debes guardar el gasto y luego editarlo para subir la
+                                imagen.
+                            </v-alert>
+                            <v-row v-else>
+                                <v-col cols="12" md="6">
+                                    <v-file-input
+                                        v-model="documentFile"
+                                        :error-messages="documentFileError"
+                                        label="Imagen"
+                                        variant="outlined"
+                                        :accept="ACCEPTED_IMAGE_TYPES.join(',')"
+                                        prepend-icon=""
+                                        show-size
+                                        clearable
+                                    ></v-file-input>
+                                </v-col>
+                                <v-col cols="12" md="4">
+                                    <v-select
+                                        v-model="selectExpenseType"
+                                        :items="typeImageOptions"
+                                        :loading="isLoadingBudget"
+                                        :disabled="isLoadingBudget"
+                                        item-title="name"
+                                        item-value="id"
+                                        label="Tipo de imagen"
+                                        variant="outlined"
+                                        clearable
+                                    />
+                                </v-col>
+                                <v-col cols="12" md="2">
+                                    <v-btn color="primary"
+                                           variant="flat"
+                                           type="button"
+                                           :loading="isRecording"
+                                           :disabled="isRecording"
+                                           block
+                                           height="56"
+                                           @click="uploadImage"
+
+                                    >
+                                        Subir
+                                    </v-btn>
+                                </v-col>
+                            </v-row>
+                            <v-list v-if="arrayImages && arrayImages.length > 0" lines="two"
+                                    density="compact">
+                                <v-list-item
+                                    v-for="(item, index) in arrayImages"
+                                    :key="item.id"
+                                    class="mb-2 elevation-1"
+                                >
+                                    <v-list-item-title class="font-weight-medium">{{
+                                            item.name
+                                        }}
+                                    </v-list-item-title>
+                                    <template v-slot:append>
+                                        <v-tooltip text="Ver"
+                                                   v-if="item.file_path">
+                                            <template v-slot:activator="{ props: tooltipProps }">
+                                                <v-btn v-bind="tooltipProps" icon="mdi-eye" variant="text"
+                                                       color="info"
+                                                       size="small"
+                                                       @click="handleShowPreviewFile(item)"
+                                                ></v-btn>
+                                            </template>
+                                        </v-tooltip>
+                                        <v-tooltip text="Delete" v-if="item.file_path">
+                                            <template v-slot:activator="{ props: tooltipProps }">
+                                                <v-btn v-bind="tooltipProps" icon="mdi-delete" variant="text"
+                                                       color="error"
+                                                       size="small"
+                                                       @click="confirmDeleteImage(item, index)"
+                                                ></v-btn>
+                                            </template>
+                                        </v-tooltip>
+                                    </template>
+                                </v-list-item>
+                            </v-list>
+
+
+                        </v-window-item>
+                        <v-window-item value="active">
+                            <v-row class="mt-5">
+                                <v-col cols="12" sm="6">
+                                    <v-select
+                                        v-model="selectedTypeActive"
+                                        :items="typeAssetsItems"
+                                        clearable
+                                        label="Tipo"
+                                        item-title="text"
+                                        item-value="value"
+                                        variant="outlined"
+
+                                    ></v-select>
+                                </v-col>
+                                <v-col cols="12" sm="6">
+                                    <v-text-field
+                                        v-model="generatedCode"
+                                        readonly placeholder="Código autogenerado"
+                                        variant="outlined"
+                                        label="Código Autogenerado"
+                                    ></v-text-field>
+                                </v-col>
+                                <v-col cols="12" sm="6">
+                                    <v-text-field
+                                        v-model="asset_brand"
+                                        @input="asset_brand = asset_brand.toUpperCase()"
+                                        variant="outlined"
+                                        label="Marca/Modelo"
+                                    ></v-text-field>
+                                </v-col>
+                                <v-col cols="12" sm="6">
+                                    <v-text-field
+                                        v-model="market_value"
+                                        variant="outlined"
+                                        label="Valor en Perú"
+                                    ></v-text-field>
+                                </v-col>
+                                <v-col cols="12">
+                                    <v-alert type="info" variant="tonal">
+                                        Esta sección es para asociar el gasto a un activo o suministro, si es necesario.
+                                        Si
+                                        el gasto no está relacionado con un activo o suministro específico, puedes dejar
+                                        esta sección sin cambios.
+                                    </v-alert>
+                                </v-col>
+                            </v-row>
+                        </v-window-item>
+                        <v-alert type="error" variant="tonal" v-if="errorMessage">
+                            {{ errorMessage }}
+                        </v-alert>
+                        <v-card-actions>
+                            <v-spacer></v-spacer>
+                            <v-btn color="grey"
+                                   variant="flat"
+                                   @click="close"
+                                   :disabled="isRecording"
                             >
-                                <!-- Opcional: Personalizar cómo se muestra cada item en la lista -->
-                                <template v-slot:item="{ props, item }">
-                                    <v-list-item
-                                        v-bind="props"
-                                        :title="`${item.raw.budget_type.name} (${item.raw.year})`"
-                                    ></v-list-item>
-                                </template>
-
-                                <!-- Opcional: Mostrar algo más que el item-title cuando está seleccionado -->
-                                <template v-slot:selection="{ item }">
-                                    <span>{{ item.raw.budget_type.name }} ({{ item.raw.year }})</span>
-                                </template>
-
-                            </v-autocomplete>
-                        </v-col>
-                    </v-row>
-
-                    <v-text-field
-                        v-model="title"
-                        :error-messages="titleError"
-                        variant="outlined"
-                        label="Título del gasto"
-                    ></v-text-field>
-                    <v-textarea
-                        v-model="description.value.value"
-                        :error-messages="description.errorMessage.value"
-                        rows="3"
-                        variant="outlined"
-                        label="Descripción del gasto"
-                    />
-                    <v-row>
-                        <v-col cols="12" md="6">
-
-                            <v-text-field
-                                v-model="amount.value.value"
-                                :error-messages="amount.errorMessage.value"
-                                variant="outlined"
-                                label="Monto"
-                                type="number"
-                            />
-                        </v-col>
-                        <v-col cols="12" md="6">
-                            <v-text-field
-                                v-model="expense_date.value.value"
-                                :error-messages="expense_date.errorMessage.value"
-                                variant="outlined"
-                                label="Fecha del gasto"
-                                type="date"
-                            />
-                        </v-col>
-                    </v-row>
-                    <v-alert v-if="!element && !element?.id" type="info" density="compact"
-                             class="ma-2" outlined>
-                        Las imagenes podran ser asociadas a un gasto una vez que este haya sido creado, por lo que si
-                        deseas agregar una imagen, primero debes guardar el gasto y luego editarlo para subir la imagen.
-                    </v-alert>
-                    <v-row v-else>
-                        <v-col cols="12" md="6">
-                            <v-file-input
-                                v-model="documentFile"
-                                :error-messages="documentFileError"
-                                label="Imagen"
-                                variant="outlined"
-                                :accept="ACCEPTED_IMAGE_TYPES.join(',')"
-                                prepend-icon=""
-                                show-size
-                                clearable
-                            ></v-file-input>
-                        </v-col>
-                        <v-col cols="12" md="4">
-                            <v-select
-                                v-model="selectExpenseType"
-                                :items="typeImageOptions"
-                                :loading="isLoadingBudget"
-                                :disabled="isLoadingBudget"
-                                item-title="name"
-                                item-value="id"
-                                label="Tipo de imagen"
-                                variant="outlined"
-                                clearable
-                            />
-                        </v-col>
-                        <v-col cols="12" md="2">
+                                Cancelar
+                            </v-btn>
                             <v-btn color="primary"
                                    variant="flat"
-                                   type="button"
+                                   type="submit"
                                    :loading="isRecording"
                                    :disabled="isRecording"
-                                   block
-                                   height="56"
-                                   @click="uploadImage"
-
                             >
-                                Subir
+                                Guardar
                             </v-btn>
-                        </v-col>
-                    </v-row>
-                    <v-list v-if="arrayImages && arrayImages.length > 0" lines="two"
-                            density="compact">
-                        <v-list-item
-                            v-for="(item, index) in arrayImages"
-                            :key="item.id"
-                            class="mb-2 elevation-1"
-                        >
-                            <v-list-item-title class="font-weight-medium">{{
-                                    item.name
-                                }}
-                            </v-list-item-title>
-                            <template v-slot:append>
-                                <v-tooltip text="Ver"
-                                           v-if="item.file_path">
-                                    <template v-slot:activator="{ props: tooltipProps }">
-                                        <v-btn v-bind="tooltipProps" icon="mdi-eye" variant="text"
-                                               color="info"
-                                               size="small"
-                                               @click="handleShowPreviewFile(item)"
-                                        ></v-btn>
-                                    </template>
-                                </v-tooltip>
-                                <v-tooltip text="Delete" v-if="item.file_path">
-                                    <template v-slot:activator="{ props: tooltipProps }">
-                                        <v-btn v-bind="tooltipProps" icon="mdi-delete" variant="text"
-                                               color="error"
-                                               size="small"
-                                               @click="confirmDeleteImage(item, index)"
-                                        ></v-btn>
-                                    </template>
-                                </v-tooltip>
-                            </template>
-                        </v-list-item>
-                    </v-list>
-                    <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn color="grey"
-                               variant="flat"
-                               @click="close"
-                               :disabled="isRecording"
-                        >
-                            Cancelar
-                        </v-btn>
-                        <v-btn color="primary"
-                               variant="flat"
-                               type="submit"
-                               :loading="isRecording"
-                               :disabled="isRecording"
-                        >
-                            Guardar
-                        </v-btn>
-                    </v-card-actions>
-
-                    <v-alert type="error" variant="tonal" v-if="errorMessage">
-                        {{ errorMessage }}
-                    </v-alert>
+                        </v-card-actions>
+                    </v-window>
                 </v-form>
                 <PreviewImageDialog
                     v-model="showPreviewFileModal"

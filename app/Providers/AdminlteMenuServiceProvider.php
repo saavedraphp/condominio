@@ -58,7 +58,7 @@ class AdminlteMenuServiceProvider extends ServiceProvider
                         'can' => 'view_payment_history',
                     ]);
                     $event->menu->add([
-                        'text' => 'Recivos de Mantenimiento',
+                        'text' => 'Recibos de Mantenimiento',
                         'url' => "user/houses/{$selectedHouseId}/house-monthly-charges/list",
                         'can' => 'view_payment_history',
                     ]);
