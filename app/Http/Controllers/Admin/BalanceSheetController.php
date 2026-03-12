@@ -57,7 +57,7 @@ class BalanceSheetController extends Controller
 
     private function BalanceLast(Request $request): float
     {
-        $firstDate = 2026-01-01;
+        $firstDate = '2026-01-01';
         $year = $request->input('anho');
         $month = $request->input('month');
 
