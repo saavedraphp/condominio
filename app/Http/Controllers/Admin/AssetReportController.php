@@ -7,6 +7,7 @@ use App\Models\Expense;
 use App\Models\Setting;
 use App\Services\FinancialReportService;
 use App\Services\SharedViewDataService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -19,6 +20,7 @@ class AssetReportController extends Controller
      * @var mixed[]
      */
     private array $settings;
+    private string $fileNameBlade = 'pdf.assets';
 
 
     public function __construct(SharedViewDataService $sharedViewDataService)
@@ -46,6 +48,17 @@ class AssetReportController extends Controller
 
     }
 
+    public function downloadPdf(Request $request): \Illuminate\Http\Response
+    {
+        $data['data'] = $this->prepareData($request);
+        $data['attributes'] = $this->getAttributeToReport($request, false);
+        // Cargamos la misma vista Blade en el generador de PDF
+        $pdf = PDF::loadView($this->fileNameBlade, $data);
+
+        // Descargamos el archivo
+        return $pdf->download('assets-' . now()->format('Y-m-d') . '.pdf');
+    }
+
     private function getAssets()
     {
         return Expense::query()
@@ -56,6 +69,10 @@ class AssetReportController extends Controller
     private function prepareData(Request $request): array
     {
         $assets = $this->getAssets();
+        $assets = $assets->map(function ($item) {
+            $item->expense_date_format = ucfirst(Carbon::parse($item->expense_date)->translatedFormat('F Y'));
+            return $item;
+        });
         // Agrupamos la colección principal por Año
         $groupedByYear = $assets->groupBy(function ($item) {
             return Carbon::parse($item->expense_date)->format('Y');

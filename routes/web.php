@@ -430,6 +430,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
         /*REPORTE DE ASSETS*/
         Route::get('/reports/assets/list', [AssetReportController::class, 'showListPage'])->name('reports.asset.list');
         Route::get('/reports/assets/preview', [AssetReportController::class, 'previewPdf'])->name('reports.asset.preview-pdf');
+        Route::get('/reports/assets/download-pdf', [AssetReportController::class, 'downloadPdf'])->name('reports.asset.pdf');
 
 
 

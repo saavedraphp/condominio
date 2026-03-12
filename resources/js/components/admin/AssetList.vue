@@ -23,7 +23,7 @@ const previewReport = () => {
             <v-card-title class="d-flex align-center pe-2">
                 <v-icon icon="mdi mdi-home"></v-icon>
                  
-                Reporte de Balance
+                Reporte de Activos y Suministros
                 <v-spacer></v-spacer>
             </v-card-title>
 
