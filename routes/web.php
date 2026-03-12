@@ -3,6 +3,7 @@
 
 use App\Http\Controllers\AccountActivationController;
 use App\Http\Controllers\Admin\AdsController;
+use App\Http\Controllers\Admin\AssetReportController;
 use App\Http\Controllers\Admin\Auth\LoginUserController as AdminLogin;
 use App\Http\Controllers\Admin\BalanceSheetController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboard;
@@ -425,6 +426,12 @@ Route::prefix('admin')->name('admin.')->group(function () {
         Route::get('/reports/balance-sheet/list', [BalanceSheetController::class, 'showListPage'])->name('reports.balance-sheet.list');
         Route::get('/reports/balance-sheet/preview', [BalanceSheetController::class, 'previewPdf'])->name('reports.balance-sheet.preview-pdf');
         Route::get('/reports/balance-sheet/download-pdf', [BalanceSheetController::class, 'downloadPdf'])->name('reports.balance-sheet.pdf');
+
+        /*REPORTE DE ASSETS*/
+        Route::get('/reports/assets/list', [AssetReportController::class, 'showListPage'])->name('reports.asset.list');
+        Route::get('/reports/assets/preview', [AssetReportController::class, 'previewPdf'])->name('reports.asset.preview-pdf');
+        Route::get('/reports/assets/download-pdf', [AssetReportController::class, 'downloadPdf'])->name('reports.asset.pdf');
+
 
 
         /* REPORT EXPENSES*/
