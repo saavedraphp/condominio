@@ -472,6 +472,10 @@ return [
                     'route' => 'admin.reports.balance-sheet.list',
                 ],
                 [
+                    'text' => 'Activos y Suministros',
+                    'route' => 'admin.reports.asset.list',
+                ],
+                [
                     'text' => 'Pases de Visitas',
                     'url' => 'admin/reports/visit-pass/list',
                 ],
