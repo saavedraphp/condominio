@@ -57,6 +57,7 @@ class BalanceSheetController extends Controller
 
     private function BalanceLast(Request $request): float
     {
+        $firstDate = 2026-01-01;
         $year = $request->input('anho');
         $month = $request->input('month');
 
@@ -69,8 +70,8 @@ class BalanceSheetController extends Controller
          * Pasamos 'null' como fecha de inicio para que sume TODO desde el principio
          * hasta el último día del mes anterior.
          */
-        $paymentsQueryPrev = $this->financialService->getPaymentsQuery(null, $endPreviousMonth);
-        $expensesQueryPrev = $this->financialService->getExpensesQuery(null, $endPreviousMonth, 'building');
+        $paymentsQueryPrev = $this->financialService->getPaymentsQuery($firstDate, $endPreviousMonth);
+        $expensesQueryPrev = $this->financialService->getExpensesQuery($firstDate, $endPreviousMonth, 'building');
 
         // Calcular totales acumulados
         $totalPaymentsPrev = round((float)$paymentsQueryPrev->clone()->sum('amount'), 2);
