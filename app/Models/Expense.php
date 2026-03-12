@@ -22,6 +22,11 @@ class Expense extends Model
         'file_path',
         'file_path_receipt',
         'file_path_job',
+        'is_asset',
+        'asset_type',
+        'asset_code',
+        'asset_brand',
+        'market_value',
         'white_label_id',
     ];
 
@@ -42,6 +47,7 @@ class Expense extends Model
             ? asset('storage/' . $this->file_path)
             : storage_path('app/public/' . $this->file_path);
     }
+
     public function getImagePathReceipt(bool $isPreview = true): ?string
     {
         if (!$this->file_path_receipt) {
@@ -63,6 +69,7 @@ class Expense extends Model
             ? asset('storage/' . $this->file_path_job)
             : storage_path('app/public/' . $this->file_path_job);
     }
+
     protected function filePathUrl(): Attribute
     {
         return Attribute::make(
