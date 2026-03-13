@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reporte de Casas</title>
+    <title>Reporte de Balance Financiero</title>
     <style>
         body {
             font-family: Arial, Helvetica, sans-serif;
@@ -184,7 +184,7 @@
 
         <tr>
             <td colspan="2" class="section-title">
-                INGRESOS AL {{$attributes['month_name']}} DE {{$attributes['anho']}}
+                INGRESOS AL {{  $attributes['last_day_month']}} DE {{$attributes['month_name']}}  {{$attributes['anho']}}
             </td>
         </tr>
 
@@ -224,7 +224,7 @@
         </tr>
 
         <tr class="total">
-            <td class="right">TOTAL INGRESOS AL {{$attributes['month_name']}} DE {{$attributes['anho']}}</td>
+            <td class="right">TOTAL INGRESOS AL {{  $attributes['last_day_month']}} DE {{$attributes['month_name']}}  {{$attributes['anho']}}</td>
             <td class="right">{{number_format($grandTotalIncome,2)}}</td>
         </tr>
 
@@ -235,7 +235,7 @@
 
         <tr>
             <td colspan="2" class="section-title">
-                EGRESOS AL {{$attributes['month_name']}} DE {{$attributes['anho']}}
+                EGRESOS AL {{  $attributes['last_day_month']}} DE {{$attributes['month_name']}}  {{$attributes['anho']}}
             </td>
         </tr>
         @foreach($expenses as $expense)
@@ -247,7 +247,7 @@
 
 
         <tr class="total">
-            <td class="right">TOTAL EGRESOS AL {{$attributes['month_name']}} DE {{$attributes['anho']}}</td>
+            <td class="right">TOTAL EGRESOS AL {{  $attributes['last_day_month']}} DE {{$attributes['month_name']}}  {{$attributes['anho']}}</td>
             <td class="td-right">{{number_format($grand_total_expenses,2)}}</td>
         </tr>
 
